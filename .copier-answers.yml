@@ -1,0 +1,10 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 08e8b92
+_src_path: gh:schwallergroup/copier-liac-minimal
+author_email: yara.chahda@epfl.ch
+author_name: Yara Chahda
+github_org: YaraChahda
+package_name: path_finder
+project_name: path_finder
+short_description: This package aims to find the best retro synthesis pathways for
+    some drugs, based on criteria selected by the user.
