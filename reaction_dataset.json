@@ -331,7 +331,7 @@
       "reactants_smiles": [
         "COc2ccc1C(CO)=CCN(C(=O)OCC[Si](C)(C)C)c1c2"
       ],
-      "product_smiles": "COc4ccc3C(C[S+]2C1CC(CCC1C)C2(C)OS(=O)(=O)CF3)=CC[N[C](=O)OCC[Si](CC)(CC)CC]c3c4",
+      "product_smiles": "COc4ccc3C(C[S+]2C1CC(CCC1C)C2(C)OS(=O)(=O)CF3)=CC[NC(=O)OCC[Si](CC)(CC)CC]c3c4",
       "conditions": {
         "temperature_C": null,
         "temp_range": null,
@@ -349,9 +349,9 @@
       "target": "quinine",
       "step_number": 6,
       "reactants_smiles": [
-        "COc4ccc3C(C[S+]2C1CC(CCC1C)C2(C)OS(=O)(=O)CF3)=CC[N[C](=O)OCC[Si](CC)(CC)CC]c3c4"
+        "COc4ccc3C(C[S+]2C1CC(CCC1C)C2(C)OS(=O)(=O)CF3)=CC[NC(=O)OCC[Si](CC)(CC)CC]c3c4"
       ],
-      "product_smiles": "C=CC1CN(C(=O)OCC[Si](C)(C)C)CCC1C[C@@H]2O[C@@H]2C3=CC[N[C](=O)OCC[Si](CC)(CC)CC]c4cc(OC)ccc34",
+      "product_smiles": "C=CC1CN(C(=O)OCC[Si](C)(C)C)CCC1C[C@@H]2O[C@@H]2C3=CC[NC(=O)OCC[Si](CC)(CC)CC]c4cc(OC)ccc34",
       "conditions": {
         "temperature_C": null,
         "temp_range": null,
@@ -371,7 +371,7 @@
       "target": "quinine",
       "step_number": 7,
       "reactants_smiles": [
-        "C=CC1CN(C(=O)OCC[Si](C)(C)C)CCC1C[C@@H]2O[C@@H]2C3=CC[N[C](=O)OCC[Si](CC)(CC)CC]c4cc(OC)ccc34"
+        "C=CC1CN(C(=O)OCC[Si](C)(C)C)CCC1C[C@@H]2O[C@@H]2C3=CC[NC(=O)OCC[Si](CC)(CC)CC]c4cc(OC)ccc34"
       ],
       "product_smiles": "C=CC1CN2CCC1CC2[C@H](O)C3=CCNc4cc(OC)ccc34",
       "conditions": {
@@ -1623,7 +1623,7 @@
     "reactants_smiles": [
       "COc1ccc(CN(C)C(=O)OC(C)(C)C)c(I)c1O[C@@H](C[C@@H](OTBS)CC=C)C#C"
     ],
-    "product_smiles": "C=CC1=CC[C@@H](O[TBS])C[C@@H]1Oc2c(I)c(CN(C)C(=O)OC(C)(C)C)ccc2OC",
+    "product_smiles": "C=CC1=CC[C@@H](O[Si](C)(C)C(C)(C)C)C[C@@H]1Oc2c(I)c(CN(C)C(=O)OC(C)(C)C)ccc2OC",
     "conditions": {
       "temperature_C": 25,
       "temp_range": null,
@@ -1642,7 +1642,7 @@
     "target": "galanthamine",
     "step_number": 12,
     "reactants_smiles": [
-      "C=CC1=CC[C@@H](O[TBS])C[C@@H]1Oc2c(I)c(CN(C)C(=O)OC(C)(C)C)ccc2OC"
+      "C=CC1=CC[C@@H](O[Si](C)(C)C(C)(C)C)C[C@@H]1Oc2c(I)c(CN(C)C(=O)OC(C)(C)C)ccc2OC"
     ],
     "product_smiles": "COc1ccc(CN(C)C(=O)OC(C)(C)C)c(I)c1O[C@H]2C[C@H](O)CC=C2CCO",
     "conditions": {
@@ -1665,7 +1665,7 @@
     "reactants_smiles": [
       "COc1ccc(CN(C)C(=O)OC(C)(C)C)c(I)c1O[C@H]2C[C@H](O)CC=C2CCO"
     ],
-    "product_smiles": "COc1ccc(CN(C)C(=O)OC(C)(C)C)c2c1O[C@@]3(CCO)C=CC(O[TBS])CC23",
+    "product_smiles": "COc1ccc(CN(C)C(=O)OC(C)(C)C)c2c1O[C@@]3(CCO)C=CC(O[Si](C)(C)C(C)(C)C)CC23",
     "conditions": {
       "temperature_C": 90,
       "temp_range": null,
@@ -1684,9 +1684,9 @@
     "target": "galanthamine",
     "step_number": 14,
     "reactants_smiles": [
-      "COc1ccc(CN(C)C(=O)OC(C)(C)C)c2c1O[C@@]3(CCO)C=CC(O[TBS])CC23"
+      "COc1ccc(CN(C)C(=O)OC(C)(C)C)c2c1O[C@@]3(CCO)C=CC(O[Si](C)(C)C(C)(C)C)CC23"
     ],
-    "product_smiles": "COc1ccc(CN(C)C(=O)OC(C)(C)C)c2c1O[C@@]3(CCO[Ts])C=CC(O[TBS])CC23",
+    "product_smiles": "COc1ccc(CN(C)C(=O)OC(C)(C)C)c2c1O[C@@]3(CCOS(=O)(=O)c1ccc(C)cc1)C=CC(O[Si](C)(C)C(C)(C)C)CC23",
     "conditions": {
       "temperature_C": 25,
       "temp_range": null,
@@ -1704,9 +1704,9 @@
     "target": "galanthamine",
     "step_number": 15,
     "reactants_smiles": [
-      "COc1ccc(CN(C)C(=O)OC(C)(C)C)c2c1O[C@@]3(CCO[Ts])C=CC(O[TBS])CC23"
+      "COc1ccc(CN(C)C(=O)OC(C)(C)C)c2c1O[C@@]3(CCOS(=O)(=O)c1ccc(C)cc1)C=CC(O[Si](C)(C)C(C)(C)C)CC23"
     ],
-    "product_smiles": "COc1ccc(CN(C)C(=O)OC(C)(C)C)c2c1O[C@@]3(CCO[Ts])C=CC(O)CC23",
+    "product_smiles": "COc1ccc(CN(C)C(=O)OC(C)(C)C)c2c1O[C@@]3(CCOS(=O)(=O)c1ccc(C)cc1)C=CC(O)CC23",
     "conditions": {
       "temperature_C": 25,
       "temp_range": null,
@@ -1725,7 +1725,7 @@
     "target": "galanthamine",
     "step_number": 16,
     "reactants_smiles": [
-      "COc1ccc(CN(C)C(=O)OC(C)(C)C)c2c1O[C@@]3(CCO[Ts])C=CC(O)CC23"
+      "COc1ccc(CN(C)C(=O)OC(C)(C)C)c2c1O[C@@]3(CCOS(=O)(=O)c1ccc(C)cc1)C=CC(O)CC23"
     ],
     "product_smiles": "COc2ccc3CN(C)CC[C@]14C=CC(O)CC1Oc2c34",
     "conditions": {
@@ -2246,7 +2246,7 @@
     "target": "aspidospermine",
     "step_number": 11,
     "reactants_smiles": [
-      "COc1ccccc1N/N=/2CC[C@]45CC(CN3CCC2C34)C5"
+      "COc1ccccc1N/N=C/2CC[C@]45CC(CN3CCC2C34)C5"
     ],
     "product_smiles": "CC[C@@]35CCCN4CCC2(C(=Nc1c(OC)cccc12)CC3)C45",
     "conditions": {
@@ -2305,11 +2305,11 @@
     "product_name": "Aspidospermine"
   },
   {
-    "id": "RXN-FK10-00",
+    "id": "RXN-FK10-01",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 0,
+    "step_number": 1,
     "reactants_smiles": [
       "COc1ccc(C=O)c(O)c1"
     ],
@@ -2328,11 +2328,11 @@
     "notes": "Yield reported as 95% over 2 steps (steps 0+1 combined). Electrophilic aromatic iodination ortho to phenol."
   },
   {
-    "id": "RXN-FK10-01",
+    "id": "RXN-FK10-02",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 1,
+    "step_number": 2,
     "reactants_smiles": [
       "COc1ccc(C=O)c(I)c1O"
     ],
@@ -2352,11 +2352,11 @@
     "notes": "95% yield over 2 steps (iodation + MOM protection). MOM protection of phenol."
   },
   {
-    "id": "RXN-FK10-02",
+    "id": "RXN-FK10-03",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 2,
+    "step_number": 3,
     "reactants_smiles": [
       "COc1ccc(C=O)c(I)c1OCOC"
     ],
@@ -2376,11 +2376,11 @@
     "notes": "Wittig olefination of aldehyde to give methyl vinyl ether (mixture of E/Z)."
   },
   {
-    "id": "RXN-FK10-03",
+    "id": "RXN-FK10-04",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 3,
+    "step_number": 4,
     "reactants_smiles": [
       "COc1ccc(/C=C/OC)c(I)c1OCOC"
     ],
@@ -2399,16 +2399,16 @@
     "notes": "AcCl in MeOH generates HCl in situ. Simultaneous hydration of vinyl ether to dimethyl acetal and MOM deprotection of phenol."
   },
   {
-    "id": "RXN-FK10-04",
+    "id": "RXN-FK10-05",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 4,
+    "step_number": 5,
     "reactants_smiles": [
       "COc1ccc(CC(OC)OC)c(I)c1O",
       "O[C@@H]1CCCC(=C1)CNCc1ccccc1"
     ],
-    "product_smiles": "COc1ccc(CC(OC)OC)c(I)c1O[C@H]3C(CCNCc2ccccc2)=CCCC3O[TBS]",
+    "product_smiles": "COc1ccc(CC(OC)OC)c(I)c1O[C@H]3C(CCNCc2ccccc2)=CCCC3O[Si](C)(C)C(C)(C)C",
     "conditions": {
       "temperature_C": 25,
       "temp_range": null,
@@ -2424,15 +2424,15 @@
     "notes": "Mitsunobu reaction coupling phenol with allylic alcohol. Inverts stereochemistry at alcohol carbon."
   },
   {
-    "id": "RXN-FK10-05",
+    "id": "RXN-FK10-06",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 5,
+    "step_number": 6,
     "reactants_smiles": [
-      "COc1ccc(CC(OC)OC)c(I)c1O[C@H]3C(CCNCc2ccccc2)=CCCC3O[TBS]"
+      "COc1ccc(CC(OC)OC)c(I)c1O[C@H]3C(CCNCc2ccccc2)=CCCC3O[Si](C)(C)C(C)(C)C"
     ],
-    "product_smiles": "COc1ccc(CC(OC)OC)c2c1O[C@@H]3C(O[TBS])CC=CC23CCNCc4ccccc4",
+    "product_smiles": "COc1ccc(CC(OC)OC)c2c1O[C@@H]3C(O[Si](C)(C)C(C)(C)C)CC=CC23CCNCc4ccccc4",
     "conditions": {
       "temperature_C": 80,
       "temp_range": null,
@@ -2449,15 +2449,15 @@
     "notes": "Intramolecular Heck reaction forming the C-C bond and establishing the quaternary carbon. Creates the benzofuran-fused ring system."
   },
   {
-    "id": "RXN-FK10-06",
+    "id": "RXN-FK10-07",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 6,
+    "step_number": 7,
     "reactants_smiles": [
-      "COc1ccc(CC(OC)OC)c2c1O[C@@H]3C(O[TBS])CC=CC23CCNCc4ccccc4"
+      "COc1ccc(CC(OC)OC)c2c1O[C@@H]3C(O[Si](C)(C)C(C)(C)C)CC=CC23CCNCc4ccccc4"
     ],
-    "product_smiles": "COc1ccc(CC(OC)OC)c2c1O[C@@H]3C(O[TBS])CC=CC23CCN(C)Cc4ccccc4",
+    "product_smiles": "COc1ccc(CC(OC)OC)c2c1O[C@@H]3C(O[Si](C)(C)C(C)(C)C)CC=CC23CCN(C)Cc4ccccc4",
     "conditions": {
       "temperature_C": 25,
       "temp_range": null,
@@ -2474,13 +2474,13 @@
     "notes": "LiAlH4 removes Cbz group (reductive debenzylation) to give free amine; DNsCl then installs dinitrobenzenesulfonyl (DNS) group and N-methylation occurs. Two operations in one step."
   },
   {
-    "id": "RXN-FK10-07",
+    "id": "RXN-FK10-08",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 7,
+    "step_number": 8,
     "reactants_smiles": [
-      "COc1ccc(CC(OC)OC)c2c1O[C@@H]3C(O[TBS])CC=CC23CCN(C)Cc4ccccc4"
+      "COc1ccc(CC(OC)OC)c2c1O[C@@H]3C(O[Si](C)(C)C(C)(C)C)CC=CC23CCN(C)Cc4ccccc4"
     ],
     "product_smiles": "COc1ccc(CC(OC)OC)c2c1O[C@@H]3C(O)CC=CC23CCN(C)Cc4ccccc4",
     "conditions": {
@@ -2497,11 +2497,11 @@
     "notes": "Camphorsulfonic acid (CSA) promotes selective hydration/deprotection of the TBS ether to reveal the allylic alcohol. 68% yield over 2 steps."
   },
   {
-    "id": "RXN-FK10-08",
+    "id": "RXN-FK10-09",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 8,
+    "step_number": 9,
     "reactants_smiles": [
       "COc1ccc(CC(OC)OC)c2c1O[C@@H]3C(O)CC=CC23CCN(C)Cc4ccccc4"
     ],
@@ -2520,11 +2520,11 @@
     "notes": "Dess-Martin periodinane (DMP) oxidation of allylic alcohol to enone."
   },
   {
-    "id": "RXN-FK10-09",
+    "id": "RXN-FK10-10",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 9,
+    "step_number": 10,
     "reactants_smiles": [
       "COc1ccc(CC(OC)OC)c2c1O[C@@H]3C(=O)CC=CC23CCN(C)Cc4ccccc4"
     ],
@@ -2545,11 +2545,11 @@
     "notes": "TFA removes acetal protecting group; MsCl/i-Pr2NEt promotes elimination/cyclization to form the morphine skeleton C-ring (N-C bond formation and introduction of the enone). Key cyclization step."
   },
   {
-    "id": "RXN-FK10-10",
+    "id": "RXN-FK10-11",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 10,
+    "step_number": 11,
     "reactants_smiles": [
       "COc1ccc2CC(OS(=O)(=O)C)C3C=CC(=O)[C@H]4Oc1c2C34CCN(C)Cc5ccccc5"
     ],
@@ -2569,11 +2569,11 @@
     "notes": "Thioglycolic acid (HSCH2CO2H) with base removes the DNS (dinitrobenzenesulfonyl) protecting group from nitrogen via thiolysis."
   },
   {
-    "id": "RXN-FK10-11",
+    "id": "RXN-FK10-12",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 11,
+    "step_number": 12,
     "reactants_smiles": [
       "COc1ccc2CC5C3=CCC(=O)[C@H]4Oc1c2C34CCN5C"
     ],
@@ -2592,11 +2592,11 @@
     "notes": "HCl in CHCl3/dioxane: 1,4-addition (conjugate reduction) to give the allylic mesylate intermediate. This step actually corresponds to NaBH4 reduction to give allylic alcohol in MeOH based on the PDF sequence."
   },
   {
-    "id": "RXN-FK10-12",
+    "id": "RXN-FK10-13",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 12,
+    "step_number": 13,
     "reactants_smiles": [
       "COc1ccc2CC5C3C=CC(=O)[C@H]4Oc1c2C34CCN5C"
     ],
@@ -2615,11 +2615,11 @@
     "notes": "NaBH4 1,2-reduction of enone to give allylic alcohol with correct stereochemistry for morphine."
   },
   {
-    "id": "RXN-FK10-13",
+    "id": "RXN-FK10-14",
     "route_id": "fukuyama_2010",
     "route_name": "Fukuyama 2010",
     "target": "morphine",
-    "step_number": 13,
+    "step_number": 14,
     "reactants_smiles": [
       "COc1ccc2CC5C3C=C[C@@H](O)[C@H]4Oc1c2C34CCN5C"
     ],
@@ -2638,11 +2638,11 @@
     "notes": "BBr3 demethylation of aryl methyl ether to phenol, giving (-)-morphine."
   },
   {
-    "id": "RXN-FK17-00",
+    "id": "RXN-FK17-01",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 0,
+    "step_number": 1,
     "reactants_smiles": [
       "COc2ccc1CCC(=O)Cc1c2"
     ],
@@ -2661,11 +2661,11 @@
     "notes": "Enamine formation from 6-methoxy-2-tetralone and pyrrolidine with azeotropic water removal. No yield given; used directly in next step."
   },
   {
-    "id": "RXN-FK17-01",
+    "id": "RXN-FK17-02",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 1,
+    "step_number": 2,
     "reactants_smiles": [
       "COc3ccc2CCC(N1CCCC1)=Cc2c3",
       "BrCC(=O)OC(C)(C)C"
@@ -2683,11 +2683,11 @@
     "notes": "Stork enamine alkylation with tert-butyl bromoacetate. Enamine acts as nucleophile at alpha position; hydrolysis during workup reveals ketone."
   },
   {
-    "id": "RXN-FK17-02",
+    "id": "RXN-FK17-03",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 2,
+    "step_number": 3,
     "reactants_smiles": [
       "COc2ccc1CCC(=O)C(CC(=O)OC(C)(C)C)c1c2",
       "C=CC(=O)N[C@@H](C)c1ccccc1"
@@ -2707,11 +2707,11 @@
     "notes": "Asymmetric Diels-Alder reaction. The ketoester acts as diene precursor (after enolization) with chiral acrylamide as dienophile. 52% yield over 3 steps. Establishes key stereocenters."
   },
   {
-    "id": "RXN-FK17-03",
+    "id": "RXN-FK17-04",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 3,
+    "step_number": 4,
     "reactants_smiles": [
       "COc3ccc2C[C@H]1C(=O)[C@](CC(=O)OC(C)(C)C)(CCC1(C)C)c2c3"
     ],
@@ -2730,11 +2730,11 @@
     "notes": "Triflic acid promotes retro-aldol/elimination and tert-butyl ester cleavage/decarboxylation cascade to give the exo-methylene bicyclic enone. 60% yield."
   },
   {
-    "id": "RXN-FK17-04",
+    "id": "RXN-FK17-05",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 4,
+    "step_number": 5,
     "reactants_smiles": [
       "COc1ccc2C[C@@H]4C(C)=CC[C@@]3(CC(=O)c1c23)C4=O"
     ],
@@ -2753,11 +2753,11 @@
     "notes": "PhSeCl in CH3CN/H2O: electrophilic selenenylation with anti-addition; water acts as nucleophile to give beta-hydroxy phenylselanide with defined stereochemistry."
   },
   {
-    "id": "RXN-FK17-05",
+    "id": "RXN-FK17-06",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 5,
+    "step_number": 6,
     "reactants_smiles": [
       "COc1ccc2C[C@@H]5C(=O)[C@@]3(CC(=O)c1c23)C[C@H]([Se]c4ccccc4)[C@@]5(C)O"
     ],
@@ -2777,11 +2777,11 @@
     "notes": "mCPBA oxidizes selenide to selenoxide which undergoes syn-elimination to give the diene. 71% yield."
   },
   {
-    "id": "RXN-FK17-06",
+    "id": "RXN-FK17-07",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 6,
+    "step_number": 7,
     "reactants_smiles": [
       "COc2ccc3C[C@@H]1C(=O)[C@]4(C=C[C@@]1(C)O)CC(=O)c2c34"
     ],
@@ -2800,11 +2800,11 @@
     "notes": "Cs2CO3 in EtOH at 60°C: base-mediated isomerization of exo-methylene to give the endocyclic alkene (conjugated enone system). 57% yield."
   },
   {
-    "id": "RXN-FK17-07",
+    "id": "RXN-FK17-08",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 7,
+    "step_number": 8,
     "reactants_smiles": [
       "COc2ccc3CC[C@@]1(O)CC(=O)C=CC14CC(=O)c2c34"
     ],
@@ -2824,11 +2824,11 @@
     "notes": "mCPBA epoxidation of the alkene with facial selectivity to give the alpha-epoxide. 71% yield."
   },
   {
-    "id": "RXN-FK17-08",
+    "id": "RXN-FK17-09",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 8,
+    "step_number": 9,
     "reactants_smiles": [
       "COc2ccc3CC[C@@]1(O)CC(=O)C=C[C@]14CC(=O)Oc2c34"
     ],
@@ -2847,11 +2847,11 @@
     "notes": "K2CO3 in MeOH/DCM: base-mediated epoxide opening with lactonization, followed by ring-opening to give the hydroxy acid with simultaneous Favorskii-type rearrangement. 85% yield."
   },
   {
-    "id": "RXN-FK17-09",
+    "id": "RXN-FK17-10",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 9,
+    "step_number": 10,
     "reactants_smiles": [
       "COc3ccc2CCC1=CC(=O)C=C[C@@]1(CC(=O)O)c2c3O"
     ],
@@ -2870,11 +2870,11 @@
     "notes": "TMSCHN2 (trimethylsilyldiazomethane) esterification of carboxylic acid to methyl ester. 76% yield over 2 steps."
   },
   {
-    "id": "RXN-FK17-10",
+    "id": "RXN-FK17-11",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 10,
+    "step_number": 11,
     "reactants_smiles": [
       "COC(=O)C[C@@]13C=CC(=O)C=C1CCc2ccc(OC)c(O)c23"
     ],
@@ -2894,11 +2894,11 @@
     "notes": "Luche reduction (NaBH4/CeCl3) of ketone gives allylic alcohol with high 1,2-selectivity. CeCl3 coordinates ketone oxygen for chelation-controlled reduction. 85% yield."
   },
   {
-    "id": "RXN-FK17-11",
+    "id": "RXN-FK17-12",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 11,
+    "step_number": 12,
     "reactants_smiles": [
       "COC(=O)C[C@@]13C=CC(O)C=C1CCc2ccc(OC)c(O)c23"
     ],
@@ -2917,11 +2917,11 @@
     "notes": "TsOH in toluene/water at 0°C: acid-catalyzed intramolecular epoxide formation from diol (dehydration). 76% yield over 2 steps."
   },
   {
-    "id": "RXN-FK17-12",
+    "id": "RXN-FK17-13",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 12,
+    "step_number": 13,
     "reactants_smiles": [
       "COC(=O)C[C@@]14C2=CC=C[C@@H]1Oc3c(OC)ccc(CC2)c34"
     ],
@@ -2940,11 +2940,11 @@
     "notes": "LiAlH4 in THF at 0°C: reduction of methyl ester to primary alcohol. 90% yield."
   },
   {
-    "id": "RXN-FK17-13",
+    "id": "RXN-FK17-14",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 13,
+    "step_number": 14,
     "reactants_smiles": [
       "COc1ccc2c(c1)[C@]24C[C@H]3O[C@@H]3[C@H]4CO",
       "O=S(=O)(NC)c1ccc([N+](=O)[O-])cc1[N+](=O)[O-]"
@@ -2965,11 +2965,11 @@
     "notes": "Mitsunobu reaction: primary alcohol reacts with N-methyl-DNS-amine (N-methyl-2,4-dinitrobenzenesulfonamide) under Mitsunobu conditions (DEAD/Ph3P) to install N-MeDNs group with inversion. 80% yield over 2 steps."
   },
   {
-    "id": "RXN-FK17-14",
+    "id": "RXN-FK17-15",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 14,
+    "step_number": 15,
     "reactants_smiles": [
       "COc1ccc2CCC3=CC=C[C@H]4Oc1c2[C@@]34CCN(C)S(=O)(=O)c5ccc(N(=O)=O)cc5N(=O)=O"
     ],
@@ -2990,11 +2990,11 @@
     "notes": "Singlet oxygen ([1]O2) ene reaction. TPP = tetraphenylporphyrin as photosensitizer; hv generates singlet oxygen which reacts with the alkene to give allylic hydroperoxide. 85% yield."
   },
   {
-    "id": "RXN-FK17-15",
+    "id": "RXN-FK17-16",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 15,
+    "step_number": 16,
     "reactants_smiles": [
       "COc2ccc3CC[C@]15C=C[C@H](OO1)[C@H]4Oc2c3[C@]45CCN(C)S(=O)(=O)c6ccc(N(=O)=O)cc6N(=O)=O"
     ],
@@ -3013,11 +3013,11 @@
     "notes": "Triethylamine (TEA) promotes Kornblum-DeLaMare elimination of the hydroperoxide to give the allylic alcohol and alpha-keto product. 86% yield."
   },
   {
-    "id": "RXN-FK17-16",
+    "id": "RXN-FK17-17",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 16,
+    "step_number": 17,
     "reactants_smiles": [
       "COc1ccc2CC[C@@]4(O)C=CC(=O)[C@H]3Oc1c2[C@]34CCN(C)S(=O)(=O)c5ccc(N(=O)=O)cc5N(=O)=O"
     ],
@@ -3037,11 +3037,11 @@
     "notes": "Tf2O with 2,6-lutidine converts allylic alcohol to triflate which undergoes E2 elimination to give the conjugated diene/enone system. Epoxide also opens. 80% yield."
   },
   {
-    "id": "RXN-FK17-17",
+    "id": "RXN-FK17-18",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 17,
+    "step_number": 18,
     "reactants_smiles": [
       "COc1ccc2CC=C3C=CC(=O)[C@H]4Oc1c2[C@@]34CCN(C)S(=O)(=O)c5ccc(N(=O)=O)cc5N(=O)=O"
     ],
@@ -3061,11 +3061,11 @@
     "notes": "PhSH/i-Pr2NEt removes the DNS sulfonyl group from nitrogen (Fukuyama deprotection) and simultaneous intramolecular N-alkylation forms the morphinan C-N bond completing the pentacyclic skeleton. 51% yield."
   },
   {
-    "id": "RXN-FK17-18",
+    "id": "RXN-FK17-19",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 18,
+    "step_number": 19,
     "reactants_smiles": [
       "COc1ccc2CC5C3=CCC(=O)[C@H]4Oc1c2[C@@]34CCN5C"
     ],
@@ -3084,11 +3084,11 @@
     "notes": "HCl in dioxane/CHCl3: protonation/isomerization step establishing correct stereochemistry at the ring junction (epimerization). Product is the thermodynamically more stable isomer. 90% yield."
   },
   {
-    "id": "RXN-FK17-19",
+    "id": "RXN-FK17-20",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 19,
+    "step_number": 20,
     "reactants_smiles": [
       "COc1ccc2CC5C3C=CC(=O)[C@H]4Oc1c2[C@@]34CCN5C"
     ],
@@ -3107,11 +3107,11 @@
     "notes": "NaBH4 in MeOH: 1,2-reduction of enone giving allylic alcohol with the correct (alpha) stereochemistry required for morphine C6-OH. 62% yield."
   },
   {
-    "id": "RXN-FK17-20",
+    "id": "RXN-FK17-21",
     "route_id": "fukuyama_2017",
     "route_name": "Fukuyama 2017",
     "target": "morphine",
-    "step_number": 20,
+    "step_number": 21,
     "reactants_smiles": [
       "COc1ccc2CC5C3C=C[C@@H](O)[C@H]4Oc1c2[C@@]34CCN5C"
     ],
