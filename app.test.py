@@ -1,8 +1,7 @@
 """
-app_streamlit.py — Interface de rétrosynthèse
-=============================================
-Lancer :  streamlit run app_streamlit.py
-Dossier : place ce fichier à côté de function_ines.py et reaction_dataset.json
+app_streamlit.py
+----------------
+Lance avec : streamlit run app_streamlit.py
 """
 
 import streamlit as st
@@ -11,31 +10,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-# ─────────────────────────────────────────────────────────────────────────────
-# IMPORT DE FUNCTION_INES — sans aucun mock
-# AiZynthFinder doit être importé tel quel pour que le vrai modèle tourne
-# ─────────────────────────────────────────────────────────────────────────────
 try:
     import function_ines as fi
     from rdkit import Chem
     from rdkit.Chem import Draw
-    MODULE_OK = True
+    MODULE_OK  = True
     MODULE_ERR = ""
 except Exception as e:
-    MODULE_OK = False
+    MODULE_OK  = False
     MODULE_ERR = str(e)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CONFIG PAGE
-# ─────────────────────────────────────────────────────────────────────────────
+# ─── config page ─────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Rétrosynthèse — Chemistry by Design",
     page_icon="⚗️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
-
 st.markdown("""
 <style>
 div[data-testid="stExpander"] { border: 1px solid #e0e0e0; border-radius: 8px; }
@@ -43,18 +35,7 @@ div[data-testid="stExpander"] { border: 1px solid #e0e0e0; border-radius: 8px; }
 """, unsafe_allow_html=True)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CONSTANTES
-# ─────────────────────────────────────────────────────────────────────────────
-
-CIBLES = {
-    "Galanthamine":     "OC1C=C[C@@]23c4cc(OC)ccc4CN(C)C[C@@H]2[C@@H]1O3",
-    "Morphine":         "OC1=CC2=C(C=C1)[C@@H]1[C@H]3C[C@@H](O)C=C[C@@H]3N(C)CC1=C2",
-    "Quinine":          "OC(c1ccnc2cc(OC)ccc12)[C@@H]1C[C@@H]2CC[N@@]1CC2/C=C",
-    "Aspidospermidine": "CC[C@@]12CCCN3CC[C@@]4(C1)[C@@H](NH)c1ccccc1[C@@H]4[C@@H]23",
-    "Aspidospermine":   "CC[C@@]12CCCN3CC[C@@]4(C1)[C@@H](OC(C)=O)c1ccc(OC)cc1N[C@@H]4[C@@H]23",
-}
-
+# ─── critères disponibles ─────────────────────────────────────────────────────
 CRITERES_INFO = {
     "steps":        {"label": "🔢 Nombre d'étapes",   "aide": "Moins d'étapes = meilleur score (1/n)."},
     "yield":        {"label": "📈 Rendement global",   "aide": "Produit des rendements. Yield null → 50% par défaut."},
@@ -64,9 +45,7 @@ CRITERES_INFO = {
 }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# UTILITAIRES
-# ─────────────────────────────────────────────────────────────────────────────
+# ─── utilitaires ─────────────────────────────────────────────────────────────
 
 def mol_image(smiles, w=280, h=180):
     if not MODULE_OK or not smiles:
@@ -103,33 +82,72 @@ def yield_cumule(steps):
         r *= (y / 100.0) if y is not None else 0.5
     return r
 
+# on cache le chargement du dataset pour ne pas le relire à chaque interaction
 @st.cache_data(show_spinner=False)
 def charger_dataset(path):
     return fi.load_reaction_dataset(path)
 
+@st.cache_data(show_spinner=False)
+def get_cibles(dataset_path):
+    """
+    Lit les molécules cibles depuis le dataset — pas depuis une liste codée en dur.
+    Si tu ajoutes une molécule dans le dataset elle apparaît ici automatiquement.
+    Si tu en retires une, elle disparaît.
+    """
+    ds = charger_dataset(dataset_path)
+    return fi.get_targets_from_dataset(ds)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# SIDEBAR
-# ─────────────────────────────────────────────────────────────────────────────
 
+# ─── sidebar ─────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.title("⚗️ Paramètres")
 
     if not MODULE_OK:
-        st.error(f"❌ Impossible de charger function_ines :\n\n`{MODULE_ERR}`")
-        st.info("Vérifie que function_ines.py est dans le même dossier et que toutes les dépendances sont installées.")
+        st.error(f"Impossible de charger function_ines :\n\n`{MODULE_ERR}`")
         st.stop()
 
+    # chemins des fichiers — on les demande en premier pour pouvoir
+    # charger le dataset et en extraire les molécules disponibles
+    st.subheader("⚙️ Fichiers")
+    dataset_path  = st.text_input("Dataset",    value="reaction_dataset.json")
+    toxicity_path = st.text_input("Toxicité",   value="toxicity_dataset.json")
+    config_path   = st.text_input("Config AiZ", value="config.yml")
+
+    st.divider()
+
+    # ── molécule cible ────────────────────────────────────────────────────────
     st.subheader("🎯 Molécule cible")
     mode = st.radio("Mode", ["Prédéfinie", "SMILES personnalisé"],
                     label_visibility="collapsed")
 
     if mode == "Prédéfinie":
-        nom_cible    = st.selectbox("Molécule", list(CIBLES.keys()))
-        smiles_cible = CIBLES[nom_cible]
+        # on charge les cibles dynamiquement depuis le dataset
+        if os.path.exists(dataset_path):
+            try:
+                cibles = get_cibles(dataset_path)
+            except Exception as e:
+                st.error(f"Erreur chargement dataset : {e}")
+                cibles = {}
+        else:
+            st.warning(f"Dataset `{dataset_path}` introuvable.")
+            cibles = {}
+
+        if not cibles:
+            st.info("Aucune molécule trouvée dans le dataset.")
+            smiles_cible = ""
+            nom_cible    = ""
+        else:
+            # on affiche les noms avec une majuscule pour que ce soit plus propre
+            nom_cible = st.selectbox(
+                "Molécule",
+                list(cibles.keys()),
+                format_func=lambda x: x.capitalize()
+            )
+            smiles_cible = cibles[nom_cible]
+
     else:
         smiles_cible = st.text_input("SMILES", placeholder="ex: c1ccccc1")
-        nom_cible    = "Personnalisée"
+        nom_cible    = ""
         if smiles_cible:
             if Chem.MolFromSmiles(smiles_cible) is None:
                 st.error("SMILES invalide")
@@ -137,13 +155,16 @@ with st.sidebar:
             else:
                 st.success("SMILES valide ✓")
 
+    # aperçu de la molécule sélectionnée
     if smiles_cible:
         img = mol_image(smiles_cible, 240, 150)
         if img:
-            st.image(img, caption=nom_cible, use_container_width=True)
+            st.image(img, caption=nom_cible.capitalize() if nom_cible else "Cible",
+                     use_container_width=True)
 
     st.divider()
 
+    # ── critères ──────────────────────────────────────────────────────────────
     st.subheader("📊 Critères (ordre de priorité)")
     st.caption("Critère #1 = ~73% du score  ·  #2 = ~18%  ·  #3 = ~9%")
 
@@ -167,13 +188,7 @@ with st.sidebar:
 
     st.divider()
 
-    st.subheader("⚙️ Fichiers & options")
-    dataset_path  = st.text_input("Dataset",    value="reaction_dataset.json")
-    toxicity_path = st.text_input("Toxicité",   value="toxicity_dataset.json")
-    config_path   = st.text_input("Config AiZ", value="config.yml")
-    top_n         = st.slider("Routes à afficher", 1, 5, 3)
-
-    st.divider()
+    top_n  = st.slider("Routes à afficher", 1, 5, 3)
     lancer = st.button(
         "🔍 Lancer la recherche",
         type="primary",
@@ -182,10 +197,7 @@ with st.sidebar:
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CONTENU PRINCIPAL
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ─── contenu principal ────────────────────────────────────────────────────────
 st.title("⚗️ Recherche de routes de synthèse")
 st.caption("AiZynthFinder (MCTS)  ·  Dataset Chemistry by Design  ·  Scoring pondéré 1/i²")
 
@@ -193,21 +205,31 @@ tab_recherche, tab_dataset, tab_aide = st.tabs(
     ["🔍 Recherche de routes", "📂 Explorer le dataset", "❓ Aide"]
 )
 
-# ── TAB 1 : RECHERCHE ────────────────────────────────────────────────────────
+# ── tab 1 : recherche ────────────────────────────────────────────────────────
 with tab_recherche:
 
     if not smiles_cible:
-        st.info("👈 Choisis une molécule cible et tes 3 critères dans la barre latérale, "
+        st.info("👈 Choisis une molécule et tes 3 critères dans la barre latérale, "
                 "puis clique **Lancer la recherche**.")
-        st.markdown("### Molécules disponibles dans le dataset")
-        cols = st.columns(len(CIBLES))
-        for col, (nom, smi) in zip(cols, CIBLES.items()):
-            with col:
-                img = mol_image(smi, 200, 140)
-                if img:
-                    st.image(img, caption=nom, use_container_width=True)
+
+        # aperçu des molécules disponibles — lues depuis le dataset
+        if os.path.exists(dataset_path):
+            try:
+                cibles_preview = get_cibles(dataset_path)
+                if cibles_preview:
+                    st.markdown("### Molécules disponibles dans le dataset")
+                    cols = st.columns(len(cibles_preview))
+                    for col, (nom, smi) in zip(cols, cibles_preview.items()):
+                        with col:
+                            img = mol_image(smi, 200, 140)
+                            if img:
+                                st.image(img, caption=nom.capitalize(),
+                                         use_container_width=True)
+            except Exception:
+                pass
 
     elif lancer:
+        # vérification des fichiers obligatoires
         erreurs = []
         if not os.path.exists(dataset_path):
             erreurs.append(f"Dataset introuvable : `{dataset_path}`")
@@ -218,9 +240,10 @@ with tab_recherche:
                 st.error(e)
             st.stop()
 
+        # résumé de la recherche lancée
         col_info, col_mol = st.columns([3, 1])
         with col_info:
-            st.markdown(f"**Cible :** {nom_cible}")
+            st.markdown(f"**Cible :** {nom_cible.capitalize() if nom_cible else 'SMILES personnalisé'}")
             st.code(smiles_cible, language=None)
             st.markdown(
                 f"**Critères :** {CRITERES_INFO[c1]['label']} › "
@@ -231,7 +254,7 @@ with tab_recherche:
             if img:
                 st.image(img, use_container_width=True)
 
-        # ── Pipeline — pas de cache, AiZynthFinder doit toujours tourner ──
+        # lancement du pipeline
         with st.status("🔍 Recherche en cours...", expanded=True) as status:
             try:
                 st.write("📂 Chargement des datasets...")
@@ -243,18 +266,17 @@ with tab_recherche:
                     toxicity_path     = toxicity_path,
                     config_path       = config_path,
                     top_n             = top_n,
+                    target_name       = nom_cible,   # clé du filtrage cible
                 )
-                status.update(
-                    label    = "✅ Recherche terminée",
-                    state    = "complete",
-                    expanded = False,
-                )
-            except FileNotFoundError as e:
-                status.update(label="❌ Fichier introuvable", state="error")
+                status.update(label="✅ Recherche terminée", state="complete", expanded=False)
+
+            except ValueError as e:
+                # ValueError = SMILES invalide ou critères incorrects — erreur claire
+                status.update(label="❌ Paramètre invalide", state="error")
                 st.error(str(e))
                 st.stop()
-            except ValueError as e:
-                status.update(label="❌ Paramètre invalide", state="error")
+            except FileNotFoundError as e:
+                status.update(label="❌ Fichier introuvable", state="error")
                 st.error(str(e))
                 st.stop()
             except Exception as e:
@@ -262,28 +284,28 @@ with tab_recherche:
                 st.exception(e)
                 st.stop()
 
-        # ── Résultats ─────────────────────────────────────────────────────
+        # affichage des résultats
         if not results:
             st.warning(
-                "**Aucune route trouvée.**\n\n"
-                "Pistes possibles :\n"
-                "- La molécule doit être dans le dataset "
-                "(galanthamine, morphine, quinine, aspidospermidine, aspidospermine)\n"
-                "- AiZynthFinder n'a peut-être pas trouvé de routes pour cette cible\n"
-                "- Les starting materials proposés ne matchent pas les réactifs du dataset"
+                "**Aucune route trouvée dans le dataset pour cette molécule.**\n\n"
+                "Ça peut vouloir dire :\n"
+                "- AiZynthFinder n'a pas trouvé de routes pour cette cible "
+                "(essaie galanthamine ou morphine qui marchent bien)\n"
+                "- Les starting materials proposés par AiZynthFinder ne correspondent "
+                "à aucun réactif des routes de cette molécule dans le dataset\n"
+                "- La molécule cherchée n'est pas dans le dataset"
             )
         else:
             st.success(f"**{len(results)} route(s)** trouvée(s) et classée(s).")
 
+            # graphique de comparaison des scores
             if len(results) > 1:
                 noms   = [r[2].get("matched_route_name", f"Route {i+1}")[:20]
                           for i, r in enumerate(results)]
                 scores = [r[0] for r in results]
                 fig, ax = plt.subplots(figsize=(8, 2.5))
-                colors  = ["#1565C0" if i == 0 else "#90CAF9"
-                           for i in range(len(scores))]
-                bars = ax.barh(noms[::-1], scores[::-1],
-                               color=colors[::-1], height=0.5)
+                colors  = ["#1565C0" if i == 0 else "#90CAF9" for i in range(len(scores))]
+                bars    = ax.barh(noms[::-1], scores[::-1], color=colors[::-1], height=0.5)
                 for bar, s in zip(bars, scores[::-1]):
                     ax.text(s + 0.001, bar.get_y() + bar.get_height() / 2,
                             f"{s:.4f}", va="center", fontsize=9)
@@ -305,7 +327,7 @@ with tab_recherche:
                 yld_cum     = yield_cumule(steps_data)
 
                 with st.expander(
-                    f"{medals[rang-1]}  {nom_route}  —  {cible_route}"
+                    f"{medals[rang-1]}  {nom_route}  —  {cible_route.capitalize()}"
                     f"  —  Score : **{score_total:.4f}**",
                     expanded=(rang == 1),
                 ):
@@ -321,10 +343,8 @@ with tab_recherche:
                     raws = [details[c]["raw"]      for c in criteres]
                     weis = [details[c]["weighted"] for c in criteres]
                     x    = np.arange(len(criteres))
-                    ax2.bar(x - 0.18, raws, 0.35,
-                            label="Score brut",            color="#90CAF9")
-                    ax2.bar(x + 0.18, weis, 0.35,
-                            label="Contribution pondérée", color="#1565C0")
+                    ax2.bar(x - 0.18, raws, 0.35, label="Score brut",            color="#90CAF9")
+                    ax2.bar(x + 0.18, weis, 0.35, label="Contribution pondérée", color="#1565C0")
                     ax2.set_xticks(x)
                     ax2.set_xticklabels(cats, fontsize=9)
                     ax2.set_ylim(0, 1.05)
@@ -354,8 +374,7 @@ with tab_recherche:
                                 f"Rendement : {yld_str}  \n"
                                 f"Conditions : {fmt_conditions(cond)}"
                             )
-                            with st.expander(f"SMILES — étape {snum}",
-                                             expanded=False):
+                            with st.expander(f"SMILES — étape {snum}", expanded=False):
                                 for rsmi in reac:
                                     st.code(rsmi, language=None)
                                 if reac:
@@ -364,15 +383,14 @@ with tab_recherche:
                         with col_img:
                             img_prod = mol_image(prod, 180, 120)
                             if img_prod:
-                                st.image(img_prod,
-                                         caption=f"Produit étape {snum}",
+                                st.image(img_prod, caption=f"Produit étape {snum}",
                                          use_container_width=True)
                             else:
                                 st.caption("⚠️ SMILES non affichable")
                         st.divider()
 
 
-# ── TAB 2 : EXPLORER LE DATASET ──────────────────────────────────────────────
+# ── tab 2 : explorer le dataset ───────────────────────────────────────────────
 with tab_dataset:
     st.subheader("Explorer le dataset")
 
@@ -393,14 +411,17 @@ with tab_dataset:
 
         st.markdown("---")
 
-        filtre_cible = st.selectbox("Filtrer par cible",
-                                    ["Toutes"] + targets_uniq)
+        filtre_cible = st.selectbox(
+            "Filtrer par cible",
+            ["Toutes"] + [t.capitalize() for t in targets_uniq],
+        )
+        filtre_cible_raw = filtre_cible.lower() if filtre_cible != "Toutes" else "Toutes"
 
         import pandas as pd
         rows_table = []
         for rid, steps in sorted(by_route.items()):
             target = steps[0].get("target", "?")
-            if filtre_cible != "Toutes" and target != filtre_cible:
+            if filtre_cible_raw != "Toutes" and target.lower() != filtre_cible_raw:
                 continue
             nom       = steps[0].get("route_name", rid)
             n         = len(steps)
@@ -409,7 +430,7 @@ with tab_dataset:
             yld_cum   = yield_cumule(steps)
             rows_table.append({
                 "Route":        nom,
-                "Cible":        target,
+                "Cible":        target.capitalize(),
                 "Étapes":       n,
                 "Yield cumulé": f"{yld_cum * 100:.1f}%",
                 "Yield null":   sum(1 for y in yields if y is None),
@@ -425,15 +446,15 @@ with tab_dataset:
 
         routes_dispo = [
             rid for rid, steps in by_route.items()
-            if filtre_cible == "Toutes"
-            or steps[0].get("target", "?") == filtre_cible
+            if filtre_cible_raw == "Toutes"
+            or steps[0].get("target", "?").lower() == filtre_cible_raw
         ]
         route_choisie = st.selectbox(
             "Voir le détail d'une route",
             routes_dispo,
             format_func=lambda x: (
                 f"{by_route[x][0].get('route_name', x)} "
-                f"({by_route[x][0].get('target', '?')})"
+                f"({by_route[x][0].get('target', '?').capitalize()})"
             ),
         )
 
@@ -444,8 +465,7 @@ with tab_dataset:
 
             yields_plot = [s.get("yield_percent") or 50 for s in steps_route]
             is_null     = [s.get("yield_percent") is None for s in steps_route]
-            fig3, ax3   = plt.subplots(
-                figsize=(max(6, len(yields_plot) * 0.65), 2.5))
+            fig3, ax3   = plt.subplots(figsize=(max(6, len(yields_plot) * 0.65), 2.5))
             ax3.bar(range(1, len(yields_plot) + 1), yields_plot,
                     color=["#BDBDBD" if n else "#1565C0" for n in is_null],
                     width=0.6)
@@ -480,27 +500,30 @@ with tab_dataset:
                 with col_b:
                     img = mol_image(prod, 160, 110)
                     if img:
-                        st.image(img, caption=f"Produit {snum}",
-                                 use_container_width=True)
+                        st.image(img, caption=f"Produit {snum}", use_container_width=True)
                     else:
                         st.caption("⚠️ SMILES non affichable")
                 st.divider()
 
 
-# ── TAB 3 : AIDE ─────────────────────────────────────────────────────────────
+# ── tab 3 : aide ──────────────────────────────────────────────────────────────
 with tab_aide:
     st.subheader("Comment ça marche")
     st.markdown("""
 **Pipeline en 4 étapes :**
-1. Le dataset `reaction_dataset.json` est chargé et indexé
-2. AiZynthFinder explore la molécule cible (MCTS + modèle USPTO)
-3. Les starting materials d'AiZynthFinder sont comparés aux réactifs du dataset
+1. Le dataset est chargé et indexé par produit, réactif et route
+2. AiZynthFinder explore la cible (MCTS + modèle USPTO)
+3. Les starting materials d'AiZynthFinder sont comparés aux réactifs du dataset — **seulement les routes qui ciblent la bonne molécule sont gardées**
 4. Les routes validées sont scorées selon les 3 critères pondérés en 1/i²
 
 **Poids des critères :**
 - Critère #1 → ~73% du score final
 - Critère #2 → ~18%
 - Critère #3 → ~9%
+
+**Les molécules proposées viennent du dataset.**  
+Si tu ajoutes une molécule dans `reaction_dataset.json` et que `_metadata.target_smiles` contient son SMILES, elle apparaît automatiquement dans la liste.  
+Si tu retires toutes ses routes, elle disparaît.
 
 **Fichiers nécessaires :**
 
@@ -511,9 +534,9 @@ with tab_aide:
 | `toxicity_dataset.json` | ❌ | Scores de sécurité (sinon 0.5 par défaut) |
 
 **Pourquoi 0 routes parfois ?**
-- AiZynthFinder doit proposer au moins un starting material présent dans le dataset
-- L'aspidospermidine peut donner 0 routes car le modèle USPTO ne connaît pas bien ce squelette
-- Essaie avec la galanthamine qui fonctionne bien
+- AiZynthFinder n'a pas trouvé de rétrosynthèse pour cette molécule
+- Les starting materials proposés ne matchent pas les réactifs du dataset pour **cette cible spécifiquement**
+- Essaie galanthamine ou morphine qui marchent bien avec le modèle USPTO
     """)
 
 st.markdown("---")
