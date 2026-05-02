@@ -14,10 +14,10 @@
     "target_smiles": {
       "morphine": "OC1=CC2=C(C=C1)[C@@H]1[C@H]3C[C@@H](O)C=C[C@@H]3N(C)CC1=C2",
       "codeine": "COC1=CC2=C(C=C1)[C@@H]1[C@H]3C[C@@H](O)C=C[C@@H]3N(C)CC1=C2",
-      "quinine": "OC(c1ccnc2cc(OC)ccc12)[C@@H]1C[C@@H]2CC[N@@]1CC2/C=C",
-      "galanthamine": "OC1C=C[C@@]23c4cc(OC)ccc4CN(C)C[C@@H]2[C@@H]1O3",
+      "quinine": "C=CC1CN2CCC1CC2[C@H](O)c3ccnc4ccc(OC)cc34",
+      "galanthamine": "COc2ccc3CN(C)CC[C@]14C=CC(O)CC1Oc2c34",
       "aspidospermine": "CC[C@@]12CCCN3CC[C@@]4(C1)[C@@H](OC(C)=O)c1ccc(OC)cc1N[C@@H]4[C@@H]23",
-      "aspidospermidine": "CC[C@@]12CCCN3CC[C@@]4(C1)[C@@H](NH)c1ccccc1[C@@H]4[C@@H]23"
+      "aspidospermidine": "CC[C@@]35CCCN4CC[C@@H](C2c1ccccc1NC2C3)[C@H]45"
     },
     "routes": {
       "aggarwal_2010": {
@@ -393,7 +393,7 @@
       "reactants_smiles": [
         "C=CC1CN2CCC1CC2[C@H](O)C3=CCNc4cc(OC)ccc34"
       ],
-      "product_smiles": "C=CC1CN2CCC1CC2[C@H](O)c3ccnc4cc(OC)ccc34",
+      "product_smiles": "C=CC1CN2CCC1CC2[C@H](O)c3ccnc4ccc(OC)cc34",
       "conditions": {
         "temperature_C": null,
         "temp_range": null,
@@ -791,7 +791,7 @@
       "reactants_smiles": [
         "CC[C@]24CCCN3CCC(/C(=N/Nc1ccccc1)CC2)[C@@H]34"
       ],
-      "product_smiles": "CC[C@]35CCCN4CC[C@]2(C(=Nc1ccccc12)CC3)C45",
+      "product_smiles": "CC[C@@]35CCCN4CC[C@@H](C2C(=Nc1ccccc12)C3)[C@H]45",
       "conditions": {
         "temperature_C": null,
         "temp_range": null,
@@ -811,9 +811,9 @@
       "target": "aspidospermidine",
       "step_number": 20,
       "reactants_smiles": [
-        "CC[C@]35CCCN4CC[C@]2(C(=Nc1ccccc12)CC3)C45"
+        "CC[C@@]35CCCN4CC[C@@H](C2C(=Nc1ccccc12)C3)[C@H]45"
       ],
-      "product_smiles": "C=CC(=O)CCCOCc1ccccc1",
+      "product_smiles": "CC[C@@]35CCCN4CC[C@@H](C2c1ccccc1NC2C3)[C@H]45",
       "conditions": {
         "temperature_C": null,
         "temp_range": null,
@@ -1013,7 +1013,7 @@
       "reactants_smiles": [
         "CCC35CCCN4CC[C@]2(C(=Nc1ccccc12)CC3)C45"
         ],
-      "product_smiles": "CCC35CCCN4CC[C@@]2(c1ccccc1N[C@H]2CC3)C45",
+      "product_smiles": "CC[C@@]35CCCN4CC[C@@H](C2c1ccccc1NC2C3)[C@H]45",
       "conditions": {
         "temperature_C": null,
         "temp_range": null,
@@ -3529,7 +3529,7 @@
     "reactants_smiles": [
       "CC[C@]24CCCn3ccc(c1ccccc1N(C(=O)OC(C)(C)C)C(OC(C)=O)CC2)c34"
     ],
-    "product_smiles": "CC[C@@]35CCN4CC[C@]2(c1ccccc1NC2C3)C4C5",
+    "product_smiles": "CC[C@@]35CCCN4CC[C@@H](C2c1ccccc1NC2C3)[C@H]45",
     "conditions": {
       "temperature_C": 0,
       "temp_range": null,
