@@ -1,8 +1,8 @@
 # app_with_pur_aizyn.py — Retrosynthesis Interface
 # ============================================================
-# Base: app_test.py (collègue) — design, bilingue, Pareto, score table, flux animé
-# Extensions: Rxn-INSIGHT, 3 catégories (dataset/validated/predicted),
-#             dataset générique, quiz rétrosynthèse, visualisation co-réactifs SMILES
+# Base: app_test.py — design, bilingual, Pareto, score table, animated flow
+# Extensions: Rxn-INSIGHT, 3 categories (dataset/validated/predicted),
+#             generic dataset, reaction scheme with SMILES co-reactant visualization
 #
 # Run: streamlit run app_with_pur_aizyn.py
 
@@ -10,24 +10,16 @@ import re
 import io
 import os
 import json
-import math
 import base64
-import random
 import streamlit as st
-# reportlab pour la génération PDF
-try:
-    from reportlab.lib.pagesizes import A4 as _RL_A4
-    REPORTLAB_OK = True
-except ImportError:
-    REPORTLAB_OK = False
 import streamlit.components.v1 as components
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-# ── imports chimie ────────────────────────────────────────────────────────────
+# ── chemistry imports ─────────────────────────────────────────────────────────
 try:
-    import function_with_reseach_of_AIzyn as fi
+    import function_path_finder as fi
     from rdkit import Chem
     from rdkit.Chem import Draw, rdDepictor
     from rdkit.Chem.Draw import rdMolDraw2D
@@ -51,7 +43,17 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── CSS global (design collègue) ──────────────────────────────────────────────
+def _hires_fig(*args, dpi: int = 180, **kwargs):
+    """Creates a high-resolution matplotlib figure. Drop-in for plt.subplots()."""
+    fig, ax = plt.subplots(*args, dpi=dpi, **kwargs)
+    fig.patch.set_facecolor(FIG_BG)
+    if hasattr(ax, '__iter__'):
+        for a in ax: a.set_facecolor(FIG_BG)
+    else:
+        ax.set_facecolor(FIG_BG)
+    return fig, ax
+
+# ── global CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
@@ -93,7 +95,7 @@ div[data-testid="stExpander"] {
 </style>
 """, unsafe_allow_html=True)
 
-# ── CSS pour les composants HTML isolés ──────────────────────────────────────
+# ── CSS for isolated HTML components ─────────────────────────────────────────
 COMPONENT_STYLE = """
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
@@ -140,7 +142,7 @@ COMPONENT_STYLE = """
   .why-box li { margin-bottom:3px; }
   .why-box em { font-size:0.82rem; color:#6b7a8d; }
 
-  /* badge source pour les étapes */
+  /* source badge for steps */
   .src-badge {
     display:inline-block; border-radius:10px;
     padding:1px 8px; font-size:0.7rem; font-weight:600;
@@ -234,7 +236,7 @@ COMPONENT_STYLE = """
 </style>
 """
 
-# ── strip emoji pour matplotlib ───────────────────────────────────────────────
+# ── strip emoji for matplotlib ────────────────────────────────────────────────
 _EMOJI_RE = re.compile(
     "["
     "\U0001F300-\U0001F9FF"
@@ -249,11 +251,11 @@ _EMOJI_RE = re.compile(
 def strip_emoji(text: str) -> str:
     return _EMOJI_RE.sub("", text).strip()
 
-# ── langues ───────────────────────────────────────────────────────────────────
+# ── language strings ──────────────────────────────────────────────────────────
 LANG = {
     "en": {
         "page_title":       "⚗️ Synthesis Route Finder",
-        "page_caption":     "AiZynthFinder (MCTS)  ·  Chemistry by Design dataset  ·  Rxn-INSIGHT",
+        "page_caption":     "AiZynthFinder (MCTS)  ·  Chemistry by Design  ·  Rxn-INSIGHT",
         "sidebar_title":    "⚗️ Settings",
         "files_section":    "⚙️ Files & options",
         "ds_label":         "Dataset",
@@ -284,9 +286,9 @@ LANG = {
         "run_btn":          "🔍 Run search",
         "welcome":          "Choose a target molecule, set your criteria, and click **Run search**.",
         "avail_mols":       "### Available molecules in the dataset",
-        "loading_ds":       "📂 Loading datasets…",
-        "loading_aiz":      "🔬 Running AiZynthFinder (may take 1–2 min)…",
-        "loading_rxni":     "🔮 Rxn-INSIGHT — analysing novel routes…",
+        "loading_ds":       "📂 Loading dataset…",
+        "loading_aiz":      "🔬 Running AiZynthFinder (1–2 min)…",
+        "loading_rxni":     "🔮 Rxn-INSIGHT — analysing routes…",
         "search_ok":        "✅ Search complete",
         "err_file":         "❌ File not found",
         "err_param":        "❌ Invalid parameter",
@@ -342,7 +344,7 @@ LANG = {
         "detail_sel":       "View route details",
         "help_title":       "How it works",
         "footer":           "Chemistry by Design  ·  AiZynthFinder MCTS  ·  Rxn-INSIGHT",
-        "mod_err":          "❌ Cannot load function_with_reseach_of_AIzyn:",
+        "mod_err":          "❌ Cannot load function_path_finder:",
         "searching":        "🔍 Searching…",
         "sec_dataset":      "## 📚 Routes from the dataset",
         "sec_validated":    "## ✅ Validated routes (AiZ + generic dataset)",
@@ -372,7 +374,7 @@ LANG = {
     },
     "fr": {
         "page_title":       "⚗️ Recherche de routes de synthèse",
-        "page_caption":     "AiZynthFinder (MCTS)  ·  Dataset Chemistry by Design  ·  Rxn-INSIGHT",
+        "page_caption":     "AiZynthFinder (MCTS)  ·  Chemistry by Design  ·  Rxn-INSIGHT",
         "sidebar_title":    "⚗️ Paramètres",
         "files_section":    "⚙️ Fichiers & options",
         "ds_label":         "Dataset",
@@ -403,9 +405,9 @@ LANG = {
         "run_btn":          "🔍 Lancer la recherche",
         "welcome":          "Choisissez une molécule cible, définissez vos critères et cliquez sur **Lancer la recherche**.",
         "avail_mols":       "### Molécules disponibles dans le dataset",
-        "loading_ds":       "📂 Chargement des datasets…",
-        "loading_aiz":      "🔬 Lancement d'AiZynthFinder (peut prendre 1–2 min)…",
-        "loading_rxni":     "🔮 Rxn-INSIGHT — analyse des routes nouvelles…",
+        "loading_ds":       "📂 Chargement du dataset…",
+        "loading_aiz":      "🔬 Lancement d'AiZynthFinder (1–2 min)…",
+        "loading_rxni":     "🔮 Rxn-INSIGHT — analyse des routes…",
         "search_ok":        "✅ Recherche terminée",
         "err_file":         "❌ Fichier introuvable",
         "err_param":        "❌ Paramètre invalide",
@@ -461,7 +463,7 @@ LANG = {
         "detail_sel":       "Voir le détail d'une route",
         "help_title":       "Comment ça marche",
         "footer":           "Chemistry by Design  ·  AiZynthFinder MCTS  ·  Rxn-INSIGHT",
-        "mod_err":          "❌ Impossible de charger function_with_reseach_of_AIzyn :",
+        "mod_err":          "❌ Impossible de charger function_path_finder :",
         "searching":        "🔍 Recherche en cours…",
         "sec_dataset":      "## 📚 Routes du dataset",
         "sec_validated":    "## ✅ Routes validées (AiZ + dataset générique)",
@@ -510,11 +512,14 @@ CL = CRITERIA_LABELS[lang]
 
 
 # =============================================================================
-# utilitaires images — Cairo haute résolution (design collègue)
+# image utilities
 # =============================================================================
 
 def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
-    """rendu Cairo 2× pour affichage crisp dans st.image()"""
+    """
+    Cairo 2x rendering — used by st.image() throughout the app for high-DPI
+    molecule display (target preview, Dataset Explorer step-by-step, substances panel).
+    """
     if not MODULE_OK or not smiles: return None
     mol = Chem.MolFromSmiles(smiles)
     if mol is None: return None
@@ -534,65 +539,13 @@ def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
         return buf.getvalue()
 
 
-def mol_b64(smiles: str, w: int = 140, h: int = 100) -> str:
-    """PNG base64 pour les balises <img> dans le HTML — résolution 3×"""
-    data = mol_png(smiles, w * 3, h * 3)
-    if data is None: return ""
-    return base64.b64encode(data).decode()
-
-
-def mol_svg_inline(smiles: str, w: int = 160, h: int = 110) -> str:
-    """
-    SVG inline via rdMolDraw2DSVG — utilisé dans le schéma réactionnel cliquable
-    pour les molécules du dataset (conditions texte, pas SMILES)
-    """
-    if not smiles or not MODULE_OK: return _fallback_svg(smiles or "?", w, h)
-    mol = Chem.MolFromSmiles(smiles)
-    if mol is None: return _fallback_svg(smiles, w, h)
-    try:
-        rdDepictor.Compute2DCoords(mol)
-        drawer = rdMolDraw2D.MolDraw2DSVG(w, h)
-        drawer.drawOptions().addStereoAnnotation = False
-        drawer.drawOptions().padding = 0.15
-        drawer.DrawMolecule(mol)
-        drawer.FinishDrawing()
-        svg = drawer.GetDrawingText()
-        svg = svg.replace("<?xml version='1.0' encoding='iso-8859-1'?>\n", "")
-        svg = svg.replace("<?xml version='1.0' encoding='utf-8'?>\n", "")
-        return svg
-    except Exception:
-        return _fallback_svg(smiles, w, h)
-
-
-def _fallback_svg(text: str, w: int, h: int) -> str:
-    display = text[:22] + "…" if len(text) > 22 else text
-    return (f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg">'
-            f'<rect width="{w}" height="{h}" fill="#F8F8F8" rx="4" stroke="#DDD"/>'
-            f'<text x="{w//2}" y="{h//2}" text-anchor="middle" '
-            f'font-family="monospace" font-size="9" fill="#888">{display}</text>'
-            f'</svg>')
-
-
-def mol_pil_img(smiles: str, w: int = 480, h: int = 320):
-    """PIL Image RGBA"""
-    from PIL import Image
-    data = mol_png(smiles, w, h)
-    if data is None: return None
-    return Image.open(io.BytesIO(data)).convert("RGBA")
-
-
-# =============================================================================
-# rendu d'étape de réaction (PIL full-width — design collègue)
-# =============================================================================
-
-
-
 def _mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
     """
-    retourne une data-URI PNG (Cairo) pour la molécule.
-    Gère correctement les ions et atomes simples ([Pd], [Na+], etc.)
-    en utilisant rdMolDraw2DCairo directement — pas besoin de coordonnées 2D.
-    Fallback : SVG texte si SMILES invalide.
+    Returns a PNG data-URI (Cairo) for a molecule — used exclusively inside
+    build_clickable_scheme_html() to embed molecule images in the HTML reaction
+    scheme (main molecules and co-reactants above arrows).
+    Handles ions and single atoms ([Pd], [Na+], etc.) without Compute2DCoords.
+    Falls back to a labelled grey rectangle if SMILES is invalid.
     """
     if not smiles or not MODULE_OK:
         return _fallback_data_uri(smiles or "?", w, h)
@@ -602,9 +555,7 @@ def _mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
     try:
         from PIL import Image as _PI
         import io as _io
-        # Pour les petites molécules (ions, atomes) : pas de Compute2DCoords
-        n_atoms = mol.GetNumAtoms()
-        if n_atoms > 1:
+        if mol.GetNumAtoms() > 1:
             rdDepictor.Compute2DCoords(mol)
         drawer = rdMolDraw2D.MolDraw2DCairo(w * 4, h * 4)
         drawer.drawOptions().bondLineWidth     = 1.0
@@ -624,14 +575,16 @@ def _mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
 
 
 def _fallback_data_uri(text: str, w: int, h: int) -> str:
-    """PNG fallback avec le texte (pour ions, SMILES invalides)"""
+    """
+    PNG fallback with a text label — returned by _mol_b64_or_text_svg() when
+    RDKit cannot parse the SMILES (ions, malformed strings, single atoms).
+    """
     try:
         from PIL import Image as _PI, ImageDraw as _PID
         img  = _PI.new("RGB", (w, h), (248, 248, 248))
         draw = _PID.Draw(img)
         display = text[:18] + "…" if len(text) > 18 else text
         draw.rectangle([2, 2, w-3, h-3], outline=(200, 200, 200))
-        # centrer le texte
         try:
             bbox = draw.textbbox((0,0), display)
             tw = bbox[2] - bbox[0]; th = bbox[3] - bbox[1]
@@ -644,13 +597,17 @@ def _fallback_data_uri(text: str, w: int, h: int) -> str:
         b64 = base64.b64encode(buf.getvalue()).decode()
         return "data:image/png;base64," + b64
     except Exception:
-        # ultime fallback : pixel transparent
         return ("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJ"
                 "AAAADULEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==")
 
 
 def _is_trivial_smiles(smiles: str) -> bool:
-    """Atome unique, ion, ou sel dont tous les fragments ≤ 2 atomes → texte, pas image."""
+    """
+    Returns True for single atoms, ions, or salts where all fragments have ≤ 2
+    atoms. Used in build_clickable_scheme_html() to decide whether a co-reactant
+    should be rendered as a 2D structure image or shown as plain text below the
+    arrow (avoids cluttering the scheme with uninformative single-atom images).
+    """
     if not smiles or not MODULE_OK: return True
     mol = Chem.MolFromSmiles(smiles)
     if mol is None: return True
@@ -663,24 +620,70 @@ def _is_trivial_smiles(smiles: str) -> bool:
     return False
 
 
+# =============================================================================
+# Reaction scheme HTML builder
+# =============================================================================
+
+def _is_purification_step(step: dict) -> bool:
+    """
+    Returns True when a step should be treated as a purification step and
+    displayed unconditionally in the scheme, even if reactant SMILES equals
+    product SMILES.
+
+    A step is considered a purification step when ANY of the following holds:
+      - the reaction_type field contains 'purif' (case-insensitive), OR
+      - the reaction_type field contains 'recryst' (recrystallisation), OR
+      - the reaction_type field contains 'chroma' (chromatography), OR
+      - there are no co-reactants other than the substrate itself
+        AND no reagents listed in conditions AND the product SMILES equals
+        one of the reactant SMILES (identity transform = isolation step).
+
+    NOTE: the last condition alone (identity transform) is the key fix requested.
+    The reaction_type checks are additional guards for explicitly labelled steps.
+    """
+    rtype = (step.get("reaction_type") or "").lower()
+    if any(kw in rtype for kw in ("purif", "recryst", "chroma", "isolation", "workup")):
+        return True
+    prod   = step.get("product_smiles", "")
+    reacs  = step.get("reactants_smiles", [])
+    # Identity transform: the product is identical to one of the reactants
+    if prod and prod in reacs:
+        return True
+    # Canonical comparison via RDKit (handles tautomers / different SMILES notations)
+    if MODULE_OK and prod:
+        canon_prod = Chem.MolToSmiles(Chem.MolFromSmiles(prod)) if Chem.MolFromSmiles(prod) else prod
+        for r in reacs:
+            mol_r = Chem.MolFromSmiles(r) if r else None
+            if mol_r and Chem.MolToSmiles(mol_r) == canon_prod:
+                return True
+    return False
+
+
 def build_clickable_scheme_html(steps_data: list, route_id: str,
                                  is_predicted: bool = False) -> str:
     """
-    Schéma réactionnel.
+    Builds the interactive HTML reaction scheme shown in the Route Search and
+    Analysis tabs. Each molecule is displayed as a Cairo PNG; clicking an arrow
+    opens a detail panel with conditions, yield, and per-step SMILES.
 
-    ARCHITECTURE CSS (corrige le bug BFC overflow) :
-    ─────────────────────────────────────────────────
-    #scroll-wrap  overflow-x:auto  (scroll horizontal, isole le BFC ici)
-      └─ .band    overflow:visible  (bandeau gris, PAS de overflow:auto !)
-           ├─ .mol-cell   image centrée
-           └─ .arrow-cell position:relative, overflow:visible
-                └─ .co-above  position:absolute, bottom: juste au-dessus flèche
+    Key behaviour for purification steps
+    ─────────────────────────────────────
+    When _is_purification_step() returns True for a step, the product is shown
+    in the molecule sequence even if its SMILES is identical to the preceding
+    molecule (standard reactions skip duplicates to avoid visual repetition).
+    The arrow is drawn with a dashed style and labelled "Purification" when no
+    explicit reaction_type is set, so the user can immediately see it is an
+    isolation / workup step rather than a bond-forming transformation.
 
-    Le BFC est isolé dans #scroll-wrap. .band et ses enfants ont overflow:visible
-    → les co-réactifs débordent librement vers le haut dans l'espace padding-top.
-
-    Padding dynamique : calculé selon le nb max de lignes de co-réactifs dans la route.
-    Même valeur en haut et en bas → molécules parfaitement centrées.
+    ── LAYOUT PARAMETERS (adjust these to resize the scheme) ──────────────────
+    MOL_W, MOL_H    : main molecule image size in pixels
+    CO_W,  CO_H     : co-reactant image size (solvents, reagents above the arrow)
+    SCHEME_H        : height of the grey band containing the molecules
+    PAD_TOP         : grey space ABOVE the molecule band (where co-reactants float)
+    PAD_BOTTOM      : grey space BELOW the molecule band
+    ARROW_SHAFT_W   : width of the horizontal arrow shaft in pixels
+    ARROW_CELL_W    : total min-width of the arrow cell including labels
+    ────────────────────────────────────────────────────────────────────────────
     """
     if not steps_data:
         return "<p style='color:#888'>No steps.</p>"
@@ -690,21 +693,18 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
     panel_bg    = "#FFF8F0" if is_predicted else "#F0F7FF"
     rid_js      = "".join(c for c in route_id if c.isalnum())
 
-    MOL_W, MOL_H = 158, 112   # molécule principale — un peu plus grande
-    CO_W,  CO_H  = 96,  70    # co-réactifs dessinés — un peu plus grands
+    # ── LAYOUT PARAMETERS ─────────────────────────────────────────────────────
+    MOL_W, MOL_H = 158, 112
+    CO_W,  CO_H  = 96,  70
     CELL_W = MOL_W + 20
-    SCHEME_H = 180             # hauteur du bandeau (espace pour les molécules)
+    SCHEME_H = 200
 
-    # calcul du padding dynamique basé sur le nb max de co-réactifs dessinés
-    # (colonnes empilées verticalement si > 3 côte à côte)
     max_co_rows = 1
     for step in steps_data:
         reactants = step.get("reactants_smiles", [])
         product   = step.get("product_smiles", "")
         cond      = step.get("conditions", {})
-        # compter les co-réactifs non-triviaux
         co_count = 0
-        prev_smiles = ""  # approximation
         for r in reactants:
             if r != product and not _is_trivial_smiles(r):
                 co_count += 1
@@ -714,44 +714,48 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
         for r in (cond.get("reagents", []) or []):
             if r and not _is_trivial_smiles(r):
                 co_count += 1
-        # max 3 images par ligne → nombre de lignes
         rows = max(1, (co_count + 2) // 3)
         max_co_rows = max(max_co_rows, rows)
 
-    # layout pyramide : max 2 lignes (pair + seul), margin-bottom=-20px
-    # PAD_TOP = lignes × CO_H + gap - margin_bottom + marge
-    n_rows = 2 if max_co_rows >= 1 and any(
-        len(a_["co_draw"]) >= 3 for a_ in []
-    ) else max(1, max_co_rows)
-    # calcul simple : au pire 2 lignes de co-réactifs
     display_rows = min(max_co_rows, 2)
-    PAD = display_rows * (CO_H + 2) + 20 + 20  # +20 pour margin-bottom=-20
-    PAD_TOP    = PAD * 3 // 4  # réduit d'1/4 par rapport au PAD calculé
-    PAD_BOTTOM = PAD // 4      # moitié de PAD_TOP (= 1/4 du PAD original)
+    PAD_TOP    = display_rows * (CO_H + 2) + 30 + 20
+    PAD_BOTTOM = display_rows * (CO_H + 2) // 3 + 10
 
     mol_sequence = []
     arrow_data   = []
 
     for i, step in enumerate(steps_data):
-        reactants = step.get("reactants_smiles", [])
-        product   = step.get("product_smiles", "")
-        cond      = step.get("conditions", {})
-        rtype     = step.get("reaction_type", "") or ""
-        yld       = step.get("yield_percent")
-        snum      = step.get("step_number", i + 1)
-        src_step  = step.get("source", "dataset")
+        reactants   = step.get("reactants_smiles", [])
+        product     = step.get("product_smiles", "")
+        cond        = step.get("conditions", {})
+        rtype       = step.get("reaction_type", "") or ""
+        yld         = step.get("yield_percent")
+        snum        = step.get("step_number", i + 1)
+        src_step    = step.get("source", "dataset")
+        is_purif    = _is_purification_step(step)
 
+        # ── Build molecule sequence ──────────────────────────────────────────
+        # For purification steps, always add the product even when it equals
+        # the preceding molecule in the sequence (identity transform).
         if i == 0 and reactants:
             if reactants[0] not in mol_sequence:
                 mol_sequence.append(reactants[0])
-        if product and (not mol_sequence or mol_sequence[-1] != product):
-            mol_sequence.append(product)
+
+        if product:
+            # Standard behaviour: skip if already the last molecule
+            if mol_sequence and mol_sequence[-1] == product and not is_purif:
+                pass  # duplicate, do not add
+            else:
+                mol_sequence.append(product)
 
         prev = mol_sequence[-2] if len(mol_sequence) >= 2 else ""
         co_draw = []
         co_text = []
         for r in reactants:
-            if r == prev or r == product: continue
+            # For purification steps the reactant == product, but we still want
+            # to show any additional reagents/solvents above the arrow.
+            if r == prev or r == product:
+                continue
             if _is_trivial_smiles(r): co_text.append(r)
             else: co_draw.append(r)
 
@@ -775,14 +779,15 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
         if cond.get("apparatus"): all_cond_parts.append("(" + cond["apparatus"] + ")")
         cond_display = "  ·  ".join(all_cond_parts)
 
-        # below_parts = éléments sous la flèche
-        # règle : exclure tout ce qui est dans co_draw (déjà visualisé au-dessus)
+        # Label purification steps explicitly when no reaction_type is set
+        display_rtype = rtype
+        if is_purif and not rtype:
+            display_rtype = "Purification / Isolation"
+
         below_parts = []
         if yld is not None and src_step != "rxn-insight":
             below_parts.append(str(yld) + "%")
-        # triviaux (ions, atomes) → toujours en texte
         for t in co_text[:3]: below_parts.append(t)
-        # conditions texte non visualisées → exclure celles qui sont dans co_draw
         co_draw_set = set(co_draw)
         for t in all_cond_parts[:4]:
             if t not in below_parts and t not in co_draw_set:
@@ -791,10 +796,11 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
         yld_str = (str(yld) + "%" if yld is not None and src_step != "rxn-insight" else "")
 
         arrow_data.append({
-            "step": snum, "rtype": rtype, "yld": yld_str,
+            "step": snum, "rtype": display_rtype, "yld": yld_str,
             "cond": cond_display, "co_draw": co_draw, "co_text": co_text,
             "below": below_parts, "reactants": reactants, "product": product,
             "source": src_step, "fg": step.get("fg_reactants", []),
+            "is_purif": is_purif,
         })
 
     mol_imgs = {smi: _mol_b64_or_text_svg(smi, MOL_W, MOL_H)
@@ -835,11 +841,6 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
 
         if idx < len(arrow_data):
             a = arrow_data[idx]
-            # pyramide inversée : TOUJOURS 1 seul en bas (proche flèche)
-            # rangée(s) du haut : les autres côte à côte
-            # 1 → juste 1 seul
-            # 2 → 1 en haut + 1 en bas
-            # 3+ → (n-1) côte à côte en haut + 1 seul en bas
             co_draw_slice = a["co_draw"][:4]
             n_co = len(co_draw_slice)
 
@@ -857,19 +858,23 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
                            + _co_img_tag(co_draw_slice[0])
                            + '</div>')
             else:
-                # rangée haute : tous sauf le dernier, côte à côte
                 top_row = '<div class="co-row">'
                 for s in co_draw_slice[:-1]:
                     top_row += _co_img_tag(s)
                 top_row += '</div>'
-                # rangée basse : 1 seul, le plus proche de la flèche
                 bot_row = ('<div class="co-row">'
                            + _co_img_tag(co_draw_slice[-1])
                            + '</div>')
                 co_html = top_row + bot_row
+
             step_json_esc = json.dumps({
-                k: v for k, v in a.items() if k not in ("co_draw","co_text","below")
+                k: v for k, v in a.items() if k not in ("co_draw","co_text","below","is_purif")
             }).replace('"', "&quot;")
+
+            # Purification steps use a dashed arrow style to signal visually
+            # that no bond-forming chemistry is happening at this stage.
+            purif_dash = "stroke-dasharray:6,3;" if a["is_purif"] else ""
+            purif_color = "#8B5E3C" if a["is_purif"] else arrow_color
 
             below_html = ""
             if a["yld"]: below_html += '<div class="b-yld">' + a["yld"] + '</div>'
@@ -883,32 +888,29 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
                 ' onclick="showStepFn' + rid_js + '(' + str(idx) + ',this)">'
                 '<div class="co-above">' + co_html + '</div>'
                 '<div class="arrow-line">'
-                '<div class="a-shaft"></div>'
-                '<div class="a-head"></div>'
+                '<div class="a-shaft" style="background:' + purif_color + ';' + purif_dash + '"></div>'
+                '<div class="a-head" style="border-left-color:' + purif_color + ';"></div>'
                 '</div>'
-                '<div class="step-lbl">Step ' + str(a["step"]) + '</div>'
+                '<div class="step-lbl" style="color:' + purif_color + ';">Step ' + str(a["step"]) + '</div>'
                 + below_html +
                 '</div>'
             )
 
-    # CSS — architecture correcte pour overflow:visible
-    # Le BFC est isolé dans #scroll-wrap (overflow-x:auto)
-    # .band et ses enfants n'ont PAS overflow:auto → overflow:visible fonctionne
+    ARROW_SHAFT_W = 90
+    ARROW_CELL_W  = 145
+
     css = (
         "html,body{margin:0;padding:0;background:#fff;"
         "font-family:'DM Sans',Arial,sans-serif;}"
         "*{box-sizing:border-box}"
 
-        # wrapper de scroll — isole le BFC ici
-        # overflow:auto ici, mais ses enfants peuvent avoir overflow:visible
         "#scroll-wrap{"
         "overflow-x:auto;"
-        "overflow-y:visible;"  # PAS auto — sinon BFC coupe les enfants
+        "overflow-y:visible;"
         "background:#FAFAFA;"
         "border-radius:10px;border:1px solid #dce3ec;"
         "}"
 
-        # bandeau gris — PAS de overflow:auto → les co-réactifs débordent librement
         ".band{"
         "display:flex;"
         "align-items:center;"
@@ -916,10 +918,10 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
         "height:" + str(SCHEME_H) + "px;"
         "gap:2px;"
         "padding:0 8px;"
-        "overflow:visible;"     # ← clé : pas de clipping
-        "padding-top:" + str(PAD_TOP) + "px;"    # espace co-réactifs au-dessus
-        "padding-bottom:" + str(PAD_BOTTOM) + "px;"  # même espace en bas → centrage
-        "box-sizing:content-box;"  # padding s'ajoute à la height
+        "overflow:visible;"
+        "padding-top:" + str(PAD_TOP) + "px;"
+        "padding-bottom:" + str(PAD_BOTTOM) + "px;"
+        "box-sizing:content-box;"
         "}"
 
         ".mol-cell{"
@@ -935,29 +937,24 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
         ".sm-role{background:#cce5ff;color:#004085}"
         ".tgt-role{background:#d4edda;color:#155724}"
 
-        # .arrow-cell : position:relative + overflow:visible
-        # Les co-réactifs (.co-above) débordent vers le HAUT dans le padding-top de .band
         ".arrow-cell{"
         "position:relative;"
         "display:flex;flex-direction:column;align-items:center;justify-content:center;"
         "cursor:pointer;"
-        "min-width:120px;"
+        "min-width:" + str(ARROW_CELL_W) + "px;"
         "height:" + str(SCHEME_H) + "px;"
         "padding:2px 4px;"
         "border-radius:6px;"
         "transition:background 0.12s;"
         "user-select:none;flex-shrink:0;"
-        "overflow:visible;"   # indispensable — ne pas clipper les co-réactifs
+        "overflow:visible;"
         "}"
         ".arrow-cell:hover{background:" + hover_bg + "}"
 
-        # co-réactifs : empilés VERTICALEMENT au-dessus de la flèche
-        # bottom:100% = bord supérieur de .arrow-cell → toujours AU-DESSUS
-        # Avec padding-top sur .band, il y a PAD_TOP px d'espace disponible
         ".co-above{"
         "position:absolute;"
         "bottom:100%;"
-        "margin-bottom:-35px;"  # descend les images encore plus bas, proche de la flèche
+        "margin-bottom:-35px;"
         "left:50%;"
         "transform:translateX(-50%);"
         "display:flex;"
@@ -968,20 +965,21 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
         "}"
         ".co-row{display:flex;flex-direction:row;gap:2px;align-items:center;justify-content:center;}"
 
-        ".arrow-line{display:flex;align-items:center;width:94px;flex-shrink:0;}"
-        ".a-shaft{flex:1;height:2.5px;background:" + arrow_color + ";border-radius:2px 0 0 2px;}"
+        ".arrow-line{display:flex;align-items:center;width:" + str(ARROW_SHAFT_W + 10) + "px;flex-shrink:0;}"
+        ".a-shaft{width:" + str(ARROW_SHAFT_W) + "px;"
+        "height:2.5px;background:" + arrow_color + ";border-radius:2px 0 0 2px;flex-shrink:0;}"
         ".a-head{width:0;height:0;"
         "border-top:6px solid transparent;border-bottom:6px solid transparent;"
-        "border-left:10px solid " + arrow_color + ";}"
+        "border-left:10px solid " + arrow_color + ";flex-shrink:0;}"
 
         ".step-lbl{font-size:10px;font-weight:700;color:" + arrow_color + ";"
         "text-align:center;margin-top:2px;}"
         ".b-yld{font-size:12px;font-weight:700;color:" + arrow_color + ";text-align:center;}"
         ".b-rtype{font-size:8.5px;color:#6b7a8d;text-align:center;"
         "word-break:break-word;white-space:normal;line-height:1.2;"
-        "max-width:116px;font-style:italic;}"
+        "max-width:136px;font-style:italic;}"
         ".b-cond{font-size:8px;color:#37506e;text-align:center;"
-        "word-break:break-word;max-width:116px;line-height:1.15;}"
+        "word-break:break-word;max-width:136px;line-height:1.15;}"
 
         ".detail-panel{margin-top:6px;padding:12px 16px;"
         "background:" + panel_bg + ";"
@@ -1071,23 +1069,57 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
     )
 
 
-
+# Per-criterion explanations shown in the score table "?" tooltip
+CRITERIA_SCORE_DESC = {
+    "en": {
+        "steps":        "Score = 1 / number_of_steps. Fewer steps → score closer to 1.",
+        "yield":        "Score = cumulative yield (product of all step yields). "
+                        "Missing yields are treated as 100% (neutral). Score closer to 1 = higher overall yield.",
+        "atom_economy": "Score = fraction of reactant atoms incorporated into the product. "
+                        "Score closer to 1 = less atomic waste.",
+        "e_factor":     "Score = 1 / (1 + E-factor). E-factor = kg waste per kg product. "
+                        "Score closer to 1 = less waste generated.",
+        "toxicity":     "Score = 1 − (average hazard of reagents/solvents). "
+                        "Score closer to 1 = safer, less toxic conditions.",
+    },
+    "fr": {
+        "steps":        "Score = 1 / nombre_d'étapes. Moins d'étapes → score proche de 1.",
+        "yield":        "Score = rendement cumulé (produit de tous les rendements). "
+                        "Rendements manquants traités à 100% (neutres). Score proche de 1 = meilleur rendement.",
+        "atom_economy": "Score = fraction des atomes des réactifs retrouvés dans le produit. "
+                        "Score proche de 1 = moins de déchets atomiques.",
+        "e_factor":     "Score = 1 / (1 + E-factor). E-factor = kg déchets / kg produit. "
+                        "Score proche de 1 = moins de déchets.",
+        "toxicity":     "Score = 1 − (danger moyen des réactifs/solvants). "
+                        "Score proche de 1 = conditions plus sûres.",
+    },
+}
 
 
 def build_score_table_html(details: dict, criteria: list, weights: dict) -> str:
-    tip  = T["score_th_raw_tip"].replace('"','&quot;')
+    """
+    Renders the per-criterion score breakdown table shown inside each route
+    expander. Returns an HTML string with inline CSS (COMPONENT_STYLE).
+    Each row shows the raw score (0–1) with a tooltip explaining how it is
+    computed, the criterion weight, and the weighted contribution to the total.
+    """
     rows = []
+    csd  = CRITERIA_SCORE_DESC.get(lang, CRITERIA_SCORE_DESC["en"])
     for c in criteria:
         raw  = details[c].get("raw")
+        tip_c = csd.get(c, T["score_th_raw_tip"]).replace('"', "&quot;")
         if raw is None:
-            rows.append(f"<tr><td>{CL[c]}</td><td colspan='3'><em>excluded (predicted route)</em></td></tr>")
+            rows.append(
+                f"<tr><td>{CL[c]}</td>"
+                f"<td colspan='3'><em>excluded (predicted route)</em></td></tr>"
+            )
             continue
         w    = weights.get(c, 0)
         cont = details[c]["weighted"]
         rows.append(f"""
   <tr>
     <td>{CL[c]}</td>
-    <td>{raw:.3f}</td>
+    <td><span class="th-help" title="{tip_c}" style="cursor:help;border-bottom:1px dashed #888">{raw:.3f}<span class="th-info" style="margin-left:3px">?</span></span></td>
     <td>{w*100:.0f}%</td>
     <td>{cont:.3f}</td>
   </tr>""")
@@ -1095,7 +1127,7 @@ def build_score_table_html(details: dict, criteria: list, weights: dict) -> str:
 <table class="score-table">
 <thead><tr>
   <th>{T['score_th_crit']}</th>
-  <th><span class="th-help" title="{tip}">{T['score_th_raw']}<span class="th-info">?</span></span></th>
+  <th>{T['score_th_raw']}</th>
   <th>{T['score_th_weight']}</th>
   <th>{T['score_th_contrib']}</th>
 </tr></thead>
@@ -1103,17 +1135,20 @@ def build_score_table_html(details: dict, criteria: list, weights: dict) -> str:
 </table>"""
 
 
-
 def fmt_conditions(cond: dict) -> str:
+    """
+    Formats a conditions dict into a human-readable string for the Dataset
+    Explorer step detail cards. Returns a '·'-separated string of temperature,
+    solvent, reagents, and apparatus fields.
+    """
     if not cond: return ""
     parts = []
     if cond.get("temperature_C"):   parts.append(f"{cond['temperature_C']}°C")
     elif cond.get("temp_range"):    parts.append(cond["temp_range"])
     if cond.get("solvent"):
-        # si le solvant est un SMILES valide, on affiche sa formule brute ou juste le SMILES court
         solv = cond["solvent"]
         mol  = Chem.MolFromSmiles(solv) if MODULE_OK else None
-        parts.append(solv if mol is None else solv)  # on garde le SMILES — visualisé dans le schéma
+        parts.append(solv if mol is None else solv)
     if cond.get("co_solvent"):      parts.append(f"/ {cond['co_solvent']}")
     reag = cond.get("reagents",[])
     if isinstance(reag,list) and reag:
@@ -1122,43 +1157,67 @@ def fmt_conditions(cond: dict) -> str:
     return "  ·  ".join(parts)
 
 
-def bottleneck_yield(steps):
+def bottleneck_yield(steps: list) -> float | None:
+    """
+    Returns the minimum step yield in the route (the rate-limiting step).
+    Used in route metric cards and the Analysis tab comparison table.
+    Returns None if no yield data is available.
+    """
     ys = [s.get("yield_percent") for s in steps if s.get("yield_percent") is not None]
     return min(ys) if ys else None
 
 
-def average_yield(steps):
+def average_yield(steps: list) -> float | None:
+    """
+    Returns the mean step yield across all steps that report a yield.
+    Used in route metric cards and the Analysis tab comparison table.
+    Returns None if no yield data is available.
+    """
     ys = [s.get("yield_percent") for s in steps if s.get("yield_percent") is not None]
     return sum(ys)/len(ys) if ys else None
 
 
-def cumulative_yield(steps):
+def cumulative_yield(steps: list) -> float:
+    """
+    Returns the overall cumulative yield (product of all step yields, 0–1).
+    Missing yields are treated as 1.0 (neutral — not penalised).
+    Used for the yield criterion raw score and the Dataset Explorer summary table.
+    """
     r = 1.0
     for s in steps:
-        y=s.get("yield_percent"); r *= (y/100.0) if y is not None else 0.5
+        y = s.get("yield_percent")
+        r *= (y / 100.0) if y is not None else 1.0
     return r
 
 
-def get_reaction_type_live(reactants, product):
-    if not RXNINSIGHT_OK: return {}
-    valid_r = [r for r in reactants if r and Chem.MolFromSmiles(r)]
-    if not valid_r or not product or not Chem.MolFromSmiles(product): return {}
-    try:
-        rxn  = RxnInsightReaction(".".join(valid_r)+">>"+product)
-        info = rxn.get_reaction_info()
-        return {"reaction_type": info.get("NAME") or info.get("CLASS") or "?",
-                "fg_reactants":  list(info.get("FG_REACTANTS",[])),
-                "by_products":   list(info.get("BY-PRODUCTS",[]))}
-    except Exception: return {}
-
+@st.cache_data(show_spinner=False)
+def load_dataset_cached(path: str) -> dict:
+    """
+    Cached wrapper around fi.load_reaction_dataset(). Prevents reloading the
+    JSON dataset on every Streamlit re-run during the same session.
+    """
+    return fi.load_reaction_dataset(path)
 
 @st.cache_data(show_spinner=False)
-def load_dataset_cached(path): return fi.load_reaction_dataset(path)
+def get_targets_cached(path: str) -> dict:
+    """
+    Cached wrapper that extracts the {target_name: SMILES} dict from the
+    dataset. Used to populate the predefined molecule selector in the sidebar.
+    """
+    return fi.get_targets_from_dataset(load_dataset_cached(path))
 
-@st.cache_data(show_spinner=False)
-def get_targets_cached(path):  return fi.get_targets_from_dataset(load_dataset_cached(path))
 
-def get_substances_list(steps_data):
+def get_substances_list(steps_data: list) -> dict:
+    """
+    Extracts categorised substance lists from a route's steps for the
+    'Substances needed' expander in each route card.
+
+    Returns a dict with keys:
+      - to_buy      : starting materials (reactants never produced in the route)
+      - to_prepare  : intermediates (produced in at least one step)
+      - solvents    : unique solvent SMILES / names
+      - reagents    : unique reagent SMILES / names
+    """
     all_prod = {fi.to_canonical(s.get("product_smiles","")) for s in steps_data}
     all_reac = {fi.to_canonical(r) for s in steps_data for r in s.get("reactants_smiles",[])}
     solvents=set(); reagents=set()
@@ -1175,102 +1234,181 @@ def get_substances_list(steps_data):
 
 
 # =============================================================================
-# graphiques matplotlib (design collègue + strip_emoji)
+# matplotlib charts
 # =============================================================================
 
-def make_ranking_chart(results, target_name):
-    labels = [r[2].get("matched_route_name",f"Route {i+1}")[:32] for i,r in enumerate(results)]
-    scores = [r[0] for r in results]; n=len(scores)
-    fig,ax = plt.subplots(figsize=(6,max(1.8,n*0.55)))
-    fig.patch.set_facecolor(FIG_BG); ax.set_facecolor(FIG_BG)
-    colors = [PALETTE[i%len(PALETTE)] for i in range(n)]
-    bars   = ax.barh(np.arange(n),scores,color=colors,height=0.52,edgecolor="none")
-    for bar,s in zip(bars,scores):
-        ax.text(s+max(scores)*0.013,bar.get_y()+bar.get_height()/2,
-                f"{s:.3f}",va="center",fontsize=9.5,color="#1a2e44",fontweight="600")
-    ax.set_yticks(np.arange(n)); ax.set_yticklabels(labels,fontsize=10,color="#1a2e44")
-    ax.set_xlabel(T["score_axis"],fontsize=10,color="#6b7a8d")
-    ax.set_xlim(0,max(scores)*1.28)
-    ax.set_title(T["chart_title"].format(target=target_name),
-                 fontsize=13,fontweight="bold",color="#1a2e44",pad=14)
-    ax.tick_params(colors="#6b7a8d",length=0)
-    for sp in ax.spines.values(): sp.set_visible(False)
-    ax.xaxis.grid(True,color="#dce3ec",linestyle="--",linewidth=0.7); ax.set_axisbelow(True)
-    fig.tight_layout(pad=1.6); return fig
+def make_ranking_chart(results: list, target_name: str):
+    """
+    Horizontal bar chart ranking routes by total score.
+    Displayed above the route cards when more than one route is found in a
+    given category (Dataset / Validated / Predicted).
+    """
+    labels = [r[2].get("matched_route_name", f"Route {i+1}")[:32]
+              for i, r in enumerate(results)]
+    scores = [r[0] for r in results]
+    n = len(scores)
+
+    fig, ax = _hires_fig(figsize=(7, max(2.0, n * 0.65)), dpi=180)
+    colors = [PALETTE[i % len(PALETTE)] for i in range(n)]
+    bars   = ax.barh(np.arange(n), scores, color=colors, height=0.52, edgecolor="none")
+
+    for bar, s in zip(bars, scores):
+        ax.text(
+            s + max(scores) * 0.013,
+            bar.get_y() + bar.get_height() / 2,
+            f"{s:.4f}",
+            va="center", fontsize=9.5, color="#1a2e44", fontweight="600",
+        )
+
+    ax.set_yticks(np.arange(n))
+    ax.set_yticklabels(labels, fontsize=10, color="#1a2e44")
+    ax.set_xlabel(T["score_axis"], fontsize=10, color="#6b7a8d")
+    ax.set_xlim(0, max(scores) * 1.30)
+    ax.set_title(
+        T["chart_title"].format(target=target_name),
+        fontsize=13, fontweight="bold", color="#1a2e44", pad=14,
+    )
+    ax.tick_params(colors="#6b7a8d", length=0)
+    for sp in ax.spines.values():
+        sp.set_visible(False)
+    ax.xaxis.grid(True, color="#dce3ec", linestyle="--", linewidth=0.7)
+    ax.set_axisbelow(True)
+    fig.tight_layout(pad=1.6)
+    return fig
 
 
-def make_yield_chart(steps_route):
-    vals=[s.get("yield_percent") or 50 for s in steps_route]
-    isnl=[s.get("yield_percent") is None for s in steps_route]; n=len(vals)
-    fig,ax=plt.subplots(figsize=(max(4,n*0.6),2.2))
-    fig.patch.set_facecolor(FIG_BG); ax.set_facecolor(FIG_BG)
-    ax.bar(range(1,n+1),vals,color=["#c8d8e8" if nl else "#1a2e44" for nl in isnl],
-           width=0.52,edgecolor="none")
-    ax.axhline(50,color="#e07b39",linestyle="--",linewidth=1.2)
-    ax.set_ylim(0,115); ax.set_xticks(range(1,n+1))
-    ax.set_xlabel(strip_emoji(T["col_steps"]),fontsize=10,color="#6b7a8d")
-    ax.set_ylabel("Yield (%)",fontsize=10,color="#6b7a8d")
-    ax.legend(handles=[mpatches.Patch(color="#1a2e44",label="Reported yield"),
-                       mpatches.Patch(color="#c8d8e8",label="Missing → 50%")],
-              fontsize=8,framealpha=0.8,facecolor=FIG_BG,edgecolor="#dce3ec")
-    for sp in ax.spines.values(): sp.set_visible(False)
-    ax.yaxis.grid(True,color="#dce3ec",linestyle="--",linewidth=0.6); ax.set_axisbelow(True)
-    ax.tick_params(colors="#6b7a8d",length=0); fig.tight_layout(pad=1.2); return fig
+def make_yield_chart(steps_route: list):
+    """
+    Bar chart of reported yield per step — shown in the Dataset Explorer route
+    detail view. Steps with no reported yield are simply absent from the chart.
+    Yield labels use integer format (no decimal places). To add decimals, change
+    f"{v:.0f}%" to f"{v:.1f}%" or f"{v:.2f}%" in the label text call below.
+    """
+    n = len(steps_route)
+    step_nums      = list(range(1, n + 1))
+    reported_vals  = []
+    reported_steps = []
+    for i, s in enumerate(steps_route):
+        y = s.get("yield_percent")
+        if y is not None:
+            reported_vals.append(y)
+            reported_steps.append(i + 1)
+
+    fig, ax = _hires_fig(figsize=(max(4.5, n * 0.7), 2.6), dpi=180)
+
+    if reported_vals:
+        bars = ax.bar(
+            reported_steps, reported_vals,
+            color="#1a2e44", width=0.52, edgecolor="none",
+        )
+        for bar, v in zip(bars, reported_vals):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height() + 1.2,
+                f"{v:.0f}%",
+                ha="center", va="bottom",
+                fontsize=7.5, color="#1a2e44", fontweight="600",
+            )
+
+    ax.set_ylim(0, 125)
+    ax.set_xticks(step_nums)
+    ax.set_xlabel(strip_emoji(T["col_steps"]), fontsize=10, color="#6b7a8d")
+    ax.set_ylabel("Yield (%)", fontsize=10, color="#6b7a8d")
+    ax.legend(
+        handles=[mpatches.Patch(color="#1a2e44", label="Reported yield")],
+        fontsize=8, framealpha=0.8, facecolor=FIG_BG, edgecolor="#dce3ec",
+    )
+    for sp in ax.spines.values():
+        sp.set_visible(False)
+    ax.yaxis.grid(True, color="#dce3ec", linestyle="--", linewidth=0.6)
+    ax.set_axisbelow(True)
+    ax.tick_params(colors="#6b7a8d", length=0)
+    fig.tight_layout(pad=1.2)
+    return fig
 
 
-def make_comparison_chart(sel_results, criteria):
-    route_names=[r[2].get("matched_route_name",f"R{i+1}")[:20] for i,r in enumerate(sel_results)]
-    n_routes=len(sel_results); n_crit=len(criteria); x=np.arange(n_crit)
-    bar_h=0.72/n_routes
-    offsets=np.linspace(-(n_routes-1)/2,(n_routes-1)/2,n_routes)*bar_h
-    fig,ax=plt.subplots(figsize=(5.5,max(2.5,n_crit*0.9)))
-    fig.patch.set_facecolor(FIG_BG); ax.set_facecolor(FIG_BG)
-    for i,(score,details,route) in enumerate(sel_results):
-        vals=[details[c].get("raw",0) or 0 for c in criteria]
-        color=PALETTE[i%len(PALETTE)]; name=route_names[i]
-        bars=ax.barh(x+offsets[i],vals,bar_h*0.88,color=color,label=name,edgecolor="none",alpha=0.92)
-        for bar,v in zip(bars,vals):
-            ax.text(v+0.012,bar.get_y()+bar.get_height()/2,f"{v:.2f}",
-                    va="center",fontsize=8,color=color,fontweight="600")
-    ax.set_yticks(x); ax.set_yticklabels([strip_emoji(CL[c]) for c in criteria],fontsize=10,color="#1a2e44")
-    ax.set_xlim(0,1.22); ax.set_xlabel("Raw score (0-1)",fontsize=10,color="#6b7a8d")
-    ax.set_title(strip_emoji(T["radar_title"]),fontsize=12,fontweight="bold",color="#1a2e44",pad=12)
-    ax.legend(loc="lower right",fontsize=8,framealpha=0.8,facecolor=FIG_BG,edgecolor="#dce3ec")
-    ax.tick_params(colors="#6b7a8d",length=0)
-    for sp in ax.spines.values(): sp.set_visible(False)
-    ax.xaxis.grid(True,color="#dce3ec",linestyle="--",linewidth=0.6); ax.set_axisbelow(True)
-    fig.tight_layout(pad=1.4); return fig
+def make_comparison_chart(sel_results: list, criteria: list):
+    """
+    Grouped horizontal bar chart comparing raw scores per criterion across
+    the routes selected in the Analysis tab multi-select.
+    Each route is a different colour; each row is a criterion.
+    """
+    route_names = [
+        r[2].get("matched_route_name", f"R{i+1}")[:20]
+        for i, r in enumerate(sel_results)
+    ]
+    n_routes = len(sel_results)
+    n_crit   = len(criteria)
+    x        = np.arange(n_crit)
+    bar_h    = 0.72 / n_routes
+    offsets  = np.linspace(-(n_routes - 1) / 2, (n_routes - 1) / 2, n_routes) * bar_h
 
+    fig, ax = _hires_fig(figsize=(6.5, max(2.8, n_crit * 1.0)), dpi=180)
+
+    for i, (score, details, route) in enumerate(sel_results):
+        vals   = [details[c].get("raw", 0) or 0 for c in criteria]
+        color  = PALETTE[i % len(PALETTE)]
+        name   = route_names[i]
+        bars   = ax.barh(
+            x + offsets[i], vals, bar_h * 0.88,
+            color=color, label=name, edgecolor="none", alpha=0.92,
+        )
+        for bar, v in zip(bars, vals):
+            ax.text(
+                v + 0.012,
+                bar.get_y() + bar.get_height() / 2,
+                f"{v:.4f}",
+                va="center", fontsize=8, color=color, fontweight="600",
+            )
+
+    ax.set_yticks(x)
+    ax.set_yticklabels(
+        [strip_emoji(CL[c]) for c in criteria], fontsize=10, color="#1a2e44",
+    )
+    ax.set_xlim(0, 1.28)
+    ax.set_xlabel("Raw score (0–1)", fontsize=10, color="#6b7a8d")
+    ax.set_title(
+        strip_emoji(T["radar_title"]),
+        fontsize=12, fontweight="bold", color="#1a2e44", pad=12,
+    )
+    ax.legend(
+        loc="lower right", fontsize=8,
+        framealpha=0.8, facecolor=FIG_BG, edgecolor="#dce3ec",
+    )
+    ax.tick_params(colors="#6b7a8d", length=0)
+    for sp in ax.spines.values():
+        sp.set_visible(False)
+    ax.xaxis.grid(True, color="#dce3ec", linestyle="--", linewidth=0.6)
+    ax.set_axisbelow(True)
+    fig.tight_layout(pad=1.4)
+    return fig
 
 
 # =============================================================================
-# quiz rétrosynthèse (pendant l'attente AiZynthFinder)
+# route display helpers
 # =============================================================================
-
-# questions basées sur les réactions classiques de synthèse totale
-
-# =============================================================================
-# helpers d'affichage d'une route
-# =============================================================================
-
-
 
 def build_route_report_pdf(score_total: float, details: dict, route: dict,
                             criteria: list) -> bytes:
     """
-    PDF haute résolution via PIL uniquement (pas de reportlab).
-    Page 1 : résumé (score, critères, starting materials).
-    Pages suivantes : 2 étapes par page max, molécules Cairo 300 DPI.
+    Generates a multi-page PDF report for a single synthesis route using PIL
+    only (no reportlab dependency).
+
+    Page layout:
+      - Page 1 : summary header (route name, target, status, score), metric
+                 cards (steps, cumulative yield, bottleneck, avg yield), score
+                 breakdown table, and starting material structures.
+      - Pages 2+: up to 3 steps per page, each rendered with Cairo molecule
+                 images at 200 DPI.
     """
     from PIL import Image as _PI, ImageDraw as _PID, ImageFont as _PIF
     import io as _io
 
-    # ── constantes ─────────────────────────────────────────────────────────
     DPI   = 200
-    PW    = int(8.27 * DPI)    # A4 portrait width  px
-    PH    = int(11.69 * DPI)   # A4 portrait height px
-    MG    = int(0.55 * DPI)    # marge
-    CW    = PW - 2 * MG        # content width
+    PW    = int(8.27 * DPI)
+    PH    = int(11.69 * DPI)
+    MG    = int(0.55 * DPI)
+    CW    = PW - 2 * MG
 
     NAVY  = (26,  46,  68)
     WHITE = (255, 255, 255)
@@ -1296,7 +1434,6 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         return _PIF.load_default()
 
     def _mol_pil(smi, w, h):
-        """Image PIL haute résolution via Cairo (gère ions et atomes)."""
         if not smi or not MODULE_OK: return None
         mol = Chem.MolFromSmiles(smi)
         if mol is None: return None
@@ -1324,7 +1461,6 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         except Exception: return len(txt) * max(6, font.size // 2)
 
     def _wrap(draw, txt, max_px, font):
-        """retourne une liste de lignes tenant dans max_px."""
         words = txt.split(); lines = []; line = ""
         for w in words:
             test = (line + " " + w).strip()
@@ -1343,7 +1479,6 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         draw.rounded_rectangle([x, y, x+w, y+h], radius=r,
                                 fill=fill, outline=outline or fill)
 
-    # ── données de la route ────────────────────────────────────────────────
     steps_data = route.get("dataset_steps", [])
     rname      = route.get("matched_route_name", "Unknown route")
     target     = route.get("matched_target", "?")
@@ -1357,13 +1492,10 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     pages = []
 
-    # ══════════════════════════════════════════════════════════════════════
-    # PAGE 1 — résumé
-    # ══════════════════════════════════════════════════════════════════════
     p1 = _PI.new("RGB", (PW, PH), BG)
     d1 = _PID.Draw(p1)
 
-    BH = int(0.72 * DPI)    # hauteur bandeau
+    BH = int(0.72 * DPI)
     _draw_band(d1, 0, BH)
     d1.text((MG, 20),  _trunc(rname, 60), fill=WHITE, font=_fnt(38, True))
     d1.text((MG, 64),
@@ -1372,7 +1504,6 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     y1 = BH + 22
 
-    # métriques en ligne
     mets = [("Steps", str(len(steps_data))),
             ("Cumul. yield", f"{cumyl*100:.4f}%"),
             ("Bottleneck",   f"{bn_:.4f}%" if bn_ else "—"),
@@ -1387,7 +1518,6 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     d1.line([(MG, y1), (PW - MG, y1)], fill=SEP, width=2); y1 += 18
 
-    # tableau critères
     d1.text((MG, y1), "Score breakdown", fill=NAVY, font=_fnt(24, True)); y1 += 32
     col_ws = [int(CW * p) for p in [0.34, 0.22, 0.18, 0.26]]
     hdrs   = ["Criterion", "Raw (0–1)", "Weight", "Contribution"]
@@ -1415,7 +1545,6 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     d1.line([(MG, y1), (PW - MG, y1)], fill=SEP, width=2); y1 += 16
 
-    # starting materials
     if sub["to_buy"]:
         d1.text((MG, y1), "Starting materials", fill=NAVY, font=_fnt(22, True)); y1 += 28
         n_sm  = min(len(sub["to_buy"]), 5)
@@ -1435,13 +1564,9 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     pages.append(p1)
 
-    # ══════════════════════════════════════════════════════════════════════
-    # PAGES ÉTAPES — 2 étapes par page
-    # ══════════════════════════════════════════════════════════════════════
     def _render_step_at(draw, page, step, x0, y0, avail_w, avail_h):
-        """Dessine une étape dans la cellule [x0,y0, x0+avail_w, y0+avail_h]."""
-        L = x0 + 4   # left
-        W = avail_w - 8  # width
+        L = x0 + 4
+        W = avail_w - 8
 
         snum  = step.get("step_number", "?")
         rtype = step.get("reaction_type", "—") or "—"
@@ -1467,15 +1592,12 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         HDR_H = int(avail_h * 0.22)
         COND_H= int(avail_h * 0.16)
 
-        # bandeau
         _draw_band(draw, y, HDR_H, hdr_c)
-        # limiter le texte à la largeur disponible
         lbl = f"Step {snum} — {_trunc(rtype, 30)}"
         draw.text((L, y + 5), lbl, fill=WHITE, font=_fnt(16, True))
         draw.text((L, y + 24), f"Yield: {yld_s}", fill=(200,215,230), font=_fnt(13))
         y += HDR_H
 
-        # conditions
         _draw_rounded(draw, L, y, W, COND_H - 4, LIGHT, SEP, 3)
         clines = _wrap(draw, "Cond: " + cond_s, W - 8, _fnt(13))[:2]
         cy = y + 4
@@ -1484,7 +1606,6 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
             cy += 17
         y += COND_H
 
-        # molécules
         mol_zone = avail_h - HDR_H - COND_H - 18
         mol_h = max(50, min(mol_zone, int(avail_h * 0.45)))
         n_reac = max(len(reac), 1)
@@ -1519,11 +1640,8 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
             tw   = _text_w(draw, lbl3, _fnt(11))
             draw.text((mx+(mol_w-tw)//2, y+mol_h+2), lbl3, fill=GREEN, font=_fnt(11))
 
-        # séparateur bas de cellule
         draw.line([(x0, y0+avail_h-2),(x0+avail_w, y0+avail_h-2)], fill=SEP, width=1)
 
-
-    # 3 étapes par page, les unes sous les autres
     STEPS_PER_PAGE = 3
     STEP_H = (PH - 2 * MG - int(0.15 * DPI) * (STEPS_PER_PAGE - 1)) // STEPS_PER_PAGE
     STEP_W = CW
@@ -1539,7 +1657,6 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
             _render_step_at(drw, pg, step, MG, y0, STEP_W, STEP_H)
         pages.append(pg)
 
-    # ── assembler en PDF ──────────────────────────────────────────────────
     buf = _io.BytesIO()
     if pages:
         pages[0].save(buf, format="PDF", save_all=True,
@@ -1547,10 +1664,19 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
     return buf.getvalue()
 
 
-
 def display_route_card(score_total, details, route, criteria, weights,
                        all_results, rank=1, badge="📚 dataset", lang="en") -> None:
-    """affiche une route complète avec le design de la collègue"""
+    """
+    Renders a full route card inside a Streamlit expander.
+
+    Displays (in order):
+      1. Validation status banner (info/success/warning)
+      2. Four metric columns (score, steps, bottleneck yield, avg yield)
+      3. Score breakdown table (build_score_table_html)
+      4. PDF download button (build_route_report_pdf)
+      5. Interactive reaction scheme (build_clickable_scheme_html)
+      6. Substances needed expander (get_substances_list)
+    """
     route_name = route.get("matched_route_name","?")
     tgt        = route.get("matched_target","?")
     steps_data = route.get("dataset_steps",[])
@@ -1579,13 +1705,12 @@ def display_route_card(score_total, details, route, criteria, weights,
         m1.metric(T["metric_score"], f"{score_total:.3f}", help=T["metric_score_help"])
         m2.metric(T["metric_steps"], n_steps)
         m3.metric(T["metric_bottleneck"],
-                  f"{bn:.4f}%" if bn is not None else "—", help=T["metric_bn_help"])
-        m4.metric(T["metric_avg"], f"{av:.4f}%" if av is not None else "—")
+                  f"{bn:.1f}%" if bn is not None else "—", help=T["metric_bn_help"])
+        m4.metric(T["metric_avg"], f"{av:.1f}%" if av is not None else "—")
 
         st.markdown(f"**{T['contrib_title']}**")
         st.html(build_score_table_html(details, criteria, weights))
 
-        # bouton de téléchargement PDF
         dl_name = "".join(c for c in route_name if c.isalnum() or c in " _-")[:40].strip()
         dl_col, _ = st.columns([1, 3])
         with dl_col:
@@ -1604,9 +1729,6 @@ def display_route_card(score_total, details, route, criteria, weights,
 
         st.markdown("---")
         st.markdown("**Reaction scheme** *(click an arrow to see step details below)*")
-        # height = espace co-réactifs (CO_H+14=78px) + schéma (200px) + panel max (240px) + marge
-        # hauteur initiale : CO_OFFSET(62) + SCHEME_H(200) + marge(20) = 282
-        # Le ResizeObserver dans l'iframe agrandit automatiquement quand le panel s'ouvre
         components.html(
             build_clickable_scheme_html(steps_data, route_key, is_pred),
             height=480, scrolling=True,
@@ -1616,7 +1738,6 @@ def display_route_card(score_total, details, route, criteria, weights,
         with st.expander("🧪 Substances needed", expanded=False):
             sub=get_substances_list(steps_data)
             all_mols = sub["to_buy"] + sub["to_prepare"][:6]
-            # toutes les molécules ensemble, petites images, pas de SMILES en dessous
             if all_mols:
                 n_cols = min(4, len(all_mols))
                 cols_sub = st.columns(n_cols)
@@ -1629,9 +1750,8 @@ def display_route_card(score_total, details, route, criteria, weights,
             if sub["reagents"]: st.markdown("**🔬 Reagents**"); st.write("  ·  ".join(sub["reagents"][:10]))
 
 
-
 # =============================================================================
-# sidebar
+# sidebar settings
 # =============================================================================
 
 with st.sidebar:
@@ -1641,23 +1761,90 @@ with st.sidebar:
 
     st.divider()
     st.subheader(T["files_section"])
-    dataset_path         = st.text_input(T["ds_label"],      value="reaction_dataset.json")
+
+    dataset_path = st.text_input(
+        T["ds_label"],
+        value="reaction_dataset.json",
+        help=(
+            "Path to your main curated reaction dataset (JSON). "
+            "Format: list of reaction dicts with fields: id, route_id, route_name, "
+            "target, step_number, reactants_smiles, product_smiles, conditions, "
+            "yield_percent, reaction_type."
+        ),
+    )
     toxicity_path = st.text_input(
         T["tox_label"] + " *",
         value="toxicity_dataset.json",
-        help="Required — toxicity scores used by the Safety criterion.",
+        help=(
+            "Path to your toxicity/safety scores file (JSON). "
+            "Required for the Safety criterion. "
+            "If not found, safety scores default to 0.5 (neutral)."
+        ),
     )
     if not os.path.exists(toxicity_path):
         st.warning(f"⚠️ Toxicity file not found: `{toxicity_path}` — Safety scores will default to 0.5")
-    config_path          = st.text_input(T["cfg_label"],     value="config.yml")
-    rxninsight_db_path   = st.text_input(T["rxni_label"],    value="data/uspto_rxn_insight.gzip")
-    generic_dataset_path = st.text_input(T["generic_label"], value="generic_reactions.json")
-    top_n    = st.slider(T["topn_label"], 1, 5, 3)
-    n_aiz    = st.slider(T["naiz_label"], 5, 50, 25, help="More routes = better chance of matching generic dataset")
+
+    config_path = st.text_input(
+        T["cfg_label"],
+        value="config.yml",
+        help=(
+            "Path to the AiZynthFinder YAML config file. "
+            "Specifies the policy network, filter, and stock files. "
+            "Required — AiZynthFinder will not run without it."
+        ),
+    )
+    rxninsight_db_path = st.text_input(
+        T["rxni_label"],
+        value="data/uspto_rxn_insight.gzip",
+        help=(
+            "Path to the Rxn-INSIGHT USPTO reaction database (gzip). "
+            "Optional — only needed if 'Include predicted routes' is enabled. "
+            "Enables reaction classification and condition prediction for novel routes."
+        ),
+    )
+    generic_dataset_path = st.text_input(
+        T["generic_label"],
+        value="generic_reactions.json",
+        help=(
+            "Path to a flat JSON list of individual reactions (same format as the main dataset). "
+            "Used to cross-validate AiZynthFinder-proposed steps with real experimental data. "
+            "Without this file, all AiZ routes are classified as 'predicted'."
+        ),
+    )
+
+    st.divider()
+
+    top_n = st.slider(
+        T["topn_label"],
+        1, 5, 3,
+        help=(
+            "Maximum number of routes shown per category (Dataset / Validated / Predicted). "
+            "Does not affect the AiZynthFinder search — only how many results are displayed."
+        ),
+    )
+    n_aiz = st.slider(
+        T["naiz_label"],
+        5, 50, 25,
+        help=(
+            "Number of routes AiZynthFinder explores internally via MCTS. "
+            "Higher = more routes explored, better chance of matching your generic dataset, "
+            "but longer search time (roughly +2–4 s per extra route). "
+            "Recommended: 20–30 for speed, 40–50 for thoroughness."
+        ),
+    )
 
     include_predicted = False
     if RXNINSIGHT_OK:
-        include_predicted = st.toggle("Include predicted routes (Rxn-INSIGHT)", value=True)
+        include_predicted = st.toggle(
+            "Include predicted routes (Rxn-INSIGHT)",
+            value=True,
+            help=(
+                "When enabled, AiZynthFinder routes that have no matching steps in the "
+                "generic dataset are classified as 'predicted' and annotated by Rxn-INSIGHT "
+                "(reaction type, conditions). Their yield is excluded from scoring. "
+                "Disable to show only experimentally validated routes."
+            ),
+        )
     else:
         st.caption("🔮 Predicted routes disabled (`pip install rxn-insight`)")
 
@@ -1670,7 +1857,7 @@ with st.sidebar:
 
 
 # =============================================================================
-# main
+# main layout
 # =============================================================================
 
 st.title(T["page_title"])
@@ -1750,8 +1937,6 @@ with tab_search:
         for e in errs: st.error(f"{T['err_file']}: {e}")
         if not errs:
             with st.status(T["searching"], expanded=True) as status:
-                # ── quiz visible pendant la recherche ──────────────────────
-                # ──────────────────────────────────────────────────────────
                 try:
                     st.write(T["loading_ds"])
                     st.write(T["loading_aiz"])
@@ -1795,7 +1980,7 @@ with tab_search:
     tox_index   = st.session_state.get("tox_index", {})
 
     if results_raw is None:
-        pass  # pas encore de recherche
+        pass
     elif not isinstance(results_raw, dict):
         st.warning(T["no_routes"])
     else:
@@ -1814,7 +1999,6 @@ with tab_search:
 
             tgt_name = st.session_state.get("target_name", target_name)
 
-            # ── dataset ────────────────────────────────────────────────────
             st.markdown(T["sec_dataset"])
             st.caption(T["cap_dataset"])
             if not scored_dataset:
@@ -1829,7 +2013,6 @@ with tab_search:
                     display_route_card(score_total,details,route,criteria,weights,
                                        scored_dataset,rank,T["badge_dataset"],lang)
 
-            # ── validated ──────────────────────────────────────────────────
             if scored_validated:
                 st.markdown("---")
                 st.markdown(T["sec_validated"])
@@ -1843,13 +2026,11 @@ with tab_search:
                     display_route_card(score_total,details,route,criteria,weights,
                                        scored_validated,rank,badge,lang)
 
-            # ── predicted ──────────────────────────────────────────────────
             if include_predicted and RXNINSIGHT_OK and scored_predicted:
                 st.markdown("---")
                 st.markdown(T["sec_predicted"])
                 st.caption(T["cap_predicted"])
 
-                # barre de recherche par starting material
                 search_sm = st.text_input("Search by starting material SMILES",
                                           placeholder="e.g. c1ccc2[nH]ccc2c1",
                                           key="sm_search")
@@ -1913,7 +2094,6 @@ with tab_analysis:
         if not all_sc:
             st.info(T["no_analysis"])
         else:
-            # ── comparaison côte à côte ──────────────────────────────────
             st.subheader(T["compare_title"])
 
             def _route_badge_label(r):
@@ -1934,18 +2114,23 @@ with tab_analysis:
                 rows=[]
                 for score,details,route in sel_results:
                     sd=route.get("dataset_steps",[]); bn_=bottleneck_yield(sd); av_=average_yield(sd)
+                    yc=cumulative_yield(sd)
                     row={"Route":route.get("matched_route_name","?")[:26],
                          T["metric_score"]:f"{score:.3f}",
                          T["metric_steps"]:len(sd),
-                         T["metric_bottleneck"]:f"{bn_:.4f}%" if bn_ else "—",
-                         T["metric_avg"]:f"{av_:.4f}%" if av_ else "—"}
+                         "Cumul. yield":f"{yc*100:.4f}%",
+                         T["metric_bottleneck"]:f"{bn_:.1f}%" if bn_ else "—",
+                         T["metric_avg"]:f"{av_:.1f}%" if av_ else "—"}
                     for c in criteria:
                         raw=details[c].get("raw")
+                        if c == "steps":
+                            continue
+                        if c == "yield":
+                            continue
                         row[CL[c]]=f"{raw:.4f}" if raw is not None else "N/A"
-                    # tous les critères (même non sélectionnés)
                     all_s=fi.compute_all_scores(route, tox_index)
                     for c in fi.CRITERIA_REGISTRY:
-                        if c not in criteria:
+                        if c not in criteria and c not in ("steps", "yield"):
                             row[CL[c]+" ✗"]=f"{all_s[c]:.4f}"
                     rows.append(row)
                 df=pd.DataFrame(rows).set_index("Route")
@@ -1957,7 +2142,6 @@ with tab_analysis:
                     fig_cmp=make_comparison_chart(sel_results,criteria)
                     st.pyplot(fig_cmp); plt.close(fig_cmp)
 
-                # schémas côte à côte
                 if len(sel_results)==2:
                     st.markdown("---")
                     st.markdown("### Reaction schemes")
@@ -1971,76 +2155,54 @@ with tab_analysis:
                                                             rk,route.get("is_predicted",False)),
                                 height=480, scrolling=True)
 
-            st.markdown("---")
-
-            # ── Pareto front ─────────────────────────────────────────────────
-            st.markdown(f"**{T['pareto_title']}**")
-            avail_crit = list(fi.CRITERIA_REGISTRY.keys())
-            pc1, pc2 = st.columns(2)
-            with pc1:
-                px_key = st.selectbox(T["pareto_x"], avail_crit, index=0,
-                                      format_func=lambda x: CL.get(x,x), key="px")
-            with pc2:
-                py_opts = [a for a in avail_crit if a != px_key]
-                py_key  = st.selectbox(T["pareto_y"], py_opts, index=0,
-                                       format_func=lambda x: CL.get(x,x), key="py")
-
-            def _pareto_front(points):
-                res = []
-                for i,(x1,y1) in enumerate(points):
-                    dominated = any(
-                        (x2>=x1 and y2>=y1) and (x2>x1 or y2>y1)
-                        for j,(x2,y2) in enumerate(points) if j!=i
-                    )
-                    if not dominated: res.append(i)
-                return res
-
-            if px_key != py_key:
-                xs = [fi.CRITERIA_REGISTRY[px_key]["fn"](r[2], tox_index) for r in all_sc]
-                ys = [fi.CRITERIA_REGISTRY[py_key]["fn"](r[2], tox_index) for r in all_sc]
-                xs_n = [1-v if px_key=="steps" else v for v in xs]
-                ys_n = [1-v if py_key=="steps" else v for v in ys]
-                pareto_idx = _pareto_front(list(zip(xs_n, ys_n)))
-                dom_idx    = [i for i in range(len(all_sc)) if i not in pareto_idx]
-
-                fig_p, ax_p = plt.subplots(figsize=(4.5, 4))
-                fig_p.patch.set_facecolor(FIG_BG); ax_p.set_facecolor(FIG_BG)
-                if dom_idx:
-                    ax_p.scatter([xs_n[i] for i in dom_idx],
-                                 [ys_n[i] for i in dom_idx],
-                                 s=60, color="#9fc8e0", alpha=0.7, zorder=2,
-                                 label=strip_emoji(T["pareto_dominated"]))
-                px_v = [xs_n[i] for i in pareto_idx]
-                py_v = [ys_n[i] for i in pareto_idx]
-                ax_p.scatter(px_v, py_v, s=100, color="#1a2e44", zorder=3,
-                             edgecolors="#4a86c8", linewidths=1.8,
-                             label=strip_emoji(T["pareto_front"]))
-                for i in pareto_idx:
-                    nm = all_sc[i][2].get("matched_route_name","")[:12]
-                    ax_p.annotate(nm, (xs_n[i], ys_n[i]),
-                                  textcoords="offset points", xytext=(5,5),
-                                  fontsize=7, color="#1a2e44")
-                if len(pareto_idx) > 1:
-                    sp = sorted(zip(px_v, py_v))
-                    ax_p.plot([p[0] for p in sp], [p[1] for p in sp],
-                              "--", color="#2d5986", linewidth=1.1, alpha=0.55)
-                def _ax_lbl(key):
-                    return strip_emoji(CL.get(key,key)) + (" (fewer=right)" if key=="steps" else "")
-                ax_p.set_xlabel(_ax_lbl(px_key), fontsize=9, color="#6b7a8d")
-                ax_p.set_ylabel(_ax_lbl(py_key), fontsize=9, color="#6b7a8d")
-                ax_p.set_title(strip_emoji(T["pareto_title"]), fontsize=11,
-                               fontweight="bold", color="#1a2e44", pad=10)
-                ax_p.legend(fontsize=7, framealpha=0.8, facecolor=FIG_BG, edgecolor="#dce3ec")
-                for sp_ in ax_p.spines.values(): sp_.set_visible(False)
-                ax_p.grid(True, color="#dce3ec", linestyle="--", linewidth=0.5)
-                ax_p.tick_params(colors="#6b7a8d", length=0)
-                fig_p.tight_layout(pad=1.2)
-                st.pyplot(fig_p); plt.close(fig_p)
-                st.info(T["pareto_note"])
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 3 — DATASET EXPLORER
 # ══════════════════════════════════════════════════════════════════════════════
+
+def _smiles_copy_widget(smiles: str, label: str = "") -> None:
+    """
+    Renders a compact inline widget showing a truncated SMILES string with a
+    clipboard Copy button. Used in the Dataset Explorer step-by-step view
+    beneath each reactant and product image so the chemist can quickly copy
+    any SMILES without manually reading the full string.
+    """
+    short = smiles[:38] + ("…" if len(smiles) > 38 else "")
+    safe  = smiles.replace("`", "\\`").replace("\\", "\\\\")
+    html_snip = f"""
+<div style="
+    display:flex; align-items:center; gap:6px;
+    background:#f5f7fa; border:1px solid #dce3ec;
+    border-radius:6px; padding:4px 8px;
+    font-family:'DM Mono','Fira Mono',monospace;
+    font-size:0.72rem; color:#37506e;
+    margin-top:2px; margin-bottom:6px;
+    overflow:hidden;
+">
+  <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+        title="{smiles}">{short}</span>
+  <button onclick="
+    navigator.clipboard.writeText(`{safe}`)
+      .then(()=>{{this.textContent='✓';setTimeout(()=>this.textContent='Copy',1400)}})
+      .catch(()=>{{
+        var t=document.createElement('textarea');
+        t.value=`{safe}`;document.body.appendChild(t);
+        t.select();document.execCommand('copy');
+        document.body.removeChild(t);
+        this.textContent='✓';setTimeout(()=>this.textContent='Copy',1400);
+      }})
+  "
+  style="
+    background:#1a2e44; color:white; border:none;
+    border-radius:4px; padding:2px 8px;
+    font-size:0.68rem; font-weight:600;
+    cursor:pointer; white-space:nowrap; flex-shrink:0;
+  ">Copy</button>
+</div>
+"""
+    components.html(html_snip, height=36, scrolling=False)
+
+
 with tab_dataset:
     if not os.path.exists(dataset_path):
         st.warning(T["ds_not_found"].format(path=dataset_path))
@@ -2056,18 +2218,38 @@ with tab_dataset:
         st.markdown("---")
 
         filter_tgt=st.selectbox(T["filter_lbl"],[T["filter_all"]]+targets_uniq)
-        rows=[]
-        for rid,steps in sorted(by_route.items()):
-            tgt=steps[0].get("target","?")
-            if filter_tgt!=T["filter_all"] and tgt!=filter_tgt: continue
-            nm=steps[0].get("route_name",rid); n=len(steps)
-            ys=[s.get("yield_percent") for s in steps]; yo=[y for y in ys if y is not None]
-            yc=cumulative_yield(steps)
-            rows.append({T["col_route"]:nm,T["col_target"]:tgt,T["col_steps"]:n,
-                         T["col_cumyield"]:f"{yc*100:.4f}%",
-                         T["col_missing"]:sum(1 for y in ys if y is None),
-                         T["col_avg"]:f"{sum(yo)/len(yo):.4f}%" if yo else "—"})
-        if rows: st.dataframe(pd.DataFrame(rows),width="stretch",hide_index=True)
+
+        # Route summary table — sorted numerically by cumulative yield
+        rows = []
+        for rid, steps in sorted(by_route.items()):
+            tgt = steps[0].get("target", "?")
+            if filter_tgt != T["filter_all"] and tgt != filter_tgt:
+                continue
+            nm  = steps[0].get("route_name", rid)
+            n   = len(steps)
+            ys  = [s.get("yield_percent") for s in steps]
+            yo  = [y for y in ys if y is not None]
+            yc  = cumulative_yield(steps)
+            rows.append({
+                T["col_route"]:     nm,
+                T["col_target"]:    tgt,
+                T["col_steps"]:     n,
+                "_yc_raw":          yc,
+                T["col_cumyield"]:  f"{yc * 100:.2f}%",
+                T["col_missing"]:   sum(1 for y in ys if y is None),
+                T["col_avg"]:       f"{sum(yo)/len(yo):.1f}%" if yo else "—",
+            })
+
+        if rows:
+            import pandas as pd
+            df_routes = pd.DataFrame(rows)
+            df_routes = (
+                df_routes
+                .sort_values("_yc_raw", ascending=False)
+                .drop(columns=["_yc_raw"])
+                .reset_index(drop=True)
+            )
+            st.dataframe(df_routes, width="stretch", hide_index=True)
 
         st.markdown("---")
         routes_avail=[rid for rid,steps in by_route.items()
@@ -2080,63 +2262,157 @@ with tab_dataset:
             st.markdown(f"**{sr[0].get('route_name')}** — {n_sr} {strip_emoji(T['col_steps']).lower()}")
             fig3=make_yield_chart(sr); st.pyplot(fig3); plt.close(fig3)
 
-            # step-by-step détaillé
             st.markdown("### Step-by-step details")
+
             for step in sr:
-                snum =step.get("step_number","?"); rtype=step.get("reaction_type","—")
-                yld  =step.get("yield_percent");  cond =step.get("conditions",{})
-                prod =step.get("product_smiles","")
-                reac =step.get("reactants_smiles",[])
-                cond_str=fmt_conditions(cond)
+                snum     = step.get("step_number", "?")
+                rtype    = step.get("reaction_type", "—") or "—"
+                yld      = step.get("yield_percent")
+                cond     = step.get("conditions", {})
+                prod     = step.get("product_smiles", "")
+                reac     = step.get("reactants_smiles", [])
+                cond_str = fmt_conditions(cond)
+                is_purif = _is_purification_step(step)
 
-                with st.expander(f"Step {snum} — {rtype}", expanded=False):
-                    col_info, col_img = st.columns([3,1])
-                    with col_info:
-                        st.markdown(T["yield_ok"].format(y=yld) if yld is not None else T["yield_na"])
-                        if cond_str: st.markdown(T["cond_lbl"].format(c=cond_str))
-                        st.markdown("**Reactants:**")
-                        for rsmi in reac:
-                            col_r, col_rc = st.columns([2,1])
-                            with col_r:
-                                rng = mol_png(rsmi, 200, 135)
-                                if rng: st.image(rng, width="stretch")
-                            with col_rc:
-                                st.code(rsmi, language=None)
-                    with col_img:
-                        png_p=mol_png(prod,220,148)
-                        if png_p: st.image(png_p, caption=f"Product {snum}", width="stretch")
-                        with st.expander(T["smi_exp"].format(n=snum),expanded=False):
-                            st.code(prod,language=None)
+                # Purification steps: override the reaction type label if unset
+                if is_purif and (rtype == "—" or not rtype):
+                    rtype = "Purification / Isolation"
 
-            # schéma réactionnel complet (même composant que dans la recherche)
+                header_color = "#6B3E26" if is_purif else "linear-gradient(135deg, #1a2e44 0%, #2d5986 100%)"
+                header_style = (
+                    f"background:{header_color};"
+                    if is_purif else
+                    "background:linear-gradient(135deg, #1a2e44 0%, #2d5986 100%);"
+                )
+
+                st.markdown(
+                    f"""
+<div style="
+    {header_style}
+    color: white;
+    padding: 10px 18px;
+    border-radius: 10px 10px 0 0;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    margin-top: 18px;
+">
+    Step {snum} &nbsp;·&nbsp; {rtype}
+    {"&nbsp;<span style='font-size:0.75rem;background:rgba(255,255,255,0.2);border-radius:8px;padding:1px 8px;'>Purification</span>" if is_purif else ""}
+</div>
+""",
+                    unsafe_allow_html=True,
+                )
+
+                n_reac = max(len(reac), 1)
+                col_weights = [3] * n_reac + [1, 3]
+                cols_rxn = st.columns(col_weights)
+
+                for i, rsmi in enumerate(reac):
+                    with cols_rxn[i]:
+                        png_r = mol_png(rsmi, 240, 165)
+                        if png_r:
+                            st.image(png_r, use_container_width=True)
+                        else:
+                            st.code(rsmi, language=None)
+                        _smiles_copy_widget(rsmi)
+
+                with cols_rxn[n_reac]:
+                    st.markdown(
+                        """
+<div style="
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 165px;
+    padding-top: 10px;
+">
+  <div style="display: flex; align-items: center; gap: 0;">
+    <div style="
+      width: 2.5em; height: 3px;
+      background: #2d5986;
+      border-radius: 2px 0 0 2px;
+    "></div>
+    <div style="
+      width: 0; height: 0;
+      border-top: 9px solid transparent;
+      border-bottom: 9px solid transparent;
+      border-left: 16px solid #2d5986;
+    "></div>
+  </div>
+</div>
+""",
+                        unsafe_allow_html=True,
+                    )
+
+                with cols_rxn[n_reac + 1]:
+                    png_p = mol_png(prod, 240, 165)
+                    if png_p:
+                        st.image(png_p, use_container_width=True)
+                    else:
+                        st.code(prod, language=None)
+                    _smiles_copy_widget(prod, "Product")
+
+                info_parts = []
+                if yld is not None:
+                    info_parts.append(f"**Yield:** {yld}%")
+                else:
+                    info_parts.append("**Yield:** *not reported*")
+                if cond_str:
+                    info_parts.append(f"**Conditions:** {cond_str}")
+
+                st.markdown(
+                    f"""
+<div style="
+    background: #f0f4f8;
+    border: 1px solid #dce3ec;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    padding: 10px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.86rem;
+    color: #1a2e44;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+">
+    {"&nbsp;&nbsp;·&nbsp;&nbsp;".join(
+        p.replace("**", "<strong>", 1).replace("**", "</strong>", 1).replace("*","<em>",1).replace("*","</em>",1)
+        for p in info_parts
+    )}
+</div>
+""",
+                    unsafe_allow_html=True,
+                )
+
             st.markdown("---")
-            st.markdown("**Reaction scheme**")
+            st.markdown("**Full reaction scheme** *(click an arrow for extra details)*")
             route_ds_key = "ds_" + "".join(c for c in rc if c.isalnum())
-            # construire les dataset_steps dans le format attendu par build_clickable_scheme_html
             steps_for_scheme = [
                 {
-                    "step_number":    s.get("step_number"),
-                    "reaction_type":  s.get("reaction_type",""),
-                    "yield_percent":  s.get("yield_percent"),
-                    "reactants_smiles": s.get("reactants_smiles",[]),
-                    "product_smiles": s.get("product_smiles",""),
-                    "conditions":     s.get("conditions",{}),
-                    "source":         "dataset",
+                    "step_number":      s.get("step_number"),
+                    "reaction_type":    s.get("reaction_type", ""),
+                    "yield_percent":    s.get("yield_percent"),
+                    "reactants_smiles": s.get("reactants_smiles", []),
+                    "product_smiles":   s.get("product_smiles", ""),
+                    "conditions":       s.get("conditions", {}),
+                    "source":           "dataset",
                 }
                 for s in sr
             ]
-            scheme_h_ds = 240 if n_sr <= 5 else 280
+            scheme_h_ds = 320 if n_sr <= 5 else (400 if n_sr <= 12 else 480)
             components.html(
                 build_clickable_scheme_html(steps_for_scheme, route_ds_key, False),
-                height=282, scrolling=False,
+                height=scheme_h_ds,
+                scrolling=True,
             )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 4 — QUIZ
-# ══════════════════════════════════════════════════════════════════════════════
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 5 — HELP
+# TAB 4 — HELP
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_help:
     st.subheader(T["help_title"])
@@ -2149,9 +2425,15 @@ with tab_help:
 3. Main dataset routes for the target are returned (all of them, unfiltered)
 4. Novel AiZ routes are checked against `generic_reactions.json` step by step:
    - **Validated** (all steps found): real conditions, yield included in scoring
-   - **Partial** (some steps found): mix of real + Rxn-INSIGHT conditions
    - **Predicted** (no steps found): Rxn-INSIGHT conditions only, yield excluded
-5. Scoring with weighted 1/i² criteria
+5. Weighted 1/i² scoring across criteria
+
+**Purification / isolation steps:**
+Steps where the reactant and product SMILES are identical (or where `reaction_type`
+contains "purif", "recryst", "chroma", "isolation", or "workup") are treated as
+purification steps. They are always shown in the scheme with a **brown dashed arrow**
+and a "Purification" badge, even though no bond-forming chemistry occurs. This
+preserves the full sequence of operations as recorded in the dataset.
 
 **Three result sections:**
 | Section | Source | Conditions | Yield in scoring |
@@ -2159,12 +2441,6 @@ with tab_help:
 | 📚 Dataset | Chemistry by Design | Real | Yes |
 | ✅ Validated | AiZ + generic dataset | Real (validated steps) | Yes |
 | 🔮 Predicted | AiZ + Rxn-INSIGHT | Predicted | No |
-
-**SMILES conditions visualised:** when Rxn-INSIGHT returns conditions as SMILES
-(solvents, reagents), they are rendered as 2D structures in the reaction scheme.
-
-**Quiz:** test your knowledge of retrosynthesis while AiZynthFinder runs.
-Available at any time in the Quiz tab.
 
 **Required files:**
 
@@ -2175,6 +2451,17 @@ Available at any time in the Quiz tab.
 | `toxicity_dataset.json` | ✅ | Safety scores — required for Safety criterion |
 | `data/uspto_rxn_insight.gzip` | ❌ | Rxn-INSIGHT USPTO database |
 | `generic_reactions.json` | ❌ | Individual reactions for step validation |
+
+**Layout tuning — quick reference:**
+
+| Parameter | Location in code | What it controls |
+|-----------|-----------------|-----------------|
+| `SCHEME_H` | `build_clickable_scheme_html()` | Height of the grey molecule band |
+| `PAD_TOP` | same function | Space above the band where co-reactants float |
+| `MOL_W / MOL_H` | same function | Size of main molecule images |
+| `CO_W / CO_H` | same function | Size of co-reactant images (above arrows) |
+| `ARROW_SHAFT_W` | same function | Length of the arrow shaft |
+| `ARROW_CELL_W` | same function | Width of the arrow cell (including labels) |
         """)
     else:
         st.markdown("""
@@ -2185,9 +2472,15 @@ Available at any time in the Quiz tab.
 3. Les routes du dataset principal pour la cible sont retournées (toutes, sans filtre top_n)
 4. Les routes AiZ nouvelles sont validées étape par étape contre `generic_reactions.json` :
    - **Validées** (toutes les étapes trouvées) : conditions réelles, yield inclus dans le score
-   - **Partielles** (certaines étapes trouvées) : mix conditions réelles + Rxn-INSIGHT
    - **Prédites** (aucune étape) : conditions Rxn-INSIGHT uniquement, yield exclu
-5. Scoring par critères pondérés en 1/i²
+5. Score pondéré 1/i² sur les critères
+
+**Étapes de purification / isolation :**
+Les étapes dont le SMILES du réactif est identique au SMILES du produit (ou dont le champ
+`reaction_type` contient "purif", "recryst", "chroma", "isolation" ou "workup") sont
+traitées comme des étapes de purification. Elles s'affichent toujours dans le schéma avec
+une **flèche pointillée marron** et un badge "Purification", même si aucune liaison
+n'est formée. Cela préserve la séquence complète des opérations telle qu'enregistrée dans le dataset.
 
 **Trois sections de résultats :**
 | Section | Source | Conditions | Yield dans le score |
@@ -2195,12 +2488,6 @@ Available at any time in the Quiz tab.
 | 📚 Dataset | Chemistry by Design | Réelles | Oui |
 | ✅ Validées | AiZ + dataset générique | Réelles (étapes validées) | Oui |
 | 🔮 Prédites | AiZ + Rxn-INSIGHT | Prédites | Non |
-
-**Conditions SMILES visualisées :** quand Rxn-INSIGHT retourne des conditions en SMILES
-(solvants, réactifs), elles sont représentées en 2D dans le schéma réactionnel.
-
-**Quiz :** testez vos connaissances en rétrosynthèse pendant qu'AiZynthFinder travaille.
-Accessible à tout moment dans l'onglet Quiz.
 
 **Fichiers nécessaires :**
 
@@ -2211,6 +2498,17 @@ Accessible à tout moment dans l'onglet Quiz.
 | `toxicity_dataset.json` | ✅ | Scores de sécurité — requis pour le critère Sécurité |
 | `data/uspto_rxn_insight.gzip` | ❌ | Base USPTO pour Rxn-INSIGHT |
 | `generic_reactions.json` | ❌ | Réactions individuelles pour validation |
+
+**Réglage de la mise en page — référence rapide :**
+
+| Paramètre | Emplacement dans le code | Ce qu'il contrôle |
+|-----------|--------------------------|-------------------|
+| `SCHEME_H` | `build_clickable_scheme_html()` | Hauteur du bandeau gris dans le schéma |
+| `PAD_TOP` | même fonction | Espace au-dessus du bandeau (co-réactifs) |
+| `MOL_W / MOL_H` | même fonction | Taille des images de molécules principales |
+| `CO_W / CO_H` | même fonction | Taille des images de co-réactifs |
+| `ARROW_SHAFT_W` | même fonction | Longueur du trait de flèche |
+| `ARROW_CELL_W` | même fonction | Largeur de la cellule flèche |
         """)
 
 st.markdown("---")

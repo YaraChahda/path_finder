@@ -1,5 +1,5 @@
 # function_ines.py
-# pipeline : dataset + AiZynthFinder + Rxn-INSIGHT
+# pathfinder : dataset + AiZynthFinder + Rxn-INSIGHT
 
 import json
 import os
@@ -36,6 +36,21 @@ def load_reaction_dataset(path: str) -> dict:
 
     by_product = {}; by_reactant = {}; by_route = {}
     for rxn in reactions:
+        prod = rxn.get("product_smiles", "")
+        if isinstance(prod, list):
+            rxn["product_smiles"] = '.'.join(str(s) for s in prod if s)
+
+        reac = rxn.get("reactants_smiles", [])
+        if isinstance(reac, str):
+            rxn["reactants_smiles"] = [reac]
+        elif isinstance(reac, list):
+            flat = []
+            for r in reac:
+                if isinstance(r, list):
+                    flat.extend(str(s) for s in r if s)
+                elif r is not None:
+                    flat.append(str(r))
+            rxn["reactants_smiles"] = flat
         pk = to_canonical(rxn.get("product_smiles", ""))
         if pk:
             by_product.setdefault(pk, []).append(rxn)
@@ -123,11 +138,15 @@ def load_rxninsight_database(path: str):
 # SMILES utilities
 # =============================================================================
 
-def to_canonical(smiles: str) -> str:
+def to_canonical(smiles) -> str:
+    # Handle list-valued SMILES (e.g. ["CCO"] instead of "CCO")
+    if isinstance(smiles, list):
+        smiles = '.'.join(str(s) for s in smiles if s)
     if not smiles: return ""
+    if not isinstance(smiles, str):
+        return ""
     mol = Chem.MolFromSmiles(smiles)
     return Chem.MolToSmiles(mol) if mol else smiles
-
 
 def safe_mol(smiles: str):
     if not smiles: return None
@@ -767,9 +786,9 @@ def find_best_routes(
     if unknown:
         raise ValueError(f"unknown criteria: {unknown}")
 
-    print(f"\n[pipeline] target: {target_smiles}")
-    if target_name: print(f"[pipeline] name: {target_name}")
-    print(f"[pipeline] criteria: {criteria_priority}")
+    print(f"\n[path_finder] target: {target_smiles}")
+    if target_name: print(f"[pathfinder] name: {target_name}")
+    print(f"[pathfinder] criteria: {criteria_priority}")
 
     print("\n[1/4] loading datasets...")
     dataset    = load_reaction_dataset(dataset_path)
@@ -799,7 +818,7 @@ def find_best_routes(
     scored_validated = rank_weighted(validated_routes, criteria_priority, tox_index)[:top_n]
     scored_predicted = rank_weighted(predicted_routes, criteria_priority, tox_index)[:top_n]
 
-    print(f"\n[pipeline] {len(scored_dataset)} dataset / "
+    print(f"\n[pathfinder] {len(scored_dataset)} dataset / "
           f"{len(scored_validated)} validated / {len(scored_predicted)} predicted")
     for i, (sc, _, r) in enumerate(scored_dataset, 1):
         print(f"  [dataset]   {i}. {r.get('matched_route_name','?')} — score {sc:.4f}")
