@@ -245,5 +245,4 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks,windows,macos
 
-docs/docs_out*.gzip
-*.hdf5
+docs/docs_outzinc_stock.hdf5
