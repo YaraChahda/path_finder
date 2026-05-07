@@ -9,7 +9,8 @@
       "aspidospermine",
       "galanthamine",
       "morphine",
-      "quinine"
+      "quinine",
+      "codeine"
     ],
     "target_smiles": {
       "morphine": "OC1=CC2=C(C=C1)[C@@H]1[C@H]3C[C@@H](O)C=C[C@@H]3N(C)CC1=C2",
@@ -18,6 +19,7 @@
       "galanthamine": "COc2ccc3CN(C)CC[C@]14C=CC(O)CC1Oc2c34",
       "aspidospermine": "CC[C@@]12CCCN3CC[C@@]4(C1)[C@@H](OC(C)=O)c1ccc(OC)cc1N[C@@H]4[C@@H]23",
       "aspidospermidine": "CC[C@@]35CCCN4CC[C@@H](C2c1ccccc1NC2C3)[C@H]45"
+    
     },
     "routes": {
       "aggarwal_2010": {
