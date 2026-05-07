@@ -10454,7 +10454,7 @@
     "target": "Codeine",
     "step_number": 6,
     "reactants_smiles":["CC(C)(C)OC(=O)NCCC1=CCCC[C@H]1O"],
-    "product_smiles": ["CC(C)(C)OC(=O)NCCC1=CCCC[C@@H]1OC2=C(C(=CC=C2OC)/C=C\\ Br)I"],
+    "product_smiles": ["CC(C)(C)OC(=O)NCCC1=CCCC[C@@H]1OC2=C(C(=CC=C2OC)/C=C\\Br)I"],
     "conditions": {
         "temperature_C": 10,
         "temp_range": null,
@@ -10471,7 +10471,7 @@
     "route_name": " Lan 2022",
     "target": "Codeine",
     "step_number": 7,
-    "reactants_smiles":["CC(C)(C)OC(=O)NCCC1=CCCC[C@@H]1OC2=C(C(=CC=C2OC)/C=C\\ Br)I"],
+    "reactants_smiles":["CC(C)(C)OC(=O)NCCC1=CCCC[C@@H]1OC2=C(C(=CC=C2OC)/C=C\\Br)I"],
     "product_smiles": ["CC(C)(C)OC(=O)NCC[C@@]12C3C=CC[C@@H]1OC4=C(C=CC(=C42)C=C3)OC"],
     "conditions": {
         "temperature_C": 110,
