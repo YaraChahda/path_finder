@@ -1,4 +1,4 @@
-# function_ines.py
+# function.py
 # pathfinder : dataset + AiZynthFinder + Rxn-INSIGHT
 
 import json
