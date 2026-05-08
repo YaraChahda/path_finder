@@ -1028,6 +1028,44 @@ def make_comparison_chart(sel_results: list, criteria: list):
     fig.tight_layout(pad=1.4)
     return fig
 
+def build_why_ranked_html(rank: int, score_total: float, details: dict,
+                           criteria: list, weights: dict, steps_data: list) -> str:
+    """
+    Build the 'Why is this route ranked #N?' reasoning box.
+    Shows one bullet per top 2 criteria using relevant values, no raw scores.
+    """
+    bn = fi.bottleneck_yield(steps_data)
+    av = fi.average_yield(steps_data)
+    n  = len(steps_data)
+
+    bullets = []
+
+    for crit in criteria[:2]:  # only top 2 criteria
+        if crit == "steps":
+            bullets.append(T["why_steps"].format(n=n))
+        elif crit == "yield":
+            if bn is not None:
+                bullets.append(T["why_yield"].format(y=f"{bn:.1f}"))
+            elif av is not None:
+                bullets.append(T["why_avg_yield"].format(a=f"{av:.1f}"))
+        elif crit == "atom_economy":
+            raw = details[crit].get("raw") or 0
+            bullets.append(f"it achieves an atom economy of <strong>{raw*100:.0f}%</strong>")
+        elif crit == "e_factor":
+            raw = details[crit].get("raw") or 0
+            bullets.append(f"it has a strong E-factor score of <strong>{raw:.2f}</strong>")
+        elif crit == "toxicity":
+            raw = details[crit].get("raw") or 0
+            bullets.append(f"it has a safety score of <strong>{raw*100:.0f}%</strong>")
+
+    items_html = "".join(f"<li>{b}</li>" for b in bullets)
+
+    return f"""{COMPONENT_STYLE}
+<div class="why-box">
+  <div>{T["why_prefix"].format(r=rank)}</div>
+  <ul>{items_html}</ul>
+  <em>{T["why_suffix"]}</em>
+</div>"""
 
 # =============================================================================
 # Route card display
@@ -1097,6 +1135,10 @@ def display_route_card(score_total, details, route, criteria, weights,
         # Score breakdown table
         st.markdown(f"**{T['contrib_title']}**")
         st.html(build_score_table_html(details, criteria, weights))
+
+        # Why ranked box  
+        st.markdown(f"**{T['why_best_title'].format(r=rank)}**")
+        st.html(build_why_ranked_html(rank, score_total, details, criteria, weights, steps_data))   
 
         # PDF download button
         dl_name = "".join(c for c in route_name if c.isalnum() or c in " _-")[:40].strip()
