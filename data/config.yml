@@ -1,0 +1,11 @@
+expansion:
+  uspto:
+    - C:\Users\ychah\python-course\projects\path_finder\models\uspto_model.onnx
+    - C:\Users\ychah\python-course\projects\path_finder\models\uspto_templates.csv.gz
+  ringbreaker:
+    - C:\Users\ychah\python-course\projects\path_finder\models\uspto_ringbreaker_model.onnx
+    - C:\Users\ychah\python-course\projects\path_finder\models\uspto_ringbreaker_templates.csv.gz
+filter:
+  uspto: C:\Users\ychah\python-course\projects\path_finder\models\uspto_filter_model.onnx
+stock:
+  zinc: C:\Users\ychah\python-course\projects\path_finder\models\zinc_stock.hdf5
