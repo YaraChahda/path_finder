@@ -18,7 +18,7 @@
       "quinine": "C=CC1CN2CCC1CC2[C@H](O)c3ccnc4ccc(OC)cc34",
       "galanthamine": "COc2ccc3CN(C)CC[C@]14C=CC(O)CC1Oc2c34",
       "aspidospermine": "CC[C@@]12CCCN3CC[C@@]4(C1)[C@@H](OC(C)=O)c1ccc(OC)cc1N[C@@H]4[C@@H]23",
-      "aspidospermidine": "CC[C@@]35CCCN4CC[C@@H](C2c1ccccc1NC2C3)[C@H]45"
+      "aspidospermidine": "CC[C@@]35CCCN4CC[C@]2(c1ccccc1NC2CC3)[C@H]45"
     
     },
     "routes": {
@@ -1238,7 +1238,7 @@
       "reactants_smiles": [
         "CC[C@@]35CCCN4CC[C@@]2(C(=Nc1ccccc12)CC3)[C@H]45"
       ],
-      "product_smiles": "CC[C@@]35CCCN4CC[C@@H](C2c1ccccc1NC2C3)[C@H]45",
+      "product_smiles": "CC[C@@]35CCCN4CC[C@]2(c1ccccc1NC2CC3)[C@H]45",
       "conditions": {
         "temperature_C": null,
         "temp_range": null,
@@ -1446,7 +1446,7 @@
       "reactants_smiles": [
         "CCC35CCCN4CC[C@]2(C(=Nc1ccccc12)CC3)C45"
       ],
-      "product_smiles": "CC[C@@]35CCCN4CC[C@@H](C2c1ccccc1NC2C3)[C@H]45",
+      "product_smiles": "CC[C@@]35CCCN4CC[C@]2(c1ccccc1NC2CC3)[C@H]45",
       "conditions": {
         "temperature_C": null,
         "temp_range": null,
@@ -2529,7 +2529,7 @@
         "CC[C@@]13CCCN2C=CC(C(O)CC1)C23",
         "NNc1ccccc1"
       ],
-      "product_smiles": "CC[C@@]35CCCN4CC[C@@H](C2c1ccccc1NC2C3)[C@H]45",
+      "product_smiles": "CC[C@@]35CCCN4CCC2(C(=Nc1ccccc12)CC3)[C@H]45",
       "conditions": {
         "temperature_C": 90,
         "temp_range": null,
@@ -2548,10 +2548,10 @@
       "target": "aspidospermidine",
       "step_number": 13,
       "reactants_smiles": [
-        "CC[C@@]35CCCN4CC[C@@H](C2C(=Nc1ccccc12)C3)[C@H]45",
+        "CC[C@@]35CCCN4CCC2(C(=Nc1ccccc12)CC3)[C@H]45",
         "[Na+].[BH4-]"
       ],
-      "product_smiles": "CC[C@@]35CCCN4CC[C@@H](C2C(=Nc1ccccc12)C3)[C@H]45",
+      "product_smiles": "CC[C@@]35CCCN4CC[C@]2(c1ccccc1NC2CC3)[C@H]45",
       "conditions": {
         "temperature_C": 0,
         "temp_range": null,
@@ -2787,7 +2787,7 @@
         "CC[C@@]13CCCN2CCC(C(=O)CC1)C23",
         "COc1ccccc1NN"
       ],
-      "product_smiles": "COc1ccccc1NN=C2CC[C@]34CC(CN3CCC24)",
+      "product_smiles": "COc1ccccc1N/N=C\\2CC3CCN4CCC2[C@H]34",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -2806,7 +2806,7 @@
       "target": "aspidospermine",
       "step_number": 11,
       "reactants_smiles": [
-        "COc1ccccc1NN=C2CC[C@]34CC(CN3CCC24)"
+        "COc1ccccc1N/N=C\\2CC3CCN4CCC2[C@H]34"
       ],
       "product_smiles": "CC[C@@]35CCCN4CCC2(C(=Nc1c(OC)cccc12)CC3)C45",
       "conditions": {
@@ -3256,7 +3256,7 @@
         "COc2ccc1CCC(=O)C(CC(=O)OC(C)(C)C)c1c2",
         "C=CC(=O)N[C@@H](C)c1ccccc1"
       ],
-      "product_smiles": "COc3ccc2C[C@H]1C(=O)[C@](CC(=O)OC(C)(C)C)(CCC1(C)C)c2c3",
+      "product_smiles": "COc3ccc2C[C@H]1C(=O)[C@](CC(=O)OC(C)(C)C)(CCC1(C)O)c2c3",
       "conditions": {
         "temperature_C": 0,
         "temp_range": "0 to RT",
@@ -3277,7 +3277,7 @@
       "target": "morphine",
       "step_number": 4,
       "reactants_smiles": [
-        "COc3ccc2C[C@H]1C(=O)[C@](CC(=O)OC(C)(C)C)(CCC1(C)C)c2c3"
+        "COc3ccc2C[C@H]1C(=O)[C@](CC(=O)OC(C)(C)C)(CCC1(C)O)c2c3"
       ],
       "product_smiles": "COc1ccc2C[C@@H]4C(C)=CC[C@@]3(CC(=O)c1c23)C4=O",
       "conditions": {
@@ -4093,7 +4093,7 @@
       "reactants_smiles": [
         "CC[C@]24CCCn3ccc(c1ccccc1N(C(=O)OC(C)(C)C)C(OC(C)=O)CC2)c34"
       ],
-      "product_smiles": "CC[C@@]35CCCN4CC[C@@H](C2c1ccccc1NC2C3)[C@H]45",
+      "product_smiles": "CC[C@@]35CCCN4CC[C@]2(c1ccccc1NC2CC3)[C@H]45",
       "conditions": {
         "temperature_C": 0,
         "temp_range": null,
@@ -5117,7 +5117,7 @@
       "target": "quinine",
       "step_number": 1,
       "reactants_smiles": [
-        "NCc1ccc(OC)c(OC)c1"
+        "COc1ccc(CN)c(OC)c1"
       ],
       "product_smiles": "COc1ccc(CN=C=S)c(OC)c1",
       "conditions": {
@@ -5143,7 +5143,7 @@
         "COc1ccc(CN=C=S)c(OC)c1",
         "NCC(=O)OC"
       ],
-      "product_smiles": "COC(=O)CC(=S)NCc1cc(OC)c(OC)cc1",
+      "product_smiles": "COC(=O)CC(=S)NCc1ccc(OC)cc1OC",
       "conditions": {
         "temperature_C": 50,
         "temp_range": null,
@@ -5165,10 +5165,10 @@
       "target": "quinine",
       "step_number": 3,
       "reactants_smiles": [
-        "COC(=O)CC(=S)NCc1cc(OC)c(OC)cc1",
+        "COC(=O)CC(=S)NCc1ccc(OC)cc1OC",
         "O=C/C=C/CCO[Si](C(C)(C)C)(c1ccccc1)c1ccccc1"
       ],
-      "product_smiles": "COC(=O)C1C(=S)N(Cc1cc(OC)c(OC)cc1)C(O)C[C@H]1CCO[Si](C)(C)c1ccccc1",
+      "product_smiles": "COC(=O)C2C(=S)N(Cc1ccc(OC)cc1OC)C(O)CC2CCO[Si](c3ccccc3)(c4ccccc4)C(C)(C)C",
       "conditions": {
         "temperature_C": 30,
         "temp_range": null,
@@ -5190,9 +5190,9 @@
       "target": "quinine",
       "step_number": 4,
       "reactants_smiles": [
-        "COC(=O)C1C(=S)N(Cc1cc(OC)c(OC)cc1)C(O)C[C@H]1CCO[Si](C)(C)c1ccccc1"
+        "COC(=O)C2C(=S)N(Cc1ccc(OC)cc1OC)C(O)CC2CCO[Si](c3ccccc3)(c4ccccc4)C(C)(C)C"
       ],
-      "product_smiles": "COC(=O)C1C(=S)N(Cc1cc(OC)c(OC)cc1)C(C#N)C[C@H]1CCO[Si](C)(C)c1ccccc1",
+      "product_smiles": "COC(=O)C2C(=S)N(Cc1ccc(OC)cc1OC)C(C#N)CC2CCO[Si](c3ccccc3)(c4ccccc4)C(C)(C)C",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -5214,9 +5214,9 @@
       "target": "quinine",
       "step_number": 5,
       "reactants_smiles": [
-        "COC(=O)C1C(=S)N(Cc1cc(OC)c(OC)cc1)C(C#N)C[C@H]1CCO[Si](C)(C)c1ccccc1"
+        "COC(=O)C2C(=S)N(Cc1ccc(OC)cc1OC)C(C#N)CC2CCO[Si](c3ccccc3)(c4ccccc4)C(C)(C)C"
       ],
-      "product_smiles": "COC(=N)[C@@H]1C[C@@H](CCO[Si](C)(C)c1ccccc1)C(C(=O)OC)C(=S)N1Cc1cc(OC)c(OC)cc1",
+      "product_smiles": "COC(=N)C3CC(CCO[Si](c1ccccc1)(c2ccccc2)C(C)(C)C)C(C(=O)OC)C(=S)N3Cc4ccc(OC)cc4OC",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -5237,9 +5237,9 @@
       "target": "quinine",
       "step_number": 6,
       "reactants_smiles": [
-        "COC(=N)[C@@H]1C[C@@H](CCO[Si](C)(C)c1ccccc1)C(C(=O)OC)C(=S)N1Cc1cc(OC)c(OC)cc1"
+        "COC(=N)C3CC(CCO[Si](c1ccccc1)(c2ccccc2)C(C)(C)C)C(C(=O)OC)C(=S)N3Cc4ccc(OC)cc4OC"
       ],
-      "product_smiles": "COC(=N)[C@@H]1C[C@@H](CCO[Si](C)(C)c1ccccc1)C(C(=O)OC)CN1Cc1cc(OC)c(OC)cc1",
+      "product_smiles": "COC(=N)C3CC(CCO[Si](c1ccccc1)(c2ccccc2)C(C)(C)C)C(C(=O)OC)CN3Cc4ccc(OC)cc4OC",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -5261,9 +5261,9 @@
       "target": "quinine",
       "step_number": 7,
       "reactants_smiles": [
-        "COC(=N)[C@@H]1C[C@@H](CCO[Si](C)(C)c1ccccc1)C(C(=O)OC)CN1Cc1cc(OC)c(OC)cc1"
+        "COC(=N)C3CC(CCO[Si](c1ccccc1)(c2ccccc2)C(C)(C)C)C(C(=O)OC)CN3Cc4ccc(OC)cc4OC"
       ],
-      "product_smiles": "COC(=N)[C@@H]1C[C@@H](CCO[Si](C)(C)c1ccccc1)[C@H](C=O)CN1Cc1cc(OC)c(OC)cc1",
+      "product_smiles": "COC(=N)C3CC(CCO[Si](c1ccccc1)(c2ccccc2)C(C)(C)C)C(C=O)CN3Cc4ccc(OC)cc4OC",
       "conditions": {
         "temperature_C": -95,
         "temp_range": null,
@@ -5284,9 +5284,9 @@
       "target": "quinine",
       "step_number": 8,
       "reactants_smiles": [
-        "COC(=N)[C@@H]1C[C@@H](CCO[Si](C)(C)c1ccccc1)[C@H](C=O)CN1Cc1cc(OC)c(OC)cc1"
+        "COC(=N)C3CC(CCO[Si](c1ccccc1)(c2ccccc2)C(C)(C)C)C(C=O)CN3Cc4ccc(OC)cc4OC"
       ],
-      "product_smiles": "COC(=O)[C@@H]1C[C@@H](CCO[Si](C)(C)c1ccccc1)[C@H](C=O)CN1Cc1cc(OC)c(OC)cc1",
+      "product_smiles": "COC(=O)C3CC(CCO[Si](c1ccccc1)(c2ccccc2)C(C)(C)C)C(C=O)CN3Cc4ccc(OC)cc4OC",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -5307,9 +5307,9 @@
       "target": "quinine",
       "step_number": 9,
       "reactants_smiles": [
-        "COC(=O)[C@@H]1C[C@@H](CCO[Si](C)(C)c1ccccc1)[C@H](C=O)CN1Cc1cc(OC)c(OC)cc1"
+        "COC(=O)C3CC(CCO[Si](c1ccccc1)(c2ccccc2)C(C)(C)C)C(C=O)CN3Cc4ccc(OC)cc4OC"
       ],
-      "product_smiles": "C=C[C@@H]1CN(Cc1cc(OC)c(OC)cc1)[C@H](C(=O)OC)C[C@H]1CCO[Si](C)(C)c1ccccc1",
+      "product_smiles": "C=CC2CN(Cc1ccc(OC)cc1OC)C(C(=O)OC)CC2CCO[Si](c3ccccc3)(c4ccccc4)C(C)(C)C",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -5330,9 +5330,9 @@
       "target": "quinine",
       "step_number": 10,
       "reactants_smiles": [
-        "C=C[C@@H]1CN(Cc1cc(OC)c(OC)cc1)[C@H](C(=O)OC)C[C@H]1CCO[Si](C)(C)c1ccccc1"
+        "C=CC2CN(Cc1ccc(OC)cc1OC)C(C(=O)OC)CC2CCO[Si](c3ccccc3)(c4ccccc4)C(C)(C)C"
       ],
-      "product_smiles": "C=C[C@@H]1CN(Cc1cc(OC)c(OC)cc1)[C@H](C=O)C[C@H]1CCO[Si](C)(C)c1ccccc1",
+      "product_smiles": "C=CC2CN(Cc1ccc(OC)cc1OC)C(C=O)CC2CCO[Si](c3ccccc3)(c4ccccc4)C(C)(C)C",
       "conditions": {
         "temperature_C": -95,
         "temp_range": null,
@@ -5353,7 +5353,7 @@
       "target": "quinine",
       "step_number": 11,
       "reactants_smiles": [
-        "C=C[C@@H]1CN(Cc1cc(OC)c(OC)cc1)[C@H](C=O)C[C@H]1CCO[Si](C)(C)c1ccccc1",
+        "C=CC2CN(Cc1ccc(OC)cc1OC)C(C=O)CC2CCO[Si](c3ccccc3)(c4ccccc4)C(C)(C)C",
         "Brc1c2cc(OC)ccc2ncc1"
       ],
       "product_smiles": "C=C[C@@H]4CN(Cc1cc(OC)c(OC)cc1)[C@H](C(O)c2cc[n+](S(=O)Oc1ccccc1)c3ccc(OC)cc23)C[C@H]4CCO[Si](C)(C)c1ccccc1",
@@ -5472,7 +5472,7 @@
       "reactants_smiles": [
         "C=C[C@@H]1C[N@]2CC[C@@H]1C[C@H]2C(OC(C)=O)C5=C3C=C(OC)C=CC3N(S(=O)Oc4ccccc4)C=C5"
       ],
-      "product_smiles": "C=C[C@@H]1C[N@]2CC[C@@H]1C[C@H]2C(O)C5=C3C=C(OC)C=CC3N(S(=O)Oc4ccccc4)C=C5",
+      "product_smiles": "C=C[C@@H]1C[N@@]2CC[C@@H]1C[C@H]2C(O)C4=C3C=C(OC)C=CC3NC=C4",
       "conditions": {
         "temperature_C": null,
         "temp_range": null,
@@ -5539,7 +5539,7 @@
         "COc2ccc1nccc(Br)c1c2",
         "B1(OC(C)(C)C(C)(C)O1)/C=C/[C@@H]2CC[C@](C=C)(CC2)N3CCC(=O)c4ccccc34"
       ],
-      "product_smiles": "C=C[C@H]1CN(C(=O)OCH2c5ccccc5)CC[C@H]1CC=CCc2ccnc(c3ccc(OC)cc3)c2",
+      "product_smiles": "C=C[C@H]2CN(C(=O)OCc1ccccc1)CC[C@H]2C/C=C/c3ccnc4ccc(OC)cc34",
       "conditions": {
         "temperature_C": 80,
         "temp_range": null,
@@ -5561,9 +5561,9 @@
       "target": "quinine",
       "step_number": 4,
       "reactants_smiles": [
-        "C=C[C@H]1CN(C(=O)OCH2c5ccccc5)CC[C@H]1CC=CCc2ccnc(c3ccc(OC)cc3)c2"
+        "C=C[C@H]2CN(C(=O)OCc1ccccc1)CC[C@H]2C/C=C/c3ccnc4ccc(OC)cc34"
       ],
-      "product_smiles": "C=C[C@H]1CN(C(=O)OCH2c5ccccc5)CC[C@H]1C[C@@H](O)[C@H](O)c2ccnc(c3ccc(OC)cc3)c2",
+      "product_smiles": "C=C[C@H]2CN(C(=O)OCc1ccccc1)CC[C@H]2C[C@@H](O)[C@H](O)c3ccnc4ccc(OC)cc34",
       "conditions": {
         "temperature_C": 0,
         "temp_range": null,
@@ -5584,9 +5584,9 @@
       "target": "quinine",
       "step_number": 5,
       "reactants_smiles": [
-        "C=C[C@H]1CN(C(=O)OCH2c5ccccc5)CC[C@H]1C[C@@H](O)[C@H](O)c2ccnc(c3ccc(OC)cc3)c2"
+        "C=C[C@H]2CN(C(=O)OCc1ccccc1)CC[C@H]2C[C@@H](O)[C@H](O)c3ccnc4ccc(OC)cc34"
       ],
-      "product_smiles": "C=CC1CN(C(=O)OCH2c5ccccc5)CC[C@@H]1C[C@H]2OC(C)(OC)O[C@@H]2c3ccnc4ccc(OC)cc34",
+      "product_smiles": "C=C[C@H]2CN(C(=O)OCc1ccccc1)CC[C@H]2C[C@H]3OC(C)(OC)O[C@@H]3c4ccnc5ccc(OC)cc45",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -5607,9 +5607,9 @@
       "target": "quinine",
       "step_number": 6,
       "reactants_smiles": [
-        "C=CC1CN(C(=O)OCH2c5ccccc5)CC[C@@H]1C[C@H]2OC(C)(OC)O[C@@H]2c3ccnc4ccc(OC)cc34"
+        "C=C[C@H]2CN(C(=O)OCc1ccccc1)CC[C@H]2C[C@H]3OC(C)(OC)O[C@@H]3c4ccnc5ccc(OC)cc45"
       ],
-      "product_smiles": "C=CC1CN(C(=O)OCH2c5ccccc5)CC[C@@H]1C[C@@H](OC(C)=O)[C@@H](Br)c2ccnc(c3ccc(OC)cc3)c2",
+      "product_smiles": "C=C[C@H]2CN(C(=O)OCc1ccccc1)CC[C@H]2C[C@@H](Br)[C@H](OC(C)=O)c3ccnc4ccc(OC)cc34",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -5629,9 +5629,9 @@
       "target": "quinine",
       "step_number": 7,
       "reactants_smiles": [
-        "C=CC1CN(C(=O)OCH2c5ccccc5)CC[C@@H]1C[C@@H](OC(C)=O)[C@@H](Br)c2ccnc(c3ccc(OC)cc3)c2"
+        "C=C[C@H]2CN(C(=O)OCc1ccccc1)CC[C@H]2C[C@@H](Br)[C@H](OC(C)=O)c3ccnc4ccc(OC)cc34"
       ],
-      "product_smiles": "CC=CC1CN(C(=O)OCH2c5ccccc5)CCC1CC2OC2c3ccnc(c4ccc(OC)cc4)c3",
+      "product_smiles": "C=C[C@H]2CN(C(=O)OCc1ccccc1)CC[C@H]2C[C@H]3O[C@@H]3c4ccnc5ccc(OC)cc45",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -5651,9 +5651,9 @@
       "target": "quinine",
       "step_number": 8,
       "reactants_smiles": [
-        "CC=CC1CN(C(=O)OCH2c5ccccc5)CCC1CC2OC2c3ccnc(c4ccc(OC)cc4)c3"
+        "C=C[C@H]2CN(C(=O)OCc1ccccc1)CC[C@H]2C[C@H]3O[C@@H]3c4ccnc5ccc(OC)cc45"
       ],
-      "product_smiles": "C=CC1CN2CCC1CC2[C@@H](O)c3ccnc4ccc(OC)cc34",
+      "product_smiles": "C=C[C@@H]1C[N@@]2CC[C@@H]1C[C@H]2C(O)C4=C3C=C(OC)C=CC3NC=C4",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -5811,7 +5811,7 @@
       "reactants_smiles": [
         "CCC13C=C(Br)C(OC1=O)C2C[C@H](C(=O)O)NC23"
       ],
-      "product_smiles": "CCC1C=C(Br)C(OC(=O))C2CC(C(=O)O)N(C(=O)OCH2c3ccccc3)CC12",
+      "product_smiles": "CCC14C=C(Br)C(OC1=O)C3C[C@H](C(=O)O)N(C(=O)OCc2ccccc2)C34",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -5832,9 +5832,9 @@
       "target": "aspidospermidine",
       "step_number": 8,
       "reactants_smiles": [
-        "CCC1C=C(Br)C(OC(=O))C2CC(C(=O)O)N(C(=O)OCH2c3ccccc3)CC12"
+        "CCC14C=C(Br)C(OC1=O)C3C[C@H](C(=O)O)N(C(=O)OCc2ccccc2)C34"
       ],
-      "product_smiles": "CCC1C=C(Br)C(OC(=O))C2CCN(C(=O)OCH2c3ccccc3)CC12",
+      "product_smiles": "CCC14C=C(Br)C(OC1=O)C3CCN(C(=O)OCc2ccccc2)C34",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -5855,9 +5855,9 @@
       "target": "aspidospermidine",
       "step_number": 9,
       "reactants_smiles": [
-        "CCC1C=C(Br)C(OC(=O))C2CCN(C(=O)OCH2c3ccccc3)CC12"
+        "CCC14C=C(Br)C(OC1=O)C3CCN(C(=O)OCc2ccccc2)C34"
       ],
-      "product_smiles": "CCC(C=O)C=C(Br)C(O)C1CCN(C(=O)OCH2c3ccccc3)CC1",
+      "product_smiles": "CCC3(C=O)C=C(Br)[C@H](O)[C@@H]2CCN(C(=O)OCc1ccccc1)[C@@H]23",
       "conditions": {
         "temperature_C": -40,
         "temp_range": null,
@@ -5877,9 +5877,9 @@
       "target": "aspidospermidine",
       "step_number": 10,
       "reactants_smiles": [
-        "CCC(C=O)C=C(Br)C(O)C1CCN(C(=O)OCH2c3ccccc3)CC1"
+        "CCC3(C=O)C=C(Br)[C@H](O)[C@@H]2CCN(C(=O)OCc1ccccc1)[C@@H]23"
       ],
-      "product_smiles": "CCC(CC=CC(=O)OC)C=C(Br)C(O)C1CCN(C(=O)OCH2c3ccccc3)CC1",
+      "product_smiles": "CCC3(/C=C/C(=O)OC)C=C(Br)[C@H](O)[C@@H]2CCN(C(=O)OCc1ccccc1)[C@@H]23",
       "conditions": {
         "temperature_C": 110,
         "temp_range": null,
@@ -5899,9 +5899,9 @@
       "target": "aspidospermidine",
       "step_number": 11,
       "reactants_smiles": [
-        "CCC(CC=CC(=O)OC)C=C(Br)C(O)C1CCN(C(=O)OCH2c3ccccc3)CC1"
+        "CCC3(/C=C/C(=O)OC)C=C(Br)[C@H](O)[C@@H]2CCN(C(=O)OCc1ccccc1)[C@@H]23"
       ],
-      "product_smiles": "CC[C@]13CCC(=O)N2CCC([C@H](O)CC1)C23",
+      "product_smiles": "CCC13CCC(=O)N2CC[C@@H]([C@@H](O)CC1)[C@H]23",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -5923,7 +5923,7 @@
       "target": "aspidospermidine",
       "step_number": 12,
       "reactants_smiles": [
-        "CC[C@]13CCC(=O)N2CCC([C@H](O)CC1)C23"
+        "CCC13CCC(=O)N2CC[C@@H]([C@@H](O)CC1)[C@H]23"
       ],
       "product_smiles": "CC[C@]13CCCN2CCC([C@H](O)CC1)C23",
       "conditions": {
@@ -5969,7 +5969,7 @@
       "reactants_smiles": [
         "CC[C@]13CCCN2CCC(C(=O)CC1)C23"
       ],
-      "product_smiles": "CC[C@]24CCCN3CCC(/C(=N\\c1ccccc1)CC2)C34",
+      "product_smiles": "CC[C@]24CCCN3CCC(/C(=N/Nc1ccccc1)CC2)C34",
       "conditions": {
         "temperature_C": 80,
         "temp_range": null,
@@ -5989,7 +5989,7 @@
       "target": "aspidospermidine",
       "step_number": 15,
       "reactants_smiles": [
-        "CC[C@]24CCCN3CCC(/C(=N\\c1ccccc1)CC2)C34"
+        "CC[C@]24CCCN3CCC(/C(=N/Nc1ccccc1)CC2)C34"
       ],
       "product_smiles": "CC[C@]35CCC[N@@]4CC[C@@]2(C(=Nc1ccccc12)CC3)C45",
       "conditions": {
@@ -6852,7 +6852,7 @@
       "reactants_smiles": [
         "OCC[C@H]1C=C[C@@H](O)C1"
       ],
-      "product_smiles": "O[C@@H]1C=C[C@H](CCO[Si](C)(C)c1ccccc1)C1",
+      "product_smiles": "CC(C)(C)[Si](OCC[C@H]1C=C[C@@H](O)C1)(c2ccccc2)c3ccccc3",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -6874,7 +6874,7 @@
       "target": "quinine",
       "step_number": 5,
       "reactants_smiles": [
-        "O[C@@H]1C=C[C@H](CCO[Si](C)(C)c1ccccc1)C1"
+        "CC(C)(C)[Si](OCC[C@H]1C=C[C@@H](O)C1)(c2ccccc2)c3ccccc3"
       ],
       "product_smiles": "O=CC[C@@H]1C=CC[C@@H]1CCO[Si](C)(C)c1ccccc1",
       "conditions": {
@@ -7020,7 +7020,7 @@
       "reactants_smiles": [
         "C(=O)C(C)(C)COCC[C@@H]2CN(Cc1ccccc1)CC[C@@H]2CCO[Si](C)(C)c1ccccc1"
       ],
-      "product_smiles": "CCOC(=O)N1CC[C@H](CCO[Si](C)(C)c1ccccc1)[C@H](CCOC(=O)C(C)(C)C)C1",
+      "product_smiles": "CCOC(=O)N2CC[C@H](CCO[Si](C)(C)c1ccccc1)[C@H](CCOCC(C)(C)C=O)C2",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -7041,9 +7041,9 @@
       "target": "quinine",
       "step_number": 12,
       "reactants_smiles": [
-        "CCOC(=O)N1CC[C@H](CCO[Si](C)(C)c1ccccc1)[C@H](CCOC(=O)C(C)(C)C)C1"
+        "CCOC(=O)N2CC[C@H](CCO[Si](C)(C)c1ccccc1)[C@H](CCOCC(C)(C)C=O)C2"
       ],
-      "product_smiles": "CCOC(=O)N1CC[C@H](CCO[Si](C)(C)c1ccccc1)[C@H](CCO)C1",
+      "product_smiles": "CCOC(=O)N2CC[C@H](CCO[Si](C)(C)c1ccccc1)[C@H](CCO)C2",
       "conditions": {
         "temperature_C": 78,
         "temp_range": "reflux",
@@ -7064,7 +7064,7 @@
       "target": "quinine",
       "step_number": 13,
       "reactants_smiles": [
-        "CCOC(=O)N1CC[C@H](CCO[Si](C)(C)c1ccccc1)[C@H](CCO)C1"
+        "CCOC(=O)N2CC[C@H](CCO[Si](C)(C)c1ccccc1)[C@H](CCO)C2"
       ],
       "product_smiles": "CC=C[C@@H]1CN(C(=O)OCC)CC[C@@H]1CCO[Si](C)(C)c1ccccc1",
       "conditions": {
@@ -8183,7 +8183,7 @@
         "C[Si](C)(c1ccccc1)[C@H]2CCCC=C2CC=O",
         "NS(=O)(=O)c1c(C(C)C)cc(C(C)C)cc1C(C)C"
       ],
-      "product_smiles": "C[Si](C)(c1ccccc1)[C@H]2CCCC=C2CCNC1=CC=C(C=C1)C2C3C(C(CO3)C(C4C(CO4)C(O2)C5=CC=CC=C5)O)O",
+      "product_smiles": "C[Si](C)(c1ccccc1)[C@H]2CCCC=C2CCNc6ccc(C5OCC4OC(c3ccccc3)OC(C(O)CO)C4O5)cc6",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -8205,10 +8205,10 @@
       "target": "morphine",
       "step_number": 9,
       "reactants_smiles": [
-        "C[Si](C)(c1ccccc1)[C@H]2CCCC=C2CCNC1=CC=C(C=C1)C2C3C(C(CO3)C(C4C(CO4)C(O2)C5=CC=CC=C5)O)O",
+        "C[Si](C)(c1ccccc1)[C@H]2CCCC=C2CCNc6ccc(C5OCC4OC(c3ccccc3)OC(C(O)CO)C4O5)cc6",
         "O=CCc1cc(OC)cc(OCc2ccccc2)c1I"
       ],
-      "product_smiles": "COc3ccc(CC2C1CCCC=C1CCN2C1=CC=C(C=C1)C2C3C(C(CO3)C(C4C(CO4)C(O2)C5=CC=CC=C5)O)O)c(I)c3OCc4ccccc4",
+      "product_smiles": "COc7ccc(CC2C1CCCC=C1CCN2c6ccc(C5OCC4OC(c3ccccc3)OC(C(O)CO)C4O5)cc6)c(I)c7OCc8ccccc8",
       "conditions": {
         "temperature_C": 60,
         "temp_range": null,
@@ -8229,9 +8229,9 @@
       "target": "morphine",
       "step_number": 10,
       "reactants_smiles": [
-        "COc3ccc(CC2C1CCCC=C1CCN2C1=CC=C(C=C1)C2C3C(C(CO3)C(C4C(CO4)C(O2)C5=CC=CC=C5)O)O)c(I)c3OCc4ccccc4"
+        "COc7ccc(CC2C1CCCC=C1CCN2c6ccc(C5OCC4OC(c3ccccc3)OC(C(O)CO)C4O5)cc6)c(I)c7OCc8ccccc8"
       ],
-      "product_smiles": "COc4ccc3CC2C1CCC=CC1(CCN2C1=CC=C(C=C1)C2C3C(C(CO3)C(C4C(CO4)C(O2)C5=CC=CC=C5)O)O)c3c4OCc5ccccc5",
+      "product_smiles": "COc8ccc7CC2C1CCC=CC1(CCN2c6ccc(C5OCC4OC(c3ccccc3)OC(C(O)CO)C4O5)cc6)c7c8OCc9ccccc9",
       "conditions": {
         "temperature_C": 120,
         "temp_range": null,
@@ -8253,9 +8253,9 @@
       "target": "morphine",
       "step_number": 11,
       "reactants_smiles": [
-        "COc4ccc3CC2C1CCC=CC1(CCN2C1=CC=C(C=C1)C2C3C(C(CO3)C(C4C(CO4)C(O2)C5=CC=CC=C5)O)O)c3c4OCc5ccccc5"
+        "COc8ccc7CC2C1CCC=CC1(CCN2c6ccc(C5OCC4OC(c3ccccc3)OC(C(O)CO)C4O5)cc6)c7c8OCc9ccccc9"
       ],
-      "product_smiles": "COc4ccc3CC2C1CCC=CC1(CCN2C1=CC=C(C=C1)C2C3C(C(CO3)C(C4C(CO4)C(O2)C5=CC=CC=C5)O)O)c3c4O",
+      "product_smiles": "COc8ccc7CC2C1CCC=CC1(CCN2c6ccc(C5OCC4OC(c3ccccc3)OC(C(O)CO)C4O5)cc6)c7c8O",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -8277,9 +8277,9 @@
       "target": "morphine",
       "step_number": 12,
       "reactants_smiles": [
-        "COc4ccc3CC2C1CCC=CC1(CCN2C1=CC=C(C=C1)C2C3C(C(CO3)C(C4C(CO4)C(O2)C5=CC=CC=C5)O)O)c3c4O"
+        "COc8ccc7CC2C1CCC=CC1(CCN2c6ccc(C5OCC4OC(c3ccccc3)OC(C(O)CO)C4O5)cc6)c7c8O"
       ],
-      "product_smiles": "COc1ccc2CC5C3CC[C@@H](O)C4Oc1c2C34CCN5C1=CC=C(C=C1)C2C3C(C(CO3)C(C4C(CO4)C(O2)C5=CC=CC=C5)O)O",
+      "product_smiles": "COc1ccc2CC5C3CCC(O)C4Oc1c2C34CCN5c9ccc(C8OCC7OC(c6ccccc6)OC(C(O)CO)C7O8)cc9",
       "conditions": {
         "temperature_C": 0,
         "temp_range": null,
@@ -8301,9 +8301,9 @@
       "target": "morphine",
       "step_number": 13,
       "reactants_smiles": [
-        "COc1ccc2CC5C3CC[C@@H](O)C4Oc1c2C34CCN5C1=CC=C(C=C1)C2C3C(C(CO3)C(C4C(CO4)C(O2)C5=CC=CC=C5)O)O"
+        "COc1ccc2CC5C3CCC(O)C4Oc1c2C34CCN5c9ccc(C8OCC7OC(c6ccccc6)OC(C(O)CO)C7O8)cc9"
       ],
-      "product_smiles": "COc1ccc2CC5C4CCC(=O)C3Oc1c2C34CCN5C1=CC=C(C=C1)C2C3C(C(CO3)C(C4C(CO4)C(O2)C5=CC=CC=C5)O)O",
+      "product_smiles": "COc1ccc2CC5C4CCC(=O)C3Oc1c2C34CCN5c9ccc(C8OCC7OC(c6ccccc6)OC(C(O)CO)C7O8)cc9",
       "conditions": {
         "temperature_C": 25,
         "temp_range": null,
@@ -8325,7 +8325,7 @@
       "target": "morphine",
       "step_number": 14,
       "reactants_smiles": [
-        "COc1ccc2CC5C4CCC(=O)C3Oc1c2C34CCN5C1=CC=C(C=C1)C2C3C(C(CO3)C(C4C(CO4)C(O2)C5=CC=CC=C5)O)O"
+        "COc1ccc2CC5C4CCC(=O)C3Oc1c2C34CCN5c9ccc(C8OCC7OC(c6ccccc6)OC(C(O)CO)C7O8)cc9"
       ],
       "product_smiles": "COc1ccc2CC5C3CCC(=O)C4Oc1c2C34CCN5C",
       "conditions": {
