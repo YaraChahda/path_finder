@@ -55,7 +55,7 @@ def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
     """
     Render a molecule as a high-resolution PNG using RDKit Cairo.
 
-    Resolution: draws at 4× the requested pixel size then returns the raw PNG
+    Resolution: draws at 8× the requested pixel size then returns the raw PNG
     bytes. Passing the result directly to st.image() displays it at the correct
     size because Streamlit scales by CSS width, not pixel count.
 
@@ -81,8 +81,8 @@ def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
     if mol is None:
         return None
     try:
-        # Draw at 4× the target dimensions for high-DPI sharpness
-        drawer = rdMolDraw2D.MolDraw2DCairo(w * 4, h * 4)
+        # Draw at 8× the target dimensions for high-DPI sharpness
+        drawer = rdMolDraw2D.MolDraw2DCairo(w * 8, h * 8)
         opts = drawer.drawOptions()
         opts.addStereoAnnotation = True
         opts.bondLineWidth = 2.5
@@ -92,7 +92,7 @@ def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
         return drawer.GetDrawingText()
     except Exception:
         # Fallback to PIL-based rendering if Cairo is unavailable
-        img = Draw.MolToImage(mol, size=(w * 4, h * 4))
+        img = Draw.MolToImage(mol, size=(w * 8, h * 8))
         buf = io.BytesIO()
         img.save(buf, format="PNG")
         return buf.getvalue()
@@ -146,12 +146,11 @@ def mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
         drawer.DrawMolecule(mol)
         drawer.FinishDrawing()
         data = drawer.GetDrawingText()
-        # Downsample to 2× display size with Lanczos resampling
-        img  = _PI.open(_io.BytesIO(data))
-        img  = img.resize((w * 2, h * 2), _PI.LANCZOS)
-        buf  = _io.BytesIO()
-        img.save(buf, format="PNG")
-        b64  = base64.b64encode(buf.getvalue()).decode()
+        # Keep full 8× resolution — the HTML img tag uses CSS width/height
+        # so the browser displays at the correct size while retaining full
+        # resolution for popup zoom.
+        buf = _io.BytesIO(data)
+        b64 = base64.b64encode(buf.getvalue()).decode()
         return "data:image/png;base64," + b64
     except Exception:
         return fallback_data_uri(smiles, w, h)

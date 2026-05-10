@@ -234,7 +234,7 @@ def load_rxninsight_database(path: str):
 
     Only columns present in the file are loaded (graceful degradation).
     Returns None — and prints a warning — if the file is absent or cannot
-    be parsed, so the rest of the pipeline continues without condition
+    be parsed, so the rest of the research continues without condition
     suggestion for predicted routes.
 
     Parameters
@@ -982,10 +982,15 @@ def get_novel_routes_from_aizynthfinder(aiz_routes, dataset, target_name, rxni_d
 # Dataset route filtering
 # =============================================================================
 
-def get_all_dataset_routes_for_target(dataset: dict, target_name: str) -> list:
+def get_all_dataset_routes_for_target(dataset: dict, target_name: str,
+                                       target_smiles: str = "") -> list:
     """
     Return all routes in the main dataset whose target matches target_name
-    (case-insensitive comparison).
+    AND whose final step product matches target_smiles (when provided).
+
+    Both conditions must pass to prevent routes for a different molecule from
+    appearing when a user searches a SMILES that is not in the dataset but
+    whose name coincidentally matches a dataset target.
 
     Used as a fallback inside filter_routes_by_starting_materials() to ensure
     that known dataset routes are always included even when AiZynthFinder does
@@ -993,17 +998,28 @@ def get_all_dataset_routes_for_target(dataset: dict, target_name: str) -> list:
 
     Parameters
     ──────────
-    dataset     : dict from load_reaction_dataset()
-    target_name : str
+    dataset       : dict from load_reaction_dataset()
+    target_name   : str  human-readable target name (case-insensitive match)
+    target_smiles : str  canonical SMILES of the search target (optional but
+                         strongly recommended — enables canonical product check)
 
     Returns
     ───────
     list of route dicts (each with dataset_steps and matched_* fields set)
     """
+    canon_target = to_canonical(target_smiles) if target_smiles else ""
     result = []
     for rid, steps in dataset["by_route"].items():
+        # Name filter (always applied)
         if steps[0].get("target", "").lower() != target_name.lower():
             continue
+        # Canonical product filter (applied when target_smiles is provided)
+        if canon_target:
+            last_product = to_canonical(steps[-1].get("product_smiles", ""))
+            if last_product != canon_target:
+                print(f"  [dataset] fallback skipped {rid} — "
+                      f"product {last_product!r} ≠ target {canon_target!r}")
+                continue
         result.append({
             "route_id":           rid,
             "route_name":         steps[0].get("route_name", rid),
@@ -1021,91 +1037,73 @@ def get_all_dataset_routes_for_target(dataset: dict, target_name: str) -> list:
         print(f"  [dataset] OK {rid} — {len(steps)} steps")
     return result
 
-
 def filter_routes_by_starting_materials(aiz_routes, dataset, target_smiles,
                                           target_name="") -> list:
     """
-    Match AiZynthFinder routes to dataset routes by shared starting materials.
+    Return ALL dataset routes whose final product matches the target SMILES
+    (canonical RDKit comparison) OR whose target name matches target_name.
 
-    For each AiZ route, its leaf nodes (starting_materials) are looked up in
-    the dataset's by_reactant index. Among the candidate dataset routes that
-    share at least one starting material, the one with the highest overlap
-    count is selected. Only the best-coverage dataset route per route_id is
-    kept (deduplication).
-
-    Additionally, all dataset routes for the target that were not matched by
-    any AiZ route are appended so the dataset section is always complete.
+    Every matching route is returned — top_n truncation happens later in
+    find_best_routes() after scoring, so the user always sees the N best
+    routes rather than whichever one AiZ happened to find first.
 
     Parameters
     ──────────
-    aiz_routes    : list of dicts from run_aizynthfinder()
-    dataset       : dict from load_reaction_dataset()
-    target_smiles : str  (currently unused but kept for API compatibility)
-    target_name   : str  used to restrict candidate dataset routes by target
+    aiz_routes    : list  kept for API compatibility — no longer used
+    dataset       : dict  from load_reaction_dataset()
+    target_smiles : str   canonical SMILES of the search target
+    target_name   : str   human-readable name (secondary filter)
 
     Returns
     ───────
     list of enriched route dicts ready for rank_weighted()
     """
-    by_reactant = dataset["by_reactant"]
-    by_route    = dataset["by_route"]
-    best = {}   # {dataset_route_id: best_enriched_route_dict}
+    canon_target = to_canonical(target_smiles) if target_smiles else ""
+    by_route     = dataset["by_route"]
+    result       = []
 
-    for route in aiz_routes:
-        sm_list = route.get("starting_materials", [])
-        if not sm_list:
+    for rid, steps in by_route.items():
+        if not steps:
             continue
-        # Collect candidate dataset route IDs that share any starting material
-        cands = set()
-        for sm in sm_list:
-            for rxn in by_reactant.get(to_canonical(sm), []):
-                rid = rxn.get("route_id")
-                if rid:
-                    cands.add(rid)
-        if not cands:
+
+        matched = False
+
+        # Primary: canonical SMILES of the last step's product == target
+        if canon_target:
+            last_product = to_canonical(steps[-1].get("product_smiles", ""))
+            if last_product == canon_target:
+                matched = True
+
+        # Secondary fallback: match by target name when SMILES comparison fails
+        if not matched and target_name:
+            route_target = steps[0].get("target", "")
+            if route_target.lower() == target_name.lower():
+                # Only accept if no canon_target was provided, OR if
+                # the last product actually parses (avoids broken entries)
+                if not canon_target or to_canonical(steps[-1].get("product_smiles", "")):
+                    matched = True
+
+        if not matched:
             continue
-        # Filter by target if provided
-        if target_name:
-            cands = {
-                rid for rid in cands
-                if by_route.get(rid, [{}])[0].get("target", "").lower() == target_name.lower()
-            }
-        if not cands:
-            continue
-        # Among candidates, pick the dataset route with highest starting-material overlap
-        best_id, best_cov = None, 0
-        for rid in cands:
-            dr  = {to_canonical(r) for rxn in by_route.get(rid, [])
-                   for r in rxn.get("reactants_smiles", [])}
-            cov = sum(1 for sm in sm_list if to_canonical(sm) in dr)
-            if cov > best_cov:
-                best_cov, best_id = cov, rid
-        if not best_id:
-            continue
-        # Keep only the highest-coverage match per dataset route ID
-        ex = best.get(best_id)
-        if ex and ex["coverage"] >= best_cov:
-            continue
-        sd = by_route[best_id]
-        enriched = dict(route)
-        enriched.update({
-            "dataset_steps":      sd,
-            "matched_route_id":   best_id,
-            "matched_route_name": sd[0].get("route_name", best_id),
-            "matched_target":     sd[0].get("target", "?"),
-            "coverage":           best_cov,
+
+        result.append({
+            "route_id":           rid,
+            "route_name":         steps[0].get("route_name", rid),
+            "steps":              [],
+            "starting_materials": [],
+            "dataset_steps":      steps,
+            "matched_route_id":   rid,
+            "matched_route_name": steps[0].get("route_name", rid),
+            "matched_target":     steps[0].get("target", "?"),
+            "coverage":           len(steps),
             "is_predicted":       False,
+            "is_validated":       False,
+            "validation_status":  "dataset",
         })
-        best[best_id] = enriched
+        print(f"  [dataset] matched {rid} — {len(steps)} steps")
 
-    # Append any dataset routes not matched by any AiZ route
-    for route in get_all_dataset_routes_for_target(dataset, target_name):
-        if route["route_id"] not in best:
-            best[route["route_id"]] = route
-
-    validated = list(best.values())
-    print(f"  {len(validated)} dataset routes retained")
-    return validated
+    print(f"  {len(result)} dataset routes retained")
+    return result
 
 
 # =============================================================================
@@ -1685,7 +1683,7 @@ def find_best_routes(
     """
     Top-level function: find and rank synthesis routes for a target molecule.
 
-    Pipeline (4 stages):
+    Reasearch (4 stages):
     ─────────────────────
     1. Load all datasets (main, toxicity, generic, Rxn-INSIGHT USPTO).
     2. Run AiZynthFinder MCTS to generate up to n_aiz_routes candidate routes.
@@ -1697,7 +1695,7 @@ def find_best_routes(
 
     Result sections:
     ─────────────────
-    dataset   : ALL dataset routes (not truncated by top_n — always complete)
+    dataset   : top_n dataset routes (truncated by top_n, same as validated/predicted)
     validated : top_n validated/partial AiZ routes (real conditions available)
     predicted : top_n purely predicted routes (Rxn-INSIGHT conditions only,
                 yield excluded from scoring)
@@ -1768,7 +1766,7 @@ def find_best_routes(
 
     # Stage 4 — Score and rank
     print("\n[4/4] scoring...")
-    scored_dataset   = rank_weighted(dataset_routes,   criteria_priority, tox_index)
+    scored_dataset   = rank_weighted(dataset_routes,   criteria_priority, tox_index)[:top_n]
     scored_validated = rank_weighted(validated_routes, criteria_priority, tox_index)[:top_n]
     scored_predicted = rank_weighted(predicted_routes, criteria_priority, tox_index)[:top_n]
 

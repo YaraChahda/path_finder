@@ -137,6 +137,13 @@ LANG = {
         "why_balanced":     "it presents a well-balanced profile across all three selected criteria",
         "why_prefix":       "This route is ranked <strong>#{r}</strong> because:",
         "why_suffix":       "No single criterion alone determines ranking — the weighted combination reflects your stated priorities.",
+        "help_ds":          "Path to your main curated reaction dataset (JSON). Format: list of reaction dicts with fields: id, route_id, route_name, target, step_number, reactants_smiles, product_smiles, conditions, yield_percent, reaction_type.",
+        "help_tox":         "Path to your toxicity/safety scores file (JSON). Required for the Safety criterion. If not found, safety scores default to 0.5 (neutral).",
+        "help_cfg":         "Path to the AiZynthFinder YAML config file. Specifies the policy network, filter, and stock files. Required — AiZynthFinder will not run without it.",
+        "help_rxni":        "Path to the Rxn-INSIGHT USPTO reaction database (gzip). Optional — only needed if 'Include predicted routes' is enabled. Enables reaction classification and condition prediction for novel routes.",
+        "help_generic":     "Path to a flat JSON list of individual reactions (same format as the main dataset). Used to cross-validate AiZynthFinder-proposed steps with real experimental data. Without this file, all AiZ routes are classified as 'predicted'.",
+        "help_topn":        "Maximum number of routes shown per category (Dataset / Validated / Predicted). Does not affect the AiZynthFinder search — only how many results are displayed.",
+        "help_naiz":        "Number of routes AiZynthFinder explores internally via MCTS. Higher = more routes explored, better chance of matching your generic dataset, but longer search time (roughly +2–4 s per extra route). Recommended: 20–30 for speed, 40–50 for thoroughness.",
     },
     "fr": {
         "page_title":       "⚗️ Recherche de routes de synthèse",
@@ -242,6 +249,13 @@ LANG = {
         "why_balanced":     "elle présente un profil équilibré sur les trois critères sélectionnés",
         "why_prefix":       "Cette route est classée <strong>#{r}</strong> car :",
         "why_suffix":       "Aucun critère seul ne détermine le classement — la combinaison pondérée reflète vos priorités.",
+        "help_ds":          "Chemin vers le dataset de réactions principal (JSON). Format : liste de dicts avec les champs : id, route_id, route_name, target, step_number, reactants_smiles, product_smiles, conditions, yield_percent, reaction_type.",
+        "help_tox":         "Chemin vers le fichier de scores de toxicité/sécurité (JSON). Requis pour le critère Sécurité. En cas d'absence, les scores de sécurité sont fixés à 0,5 (neutre).",
+        "help_cfg":         "Chemin vers le fichier de configuration YAML d'AiZynthFinder. Définit le réseau de politiques, le filtre et les fichiers de stock. Obligatoire — AiZynthFinder ne peut pas démarrer sans lui.",
+        "help_rxni":        "Chemin vers la base de données USPTO de Rxn-INSIGHT (gzip). Optionnel — nécessaire uniquement si 'Inclure les routes prédites' est activé. Permet la classification des réactions et la prédiction des conditions pour les routes nouvelles.",
+        "help_generic":     "Chemin vers une liste JSON de réactions individuelles (même format que le dataset principal). Utilisé pour valider les étapes proposées par AiZynthFinder avec des données expérimentales réelles. Sans ce fichier, toutes les routes AiZ sont classées comme 'prédites'.",
+        "help_topn":        "Nombre maximal de routes affichées par catégorie (Dataset / Validées / Prédites). N'affecte pas la recherche AiZynthFinder — uniquement le nombre de résultats affichés.",
+        "help_naiz":        "Nombre de routes explorées en interne par AiZynthFinder via MCTS. Plus élevé = plus de routes explorées, meilleure chance de correspondance avec le dataset générique, mais temps de recherche plus long (environ +2–4 s par route supplémentaire). Recommandé : 20–30 pour la rapidité, 40–50 pour l'exhaustivité.",
     },
 }
 

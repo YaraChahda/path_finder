@@ -72,6 +72,39 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+import base64
+from pathlib import Path
+
+def _load_banner(path: str) -> str:
+    """Load a local image file and return a base64 data URI for HTML embedding."""
+    p = Path(path)
+    if not p.exists():
+        return ""
+    data = base64.b64encode(p.read_bytes()).decode()
+    ext  = p.suffix.lstrip(".").lower()
+    mime = "image/png" if ext == "png" else f"image/{ext}"
+    return f"data:{mime};base64,{data}"
+
+_BANNER_URI = _load_banner("../../assets/banner.png")
+if _BANNER_URI:
+    st.markdown(
+        f"""
+        <div style="
+            text-align: center;
+            padding: 18px 0 8px 0;
+        ">
+            <img src="{_BANNER_URI}"
+                 style="
+                     width: 420px;          /* ← change cette valeur pour agrandir/rapetisser */
+                     max-width: 90%;
+                     margin: 0 auto;
+                     display: block;
+                 "
+            />
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # -- High-DPI matplotlib helper ------------------------------------------------
 def _hires_fig(*args, dpi: int = 180, **kwargs):
@@ -533,7 +566,7 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
         items.append(
             '<div class="mol-cell">' + role +
             '<img src="' + uri + '" width="' + str(MOL_W) + '" height="' + str(MOL_H) +
-            '" style="display:block;border-radius:4px;"/>'
+            '" style="display:block;border-radius:4px;cursor:zoom-in" onclick="openFullImg(this.src)"/>'
             '</div>'
         )
 
@@ -695,6 +728,11 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
         "var h=document.getElementById('wrap-" + route_id + "').scrollHeight;"
         "try{window.parent.postMessage({isStreamlitMessage:true,"
         "type:'streamlit:setFrameHeight',height:h+8},'*');}catch(e){}}"
+        "function openFullImg(src){"
+        "var w=window.open('','_blank','width=900,height=700');"
+        "w.document.write('<html><body style=\"margin:0;background:#111;display:flex;align-items:center;justify-content:center;height:100vh\">')"
+        ";w.document.write('<img src=\"'+src+'\" style=\"max-width:100%;max-height:100%;object-fit:contain\"/>');"
+        "w.document.write('</body></html>');w.document.close();}"
         "function copyTxt(t){"
         "try{navigator.clipboard.writeText(t)}"
         "catch(e){var x=document.createElement('textarea');x.value=t;"
@@ -720,9 +758,9 @@ def build_clickable_scheme_html(steps_data: list, route_id: str,
         "var si=__si[String(d.step)]||{};"
         "var imgDiv=document.getElementById('dpi-" + route_id + "');"
         "var ih='';"
-        "(si.reactants||[]).forEach(function(b64){if(b64)ih+='<img src=\"'+b64+'\" width=\"105\" height=\"74\"/>';});"
+        "(si.reactants||[]).forEach(function(b64){if(b64)ih+='<img src=\"'+b64+'\" width=\"105\" height=\"74\" style=\"cursor:zoom-in\" onclick=\"openFullImg(this.src)\"/>';});"
         "if((si.reactants||[]).some(Boolean))ih+='<span class=\"step-arrow-txt\">&#8594;</span>';"
-        "if(si.product)ih+='<img src=\"'+si.product+'\" width=\"105\" height=\"74\"/>';"
+        "if(si.product)ih+='<img src=\"'+si.product+'\" width=\"105\" height=\"74\" style=\"cursor:zoom-in\" onclick=\"openFullImg(this.src)\"/>';"
         "imgDiv.innerHTML=ih;"
         "var sDiv=document.getElementById('dps-" + route_id + "');"
         "var sh='<b style=\"font-size:10px;color:#1a2e44\">SMILES</b>';"
@@ -1070,6 +1108,53 @@ def build_why_ranked_html(rank: int, score_total: float, details: dict,
 # =============================================================================
 # Route card display
 # =============================================================================
+def _smiles_copy_widget(smiles: str, label: str = "") -> None:
+    """
+    Render a compact inline SMILES display widget with a clipboard Copy button.
+
+    Displayed beneath each reactant and product molecule image in the Dataset
+    Explorer step-by-step view, allowing the chemist to copy any SMILES string
+    without manually reading the full text.
+
+    Parameters
+    ──────────
+    smiles : str  SMILES string to display and make copyable
+    label  : str  optional label (currently unused — reserved for future use)
+    """
+    short = smiles[:38] + ("…" if len(smiles) > 38 else "")
+    safe  = smiles.replace("`", "\\`").replace("\\", "\\\\")
+    html_snip = f"""
+<div style="
+    display:flex; align-items:center; gap:6px;
+    background:#f5f7fa; border:1px solid #dce3ec;
+    border-radius:6px; padding:4px 8px;
+    font-family:'DM Mono','Fira Mono',monospace;
+    font-size:0.72rem; color:#37506e;
+    margin-top:2px; margin-bottom:6px;
+    overflow:hidden;
+">
+  <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+        title="{smiles}">{short}</span>
+  <button onclick="
+    navigator.clipboard.writeText(`{safe}`)
+      .then(()=>{{this.textContent='✓';setTimeout(()=>this.textContent='Copy',1400)}})
+      .catch(()=>{{
+        var t=document.createElement('textarea');
+        t.value=`{safe}`;document.body.appendChild(t);
+        t.select();document.execCommand('copy');
+        document.body.removeChild(t);
+        this.textContent='✓';setTimeout(()=>this.textContent='Copy',1400);
+      }})
+  "
+  style="
+    background:#1a2e44; color:white; border:none;
+    border-radius:4px; padding:2px 8px;
+    font-size:0.68rem; font-weight:600;
+    cursor:pointer; white-space:nowrap; flex-shrink:0;
+  ">Copy</button>
+</div>
+"""
+    components.html(html_snip, height=36, scrolling=False)
 
 def display_route_card(score_total, details, route, criteria, weights,
                        all_results, rank=1, badge="📚 dataset", lang="en") -> None:
@@ -1174,11 +1259,10 @@ def display_route_card(score_total, details, route, criteria, weights,
                 cols_sub = st.columns(n_cols)
                 for i, smi in enumerate(all_mols):
                     with cols_sub[i % n_cols]:
-                        # Double-resolution PNG for substance images
                         png = mol_png(smi, 320, 220)
-                        label = "🛒" if smi in sub["to_buy"] else "⚗️"
                         if png:
-                            st.image(png, caption=label + " " + smi[:20], width="content")
+                            st.image(png, width='stretch')
+                        _smiles_copy_widget(smi)
             if sub["solvents"]:
                 st.markdown("**🧴 Solvents**")
                 st.write("  ·  ".join(sub["solvents"]))
@@ -1203,21 +1287,12 @@ with st.sidebar:
     dataset_path = st.text_input(
         T["ds_label"],
         value="../../data/reaction_dataset.json",
-        help=(
-            "Path to your main curated reaction dataset (JSON). "
-            "Format: list of reaction dicts with fields: id, route_id, route_name, "
-            "target, step_number, reactants_smiles, product_smiles, conditions, "
-            "yield_percent, reaction_type."
-        ),
+        help=T["help_ds"],
     )
     toxicity_path = st.text_input(
         T["tox_label"] + " *",
         value="../../data/toxicity_dataset.json",
-        help=(
-            "Path to your toxicity/safety scores file (JSON). "
-            "Required for the Safety criterion. "
-            "If not found, safety scores default to 0.5 (neutral)."
-        ),
+        help= T["help_tox"]
     )
     if not os.path.exists(toxicity_path):
         st.warning(f"⚠️ Toxicity file not found: `{toxicity_path}` — Safety scores will default to 0.5")
@@ -1225,29 +1300,17 @@ with st.sidebar:
     config_path = st.text_input(
         T["cfg_label"],
         value="../../data/config.yml",
-        help=(
-            "Path to the AiZynthFinder YAML config file. "
-            "Specifies the policy network, filter, and stock files. "
-            "Required — AiZynthFinder will not run without it."
-        ),
+        help=T["help_cfg"]
     )
     rxninsight_db_path = st.text_input(
         T["rxni_label"],
         value="../../data/uspto_rxn_insight.gzip",
-        help=(
-            "Path to the Rxn-INSIGHT USPTO reaction database (gzip). "
-            "Optional — only needed if 'Include predicted routes' is enabled. "
-            "Enables reaction classification and condition prediction for novel routes."
-        ),
+        help=T["help_rxni"]
     )
     generic_dataset_path = st.text_input(
         T["generic_label"],
         value="../../data/generic_reactions.json",
-        help=(
-            "Path to a flat JSON list of individual reactions (same format as the main dataset). "
-            "Used to cross-validate AiZynthFinder-proposed steps with real experimental data. "
-            "Without this file, all AiZ routes are classified as 'predicted'."
-        ),
+        help=T["help_generic"]
     )
 
     st.divider()
@@ -1255,20 +1318,12 @@ with st.sidebar:
     top_n = st.slider(
         T["topn_label"],
         1, 5, 3,
-        help=(
-            "Maximum number of routes shown per category (Dataset / Validated / Predicted). "
-            "Does not affect the AiZynthFinder search — only how many results are displayed."
-        ),
+        help= T["help_topn"]
     )
     n_aiz = st.slider(
         T["naiz_label"],
         5, 50, 25,
-        help=(
-            "Number of routes AiZynthFinder explores internally via MCTS. "
-            "Higher = more routes explored, better chance of matching your generic dataset, "
-            "but longer search time (roughly +2–4 s per extra route). "
-            "Recommended: 20–30 for speed, 40–50 for thoroughness."
-        ),
+        help=T["help_naiz"]
     )
 
     # Predicted-route toggle — only shown when rxn_insight is installed
@@ -1415,7 +1470,7 @@ with tab_search:
             # Double-resolution preview for the target molecule
             png = mol_png(target_smiles, 640, 440)
             if png:
-                st.image(png, caption=target_name, width="stretch")
+                st.image(png, caption=target_name, use_container_width=True)
         else:
             st.markdown(T["welcome"])
             st.markdown(T["avail_mols"])
@@ -1427,7 +1482,7 @@ with tab_search:
                         # Double-resolution thumbnails for the molecule gallery
                         png = mol_png(smi, 400, 270)
                         if png:
-                            st.image(png, caption=name.capitalize(), width="stretch")
+                            st.image(png, caption=name.capitalize(), use_container_width=True)
             except Exception:
                 pass
 
@@ -1672,7 +1727,11 @@ with tab_analysis:
                     rows.append(row)
 
                 df = pd.DataFrame(rows).set_index("Route")
-                st.dataframe(df, width="stretch")
+                st.dataframe(
+                    df,
+                    width="stretch",
+                    column_config={col: st.column_config.TextColumn(col) for col in df.columns},
+                )
                 st.caption("✓ = selected criteria  ✗ = additional criteria (not used in ranking)")
 
                 # Criterion profile chart for ≥ 2 routes
@@ -1704,54 +1763,6 @@ with tab_analysis:
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 3 — DATASET EXPLORER
 # ══════════════════════════════════════════════════════════════════════════════
-
-def _smiles_copy_widget(smiles: str, label: str = "") -> None:
-    """
-    Render a compact inline SMILES display widget with a clipboard Copy button.
-
-    Displayed beneath each reactant and product molecule image in the Dataset
-    Explorer step-by-step view, allowing the chemist to copy any SMILES string
-    without manually reading the full text.
-
-    Parameters
-    ──────────
-    smiles : str  SMILES string to display and make copyable
-    label  : str  optional label (currently unused — reserved for future use)
-    """
-    short = smiles[:38] + ("…" if len(smiles) > 38 else "")
-    safe  = smiles.replace("`", "\\`").replace("\\", "\\\\")
-    html_snip = f"""
-<div style="
-    display:flex; align-items:center; gap:6px;
-    background:#f5f7fa; border:1px solid #dce3ec;
-    border-radius:6px; padding:4px 8px;
-    font-family:'DM Mono','Fira Mono',monospace;
-    font-size:0.72rem; color:#37506e;
-    margin-top:2px; margin-bottom:6px;
-    overflow:hidden;
-">
-  <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
-        title="{smiles}">{short}</span>
-  <button onclick="
-    navigator.clipboard.writeText(`{safe}`)
-      .then(()=>{{this.textContent='✓';setTimeout(()=>this.textContent='Copy',1400)}})
-      .catch(()=>{{
-        var t=document.createElement('textarea');
-        t.value=`{safe}`;document.body.appendChild(t);
-        t.select();document.execCommand('copy');
-        document.body.removeChild(t);
-        this.textContent='✓';setTimeout(()=>this.textContent='Copy',1400);
-      }})
-  "
-  style="
-    background:#1a2e44; color:white; border:none;
-    border-radius:4px; padding:2px 8px;
-    font-size:0.68rem; font-weight:600;
-    cursor:pointer; white-space:nowrap; flex-shrink:0;
-  ">Copy</button>
-</div>
-"""
-    components.html(html_snip, height=36, scrolling=False)
 
 
 with tab_dataset:
@@ -1788,21 +1799,27 @@ with tab_dataset:
                 T["col_route"]:    nm,
                 T["col_target"]:   tgt,
                 T["col_steps"]:    n,
-                "_yc_raw":         yc,
-                T["col_cumyield"]: f"{yc * 100:.2f}%",
+                T["col_cumyield"]: round(yc * 100, 4),   # float → Streamlit sorts correctly
                 T["col_missing"]:  sum(1 for y in ys if y is None),
-                T["col_avg"]:      f"{sum(yo)/len(yo):.1f}%" if yo else "—",
+                T["col_avg"]:      round(sum(yo)/len(yo), 1) if yo else None,
             })
 
         if rows:
             df_routes = pd.DataFrame(rows)
-            df_routes = (
-                df_routes
-                .sort_values("_yc_raw", ascending=False)
-                .drop(columns=["_yc_raw"])
-                .reset_index(drop=True)
+            df_routes = df_routes.sort_values(T["col_cumyield"], ascending=False).reset_index(drop=True)
+            st.dataframe(
+                df_routes,
+                width="stretch",
+                hide_index=True,
+                column_config={
+                    T["col_route"]:    st.column_config.TextColumn(T["col_route"]),
+                    T["col_target"]:   st.column_config.TextColumn(T["col_target"]),
+                    T["col_steps"]:    st.column_config.NumberColumn(T["col_steps"], format="%d"),
+                    T["col_cumyield"]: st.column_config.NumberColumn(T["col_cumyield"], format="%.2f %%"),
+                    T["col_missing"]:  st.column_config.NumberColumn(T["col_missing"], format="%d"),
+                    T["col_avg"]:      st.column_config.NumberColumn(T["col_avg"],     format="%.1f %%"),
+                },
             )
-            st.dataframe(df_routes, width="stretch", hide_index=True)
 
         st.markdown("---")
 
@@ -1895,9 +1912,7 @@ with tab_dataset:
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    min-height: 165px;
-    padding-top: 10px;
+    height: 330px;
 ">
   <div style="display: flex; align-items: center; gap: 0;">
     <div style="
@@ -1925,7 +1940,7 @@ with tab_dataset:
                         st.image(png_p, use_container_width=True)
                     else:
                         st.code(prod, language=None)
-                    _smiles_copy_widget(prod, "Product")
+                    _smiles_copy_widget(prod)
 
                 # Step footer: yield and conditions
                 info_parts = []
