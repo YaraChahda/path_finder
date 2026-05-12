@@ -878,8 +878,10 @@ def process_novel_routes(aiz_routes: list, dataset: dict, generic_ds: dict,
     Process AiZynthFinder routes that are not covered by the main dataset.
 
     Each route is validated step-by-step against the generic dataset:
-    • validated/partial → added to validated_routes (some real conditions available)
-    • predicted         → enriched with Rxn-INSIGHT and added to predicted_routes
+    • validated → added to validated_routes only (all steps experimentally confirmed)
+    • partial   → added to BOTH validated_routes (real conditions on matched steps)
+                  AND predicted_routes (to encourage exploration of unvalidated steps)
+    • predicted → added to predicted_routes only (no experimental confirmation)
 
     Routes already covered by the main dataset (is_route_covered_by_dataset
     returns True) are silently skipped to avoid duplicate entries.
@@ -919,11 +921,28 @@ def process_novel_routes(aiz_routes: list, dataset: dict, generic_ds: dict,
         status = enriched.get("validation_status", "predicted")
         v, t   = enriched.get("validated_steps_count", 0), enriched.get("total_steps_count", 0)
 
-        if status in ("validated", "partial"):
+        if status == "validated":
+            # All steps in generic dataset — goes to validated only
             validated_routes.append(enriched)
-            print(f"    → {status} ({v}/{t} steps in generic dataset)")
+            print(f"    → validated ({v}/{t} steps in generic dataset)")
+        elif status == "partial":
+            # Some steps validated — appears in BOTH sections:
+            # validated (with real conditions on matched steps) and
+            # predicted (to keep encouraging experimental exploration)
+            validated_routes.append(enriched)
+            # Also add a purely predicted version for the predicted section
+            pure = enrich_aiz_route_with_rxninsight(aiz_route, rxni_db, counter)
+            pure["matched_target"] = target_name
+            pure.update({
+                "validation_status":     "predicted",
+                "is_validated":          False,
+                "validated_steps_count": 0,
+                "total_steps_count":     t,
+            })
+            predicted_routes.append(pure)
+            print(f"    → partial ({v}/{t} steps validated) — added to both sections")
         else:
-            # No steps in generic dataset → purely predicted, use Rxn-INSIGHT only
+            # No steps in generic dataset → purely predicted
             pure = enrich_aiz_route_with_rxninsight(aiz_route, rxni_db, counter)
             pure["matched_target"] = target_name
             pure.update({
