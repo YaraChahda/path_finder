@@ -8,6 +8,121 @@ path_finder
 
 <br>
 
+# Retrosynthesis Interface
+
+AiZynthFinder · Chemistry by Design · Rxn-INSIGHT
+
+## What this app does
+
+This Streamlit application finds and ranks synthesis routes for a target molecule using:
+- **AiZynthFinder** (MCTS retrosynthetic search)
+- A curated reaction dataset (Chemistry by Design)
+- **Rxn-INSIGHT** for reaction classification and condition prediction
+
+## Installation
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/your-org/retrosynthesis-interface.git
+cd retrosynthesis-interface
+```
+
+### 2. Create and activate the conda environment
+```bash
+conda env create -f environment.yml
+conda activate retrosynthesis
+```
+#### USPTO Rxn-INSIGHT database
+Download `uspto_rxn_insight.gzip` from:
+> [https://zenodo.org/records/10171745]
+
+Place it at:
+```
+data/uspto_rxn_insight.gzip
+```
+
+#### AiZynthFinder model files
+[[Download the pre-trained USPTO models from the AiZynthFinder releases page:
+> https://github.com/MolecularAI/aizynthfinder/releases
+
+You need:
+- `uspto_model.onnx`
+- `uspto_templates.csv.gz`
+
+Place them anywhere on your machine (e.g. `data/aizynthfinder/`)]]
+
+### 4. Configure AiZynthFinder
+
+Copy the template config and edit it with your local paths:
+
+```bash
+cp data/config_template.yml data/config.yml
+```
+
+Edit `data/config.yml` and replace every path with the **absolute path** on your machine:
+
+```yaml
+expansion:
+  uspto:
+    - /absolute/path/to/uspto_model.onnx
+    - /absolute/path/to/uspto_templates.csv.gz
+
+stock:
+  zinc:
+    - /absolute/path/to/zinc_stock.hdf5
+
+filter:
+  uspto:
+    - /absolute/path/to/uspto_filter_model.onnx
+```
+
+> **Important:** use absolute paths (starting with `/` on macOS/Linux or `C:\` on Windows).
+> Relative paths cause silent failures in AiZynthFinder.
+
+You can find the correct paths for the stock and filter files in the AiZynthFinder documentation:
+> https://molecularai.github.io/aizynthfinder/
+
+### 5. Run the app
+
+```bash
+streamlit run app/app_path_finder.py
+```
+
+The app will open at `http://localhost:8501`.
+
+## File structure
+
+```
+retrosynthesis-interface/
+├── app/
+│   ├── app_path_finder.py      # Streamlit front-end
+│   ├── route_engine.py         # Backend — scoring, AiZ, Rxn-INSIGHT
+│   ├── molecule_rendering.py   # RDKit Cairo rendering
+│   ├── localization.py         # EN/FR UI strings
+│   └── report_builder.py       # PDF generation
+├── data/
+│   ├── reaction_dataset.json   # Main curated routes (included)
+│   ├── toxicity_dataset.json   # Safety scores (included)
+│   ├── generic_reactions.json  # Individual reactions (included)
+│   ├── config_template.yml     # AiZ config template (edit → config.yml)
+│   └── config.yml              # ← YOUR local config (not committed to git)
+├── assets/
+│   └── banner.png
+├── environment.yml
+└── README.md
+```
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| `FileNotFoundError: config.yml` | Check that `data/config.yml` exists and all paths inside are absolute |
+| AiZynthFinder hangs or crashes | Verify the `.onnx` and `.csv.gz` paths in `config.yml` are correct |
+| `No routes found` | The target SMILES may not match the dataset; try Galanthamine or Morphine |
+| Rxn-INSIGHT disabled | `uspto_rxn_insight.gzip` must be present at `data/` and `rxn_insight` installed |
+| Slow search (~2 min) | Normal — AiZynthFinder MCTS is computationally intensive |
+
+
+
 
 This package aims to find the best retro synthesis pathways for some drugs, based on criteria selected by the user.
 
