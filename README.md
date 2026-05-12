@@ -12,7 +12,7 @@ path_finder
 
 AiZynthFinder · Chemistry by Design · Rxn-INSIGHT
 
-## What this app does
+## What this app does ?
 
 This Streamlit application finds and ranks synthesis routes for a target molecule using:
 - **AiZynthFinder** (MCTS retrosynthetic search)
