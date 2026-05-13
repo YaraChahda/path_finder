@@ -44,7 +44,7 @@ This automatically:
 ### 4. Download the Rxn-INSIGHT USPTO database
 
 Download `uspto_rxn_insight.gzip` from:
-[The rxn-INSIGHT article]([https://zenodo.org/records/10171745])
+[The rxn-INSIGHT article](https://zenodo.org/records/10171745)
 
 Place it in `data/uspto_rxn_insight.gzip`.
 
