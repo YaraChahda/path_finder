@@ -1,6 +1,6 @@
 # Path Finder
 
-<align="center">
+<p align="center">
   <img src="src/path_finder/assets/banner.png" width="400"/>
 </p>
 
