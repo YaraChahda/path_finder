@@ -922,27 +922,15 @@ def process_novel_routes(aiz_routes: list, dataset: dict, generic_ds: dict,
         v, t   = enriched.get("validated_steps_count", 0), enriched.get("total_steps_count", 0)
 
         if status == "validated":
-            # All steps in generic dataset — goes to validated only
+            # 100% steps matched — goes to validated section
             validated_routes.append(enriched)
             print(f"    → validated ({v}/{t} steps in generic dataset)")
         elif status == "partial":
-            # Some steps validated — appears in BOTH sections:
-            # validated (with real conditions on matched steps) and
-            # predicted (to keep encouraging experimental exploration)
-            validated_routes.append(enriched)
-            # Also add a purely predicted version for the predicted section
-            pure = enrich_aiz_route_with_rxninsight(aiz_route, rxni_db, counter)
-            pure["matched_target"] = target_name
-            pure.update({
-                "validation_status":     "predicted",
-                "is_validated":          False,
-                "validated_steps_count": 0,
-                "total_steps_count":     t,
-            })
-            predicted_routes.append(pure)
-            print(f"    → partial ({v}/{t} steps validated) — added to both sections")
+            # Some steps matched — goes to predicted with validation info preserved
+            enriched["is_predicted"] = True
+            predicted_routes.append(enriched)
+            print(f"    → partial ({v}/{t} steps validated) — shown in predicted with badge")
         else:
-            # No steps in generic dataset → purely predicted
             pure = enrich_aiz_route_with_rxninsight(aiz_route, rxni_db, counter)
             pure["matched_target"] = target_name
             pure.update({

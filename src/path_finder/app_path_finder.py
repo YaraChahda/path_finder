@@ -1201,13 +1201,25 @@ def display_route_card(score_total, details, route, criteria, weights,
         expanded=(rank == 1),
     ):
         # Validation status banner
-        if status == "predicted":
-            st.warning("⚠️ Predicted route — not experimentally validated. Yield excluded from scoring.")
-        elif status == "partial":
-            v = route.get("validated_steps_count", 0); t = route.get("total_steps_count", 0)
-            st.info(f"⚡ Partial validation — {v}/{t} steps found in generic dataset (real conditions).")
-        elif status == "validated":
+        v = route.get("validated_steps_count", 0)
+        t = route.get("total_steps_count", 0)
+        r = t - v
+        if status == "validated":
             st.success("✅ Fully validated — all steps found in generic dataset (real conditions).")
+        elif status == "partial" and v > 0:
+            msg = T["partial_badge"].format(v=v, t=t)
+            tip = T["partial_tip"].format(v=v, t=t, r=r)
+            col_badge, col_tip = st.columns([8, 1])
+            with col_badge:
+                st.info(f"🧪 {msg}")
+            with col_tip:
+                st.metric(label="ℹ️", value="", help=tip)
+        elif status == "predicted":
+            st.warning("⚠️ Predicted route — no steps found in experimental literature. "
+                       "Yield excluded from scoring."
+                       if lang == "en" else
+                       "⚠️ Route prédite — aucune étape trouvée dans la littérature. "
+                       "Le rendement est exclu du score.")
 
         # Metric columns
         m1, m2, m3, m4 = st.columns(4)
@@ -1576,7 +1588,7 @@ with tab_search:
                     display_route_card(score_total, details, route, criteria, weights,
                                        scored_dataset, rank, T["badge_dataset"], lang)
 
-            # -- Validated section --------------------------------------------
+            # -- Validated section — only shown when at least one route is 100% validated --
             if scored_validated:
                 st.markdown("---")
                 st.markdown(T["sec_validated"])
@@ -1585,11 +1597,8 @@ with tab_search:
                     fig = make_ranking_chart(scored_validated, tgt_name)
                     st.pyplot(fig); plt.close(fig)
                 for rank, (score_total, details, route) in enumerate(scored_validated, 1):
-                    status = route.get("validation_status", "partial")
-                    badge  = T["badge_validated"] if status == "validated" else T["badge_partial"]
                     display_route_card(score_total, details, route, criteria, weights,
-                                       scored_validated, rank, badge, lang)
-
+                                       scored_validated, rank, T["badge_validated"], lang)
             # -- Predicted section --------------------------------------------
             if include_predicted and RXNINSIGHT_OK and scored_predicted:
                 st.markdown("---")
