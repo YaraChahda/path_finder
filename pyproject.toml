@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "path-finder-retrosynthesis"
-version = "1.0.1"
+version = "1.0.2"
 description = "Retrosynthesis route finder — AiZynthFinder + Rxn-INSIGHT + Chemistry by Design"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -12,11 +12,14 @@ requires-python = ">=3.10"
 
 authors = [
   { name = "Yara Chahda" },
-  { name = "Corentin Postmann" },
+  { name = "Corentin Portmann" },
   { name = "Ines Ouchen" },
 ]
 
-keywords = ["chemistry", "retrosynthesis", "aizynthfinder", "streamlit", "cheminformatics"]
+keywords = [
+  "chemistry", "retrosynthesis", "aizynthfinder",
+  "streamlit", "cheminformatics", "rxn-insight",
+]
 
 classifiers = [
   "Programming Language :: Python :: 3",
@@ -33,11 +36,14 @@ dependencies = [
   "pandas>=2.0",
   "Pillow>=10.0",
   "requests>=2.31",
+  "aizynthfinder>=4.2.0",
   "click>=8.1",
 ]
 
 [project.optional-dependencies]
-predicted = ["rxn-insight>=1.0.0"]
+predicted = [
+  "rxn-insight>=1.0.0",
+]
 
 [project.scripts]
 path-finder       = "path_finder.cli:main"

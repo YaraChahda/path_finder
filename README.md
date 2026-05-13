@@ -1,79 +1,137 @@
-![Project Logo](assets/banner.png)
+# Path Finder
 
-![Coverage Status](assets/coverage-badge.svg)
+**AiZynthFinder · Chemistry by Design · Rxn-INSIGHT**
 
-<h1 align="center">
-path_finder
-</h1>
+*Yara Chahda · Corentin Portmann · Inès Ouchen — EPFL 2025*
 
-<br>
+Retrosynthesis route finder: find, rank and compare synthesis routes for any target molecule.
 
+---
 
-This package aims to find the best retro synthesis pathways for some drugs, based on criteria selected by the user.
+## Installation
 
-## 🔥 Usage
+### Step 1 — Install RDKit (conda only)
 
-```python
-from mypackage import main_func
-
-# One line to rule them all
-result = main_func(data)
+```bash
+conda install -c conda-forge rdkit
 ```
 
-This usage example shows how to quickly leverage the package's main functionality with just one line of code (or a few lines of code). 
-After importing the `main_func` (to be renamed by you), you simply pass in your `data` and get the `result` (this is just an example, your package might have other inputs and outputs). 
-Short and sweet, but the real power lies in the detailed documentation.
+> RDKit cannot be installed via pip — this single conda step is required.
 
-## 👩‍💻 Installation
+### Step 2 — Install Path Finder
 
-Create a new environment, you may also give the environment a different name. 
-
-```
-conda create -n path_finder python=3.10 
+```bash
+pip install path-finder-retrosynthesis
 ```
 
-```
-conda activate path_finder
-(conda_env) $ pip install .
-```
-
-If you need jupyter lab, install it 
-
-```
-(path_finder) $ pip install jupyterlab
+With predicted routes (Rxn-INSIGHT):
+```bash
+pip install path-finder-retrosynthesis[predicted]
 ```
 
+### Step 3 — First-time setup
 
-## 🛠️ Development installation
-
-Initialize Git (only for the first time). 
-
-Note: You should have create an empty repository on `https://github.com:YaraChahda/path_finder`.
-
-```
-git init
-git add * 
-git add .*
-git commit -m "Initial commit" 
-git branch -M main
-git remote add origin git@github.com:YaraChahda/path_finder.git 
-git push -u origin main
+```bash
+path-finder-setup
 ```
 
-Then add and commit changes as usual. 
+The wizard copies the bundled datasets, creates `data/config.yml`, and tells you exactly which files to download.
 
-To install the package, run
+### Step 4 — Download AiZynthFinder model files
+
+Go to https://github.com/MolecularAI/aizynthfinder/releases and download:
+
+| File | Purpose |
+|------|---------|
+| `uspto_model.onnx` | Expansion policy network |
+| `uspto_templates.csv.gz` | Reaction templates |
+| `uspto_filter_model.onnx` | Filter policy (optional) |
+| `zinc_stock.hdf5` | Purchasable building blocks |
+
+Place them in `data/aizynthfinder/`.
+
+### Step 5 — Edit config.yml
+
+Open `data/config.yml` and replace `/PATH/TO/AIZYNTHFINDER/` with the absolute path to your model files.
+
+**macOS / Linux:**
+```yaml
+expansion:
+  uspto:
+    - /Users/alice/data/aizynthfinder/uspto_model.onnx
+    - /Users/alice/data/aizynthfinder/uspto_templates.csv.gz
+```
+
+**Windows:**
+```yaml
+expansion:
+  uspto:
+    - C:/Users/alice/data/aizynthfinder/uspto_model.onnx
+    - C:/Users/alice/data/aizynthfinder/uspto_templates.csv.gz
+```
+
+### Step 6 — Launch
+
+```bash
+path-finder
+```
+
+Open http://localhost:8501 in your browser.
+
+---
+
+## Quick summary
 
 ```
-(path_finder) $ pip install -e ".[test,doc]"
+conda install -c conda-forge rdkit
+pip install path-finder-retrosynthesis
+path-finder-setup
+# edit data/config.yml
+path-finder
 ```
 
-### Run tests and coverage
+---
 
+## Data files
+
+| File | Bundled | Description |
+|------|---------|-------------|
+| `reaction_dataset.json` | ✅ | Curated synthesis routes |
+| `toxicity_dataset.json` | ✅ | Safety scores |
+| `generic_reactions.json` | ✅ | 10 000 USPTO reactions |
+| `config.yml` | ❌ | Created by setup wizard |
+| `data/aizynthfinder/` | ❌ | Model files — download separately |
+| `uspto_rxn_insight.gzip` | ❌ | Rxn-INSIGHT database (optional) |
+
+---
+
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| `config.yml not found` | Run `path-finder-setup` |
+| AiZynthFinder crash | Check paths in `config.yml` are absolute |
+| `No routes found` | Try Galanthamine or Morphine |
+| Rxn-INSIGHT disabled | `pip install path-finder-retrosynthesis[predicted]` |
+| Slow search (~2 min) | Normal — AiZynthFinder MCTS is intensive |
+
+---
+
+## Developer setup
+
+```bash
+git clone https://github.com/YaraChahda/path_finder.git
+cd path_finder
+conda install -c conda-forge rdkit
+pip install -e ".[predicted]"
+path-finder-setup
+path-finder
 ```
-(conda_env) $ pip install tox
-(conda_env) $ tox
-```
 
+---
 
+## Citation
 
+- AiZynthFinder: Genheden et al., J. Cheminf. 2020
+- Rxn-INSIGHT: Thakkar et al., J. Cheminf. 2023
+- Open Reaction Database: Kearnes et al., JACS 2021
