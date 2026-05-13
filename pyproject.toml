@@ -1,66 +1,62 @@
-[build-system] 
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "path_finder"
+name = "path-finder-retrosynthesis"
+version = "1.0.1"
+description = "Retrosynthesis route finder — AiZynthFinder + Rxn-INSIGHT + Chemistry by Design"
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.10"
-license = {file = "LICENSE"}
-description = "This package aims to find the best retro synthesis pathways for some drugs, based on criteria selected by the user."
-dependencies = [
-    # "rdkit",
-]
-authors = [
-    {name = "Yara Chahda", email = "yara.chahda@epfl.ch"}
-]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-]
-dynamic = ["version"]
 
-[project.urls]
-source = "https://github.com/YaraChahda/path_finder"
-tracker = "https://github.com/YaraChahda/path_finder/issues"
+authors = [
+  { name = "Yara Chahda" },
+  { name = "Corentin Postmann" },
+  { name = "Ines Ouchen" },
+]
+
+keywords = ["chemistry", "retrosynthesis", "aizynthfinder", "streamlit", "cheminformatics"]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering :: Chemistry",
+]
+
+dependencies = [
+  "streamlit>=1.35.0",
+  "numpy>=1.24",
+  "matplotlib>=3.7",
+  "pandas>=2.0",
+  "Pillow>=10.0",
+  "requests>=2.31",
+  "click>=8.1",
+]
 
 [project.optional-dependencies]
-test = [
-    "hypothesis",
-    "pytest",
-    "pytest-cov",
-    "tox",
-    "genbadge[coverage]",
-]
-doc = [
-    "furo",
-    "myst-parser",
-    "sphinx>=5",
-    "sphinx-copybutton",
-]
+predicted = ["rxn-insight>=1.0.0"]
 
-[tool.hatch.version]
-path = "src/path_finder/__init__.py"
+[project.scripts]
+path-finder       = "path_finder.cli:main"
+path-finder-setup = "path_finder.cli:setup"
 
-[tool.pytest.ini_options]
-testpaths = [
-    "tests",
-]
+[project.urls]
+Homepage   = "https://github.com/YaraChahda/path_finder"
+Repository = "https://github.com/YaraChahda/path_finder"
+Issues     = "https://github.com/YaraChahda/path_finder/issues"
 
-[tool.coverage.run]
-omit = [
-    '__init__.py'
-]
+[tool.setuptools.packages.find]
+where = ["src"]
 
-[tool.coverage.report]
-exclude_also = [
-    "if __name__ == .__main__.:",
+[tool.setuptools.package-data]
+path_finder = [
+  "data/reaction_dataset.json",
+  "data/toxicity_dataset.json",
+  "data/generic_reactions.json",
+  "data/config_template.yml",
+  "assets/banner.png",
+  "assets/*.png",
 ]
