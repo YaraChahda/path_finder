@@ -6,7 +6,7 @@
 
 **Retrosynthesis route finder** — AiZynthFinder · Rxn-INSIGHT · Chemistry by Design
 
-*Yara Chahda · Corentin Postmann · Inès Ouchen — EPFL 2025*
+*Yara Chahda · Corentin Postmann · Inès Ouchen — EPFL 2026*
 
 ---
 
