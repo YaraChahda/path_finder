@@ -1190,7 +1190,7 @@ def display_route_card(score_total, details, route, criteria, weights,
     n_steps    = len(steps_data)
     bn         = fi.bottleneck_yield(steps_data)
     av         = fi.average_yield(steps_data)
-    medals     = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
+    medals     = ["🥇", "🥈", "🥉", "4️.", "5️.", "6️.", "7️.", "8️.", "9️.", "10."]
     medal      = medals[rank - 1] if rank <= 10 else f"#{rank}"
     route_key  = "".join(c for c in route.get("matched_route_id", "r") if c.isalnum())
     is_pred    = route.get("is_predicted", False)
@@ -1352,7 +1352,7 @@ with st.sidebar:
             ),
         )
     else:
-        st.caption("🔮 Predicted routes disabled (`pip install rxn-insight`)")
+        st.caption("🤖 Predicted routes disabled (`pip install rxn-insight`)")
 
     st.divider()
     # Criterion weight progress bars — live preview of the 1/i² weights
@@ -1568,7 +1568,7 @@ with tab_search:
             c1_, c2_, c3_, c4_ = st.columns(4)
             c1_.metric("📚 Dataset",   len(scored_dataset))
             c2_.metric("✅ Validated",  len(scored_validated))
-            c3_.metric("🔮 Predicted", len(scored_predicted))
+            c3_.metric("🤖 Predicted", len(scored_predicted))
             c4_.metric("Total", len(scored_dataset) + len(scored_validated) + len(scored_predicted))
 
             tgt_name = st.session_state.get("target_name", target_name)
@@ -1645,7 +1645,7 @@ with tab_search:
 
                 # Collapsible starting-material browser
                 top30 = list(all_sm_map.keys())[:30]
-                with st.expander(f"📋 Browse starting materials ({len(top30)} unique)", expanded=False):
+                with st.expander(f"🗂️ Browse starting materials ({len(top30)} unique)", expanded=False):
                     cols_sm = st.columns(3)
                     for i, smi in enumerate(top30):
                         col = cols_sm[i % 3]
@@ -1690,8 +1690,8 @@ with tab_analysis:
                 # Return a single emoji indicating validation status
                 status = r[2].get("validation_status", "dataset")
                 if status == "validated": return "✅"
-                if status == "partial":   return "⚡"
-                if status == "predicted": return "🔮"
+                if status == "partial":   return "🔬"
+                if status == "predicted": return "🤖"
                 return "📚"
 
             # Build option labels for the multiselect
@@ -2040,7 +2040,7 @@ preserves the full sequence of operations as recorded in the dataset.
 |---------|--------|-----------|-----------------|
 | 📚 Dataset | Chemistry by Design | Real | Yes |
 | ✅ Validated | AiZ + generic dataset | Real (validated steps) | Yes |
-| 🔮 Predicted | AiZ + Rxn-INSIGHT | Predicted | No |
+| 🤖 Predicted | AiZ + Rxn-INSIGHT | Predicted | No |
 
 **Required files:**
 
@@ -2076,7 +2076,7 @@ n'est formée. Cela préserve la séquence complète des opérations telle qu'en
 |---------|--------|-----------|---------------------|
 | 📚 Dataset | Chemistry by Design | Réelles | Oui |
 | ✅ Validées | AiZ + dataset générique | Réelles (étapes validées) | Oui |
-| 🔮 Prédites | AiZ + Rxn-INSIGHT | Prédites | Non |
+| 🤖 Prédites | AiZ + Rxn-INSIGHT | Prédites | Non |
 
 **Fichiers nécessaires :**
 
