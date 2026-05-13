@@ -2,7 +2,7 @@
 
 **AiZynthFinder · Chemistry by Design · Rxn-INSIGHT**
 
-*Yara Chahda · Corentin Portmann · Inès Ouchen — EPFL 2025*
+*Yara Chahda · Corentin Postmann · Inès Ouchen — EPFL 2025*
 
 Retrosynthesis route finder: find, rank and compare synthesis routes for any target molecule.
 
