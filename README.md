@@ -1,7 +1,7 @@
 # Path Finder
 
 <p align="center">
-  <img src="src/path_finder/assets/banner.png" width="600"/>
+  <img src="src/path_finder/assets/banner.png" width="300"/>
 </p>
 
 **Retrosynthesis route finder** — AiZynthFinder · Rxn-INSIGHT · Chemistry by Design
