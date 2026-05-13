@@ -24,7 +24,7 @@ try:
 except Exception:
     MODULE_OK = False
 
-import route_engine as fi
+import route_engine as rt
 
 
 def build_route_report_pdf(score_total: float, details: dict, route: dict,
@@ -227,10 +227,10 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
     status     = route.get("validation_status", "dataset")
     status_lbl = {"dataset": "Dataset", "validated": "Validated",
                   "partial": "Partial", "predicted": "Predicted"}.get(status, status)
-    sub   = fi.get_substances_list(steps_data)
-    bn_   = fi.bottleneck_yield(steps_data)
-    av_   = fi.average_yield(steps_data)
-    cumyl = fi.cumulative_yield(steps_data)
+    sub   = rt.get_substances_list(steps_data)
+    bn_   = rt.bottleneck_yield(steps_data)
+    av_   = rt.average_yield(steps_data)
+    cumyl = rt.cumulative_yield(steps_data)
 
     pages = []
 

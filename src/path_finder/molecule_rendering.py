@@ -2,7 +2,7 @@
 # =============================================================================
 # RDKit-based molecule image rendering for the Retrosynthesis Interface.
 #
-# This module has NO Streamlit dependency and can be imported independently
+# This module has No Streamlit dependency and can be imported independently
 # for testing or reuse outside the app.
 #
 # Public API:
