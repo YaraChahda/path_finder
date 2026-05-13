@@ -47,29 +47,35 @@ def load_reaction_dataset(path: str) -> dict:
     """
     Load and index the main curated reaction dataset from a JSON file.
 
-    Accepted JSON formats
-    ─────────────────────
-    • A bare list of reaction dicts (legacy format).
-    • A dict with a "reactions" key (preferred — allows a "_metadata" section
-      that can store canonical target SMILES keyed by target name).
+    Accepted formats: a bare list of reaction dicts, or a dict with a
+    ``"reactions"`` key and an optional ``"_metadata"`` section storing
+    canonical target SMILES keyed by target name.
 
-    Each reaction dict is expected to contain:
-        id, route_id, route_name, target, step_number,
-        reactants_smiles (list or str), product_smiles (str or list),
-        conditions (dict), yield_percent (float or None), reaction_type (str).
+    Each reaction dict is expected to contain: ``id``, ``route_id``,
+    ``route_name``, ``target``, ``step_number``, ``reactants_smiles``,
+    ``product_smiles``, ``conditions``, ``yield_percent``, ``reaction_type``.
 
-    Normalisation applied during loading
-    ─────────────────────────────────────
-    • product_smiles lists are joined with '.' to produce a single SMILES string.
-    • reactants_smiles strings are wrapped in a list; nested lists are flattened.
-    • Steps within each route are sorted by step_number.
+    List-valued ``product_smiles`` fields are joined with ``'.'``.
+    String ``reactants_smiles`` fields are wrapped in a list; nested lists
+    are flattened. Steps within each route are sorted by ``step_number``.
 
-    Returns a dict with keys:
-        by_product  : {canonical_product_smiles: [reaction, ...]}
-        by_reactant : {canonical_reactant_smiles: [reaction, ...]}
-        by_route    : {route_id: [step_dict, ...]}   (steps sorted by step_number)
-        all         : flat list of all reaction dicts (normalised)
-        metadata    : dict from "_metadata" section (may be empty)
+    Parameters
+    ----------
+    path : str
+        Filesystem path to the JSON dataset file.
+
+    Returns
+    -------
+    dict
+        A dict with keys ``by_product``, ``by_reactant``, ``by_route``,
+        ``all``, and ``metadata``.
+
+    Raises
+    ------
+    FileNotFoundError
+        If ``path`` does not exist.
+    ValueError
+        If the JSON structure is not a recognised format.
     """
     if not os.path.exists(path):
         raise FileNotFoundError(f"dataset not found: {path}")
@@ -138,24 +144,27 @@ def load_reaction_dataset(path: str) -> dict:
 
 def get_targets_from_dataset(dataset: dict) -> dict:
     """
-    Extract a {target_name: canonical_SMILES} mapping from a loaded dataset.
+    Extract a target-name to canonical-SMILES mapping from a loaded dataset.
 
-    Resolution strategy (in priority order):
-    1. Use the canonical SMILES stored in dataset["metadata"]["target_smiles"]
-       if it exists and parses correctly.
-    2. Walk the route's steps in reverse to find the largest product molecule
-       (≥ 15 heavy atoms) as a proxy for the final target structure.
+    Resolution strategy applied in priority order:
+
+    1. Use the canonical SMILES stored in
+    ``dataset["metadata"]["target_smiles"]`` if it parses correctly.
+    2. Walk the route steps in reverse to find the largest product molecule
+    (≥ 15 heavy atoms) as a proxy for the final target structure.
 
     Targets for which no valid SMILES can be determined are skipped with a
-    warning so the sidebar molecule selector only contains usable entries.
+    warning.
 
     Parameters
-    ──────────
-    dataset : dict returned by load_reaction_dataset()
+    ----------
+    dataset : dict
+        As returned by ``load_reaction_dataset()``.
 
     Returns
-    ───────
-    dict  {target_name (str): canonical_SMILES (str)}
+    -------
+    dict
+        ``{target_name (str): canonical_SMILES (str)}``.
     """
     by_route    = dataset["by_route"]
     meta_smiles = dataset["metadata"].get("target_smiles", {})
@@ -194,18 +203,23 @@ def load_toxicity_dataset(path: str) -> dict:
     """
     Load the toxicity/safety score index from a JSON file.
 
-    Expected JSON format: a list (or a dict with a "compounds" key) where each
-    entry has at minimum:
-        smiles      : SMILES string of the compound
-        hazard_score: float in [0, 1]  (1 = maximally hazardous)
+    Expected format: a list of compound dicts (or a dict with a
+    ``"compounds"`` key), where each entry has at minimum a ``smiles``
+    field and a ``hazard_score`` field (float in [0, 1], where 1 is
+    maximally hazardous).
 
-    If the file is absent, an empty dict is returned and safety scores default
-    to 0.5 (neutral) during scoring. A console warning is printed because
-    missing toxicity data silently affects the Safety criterion.
+    If the file is absent an empty dict is returned and safety scores
+    default to 0.5 (neutral) during scoring.
+
+    Parameters
+    ----------
+    path : str
+        Filesystem path to the JSON toxicity file.
 
     Returns
-    ───────
-    dict  {canonical_SMILES: compound_dict}
+    -------
+    dict
+        ``{canonical_SMILES: compound_dict}``.
     """
     if not os.path.exists(path):
         print("[toxicity] missing — Safety scores will default to 0.5 (required for correct scoring)")
@@ -226,24 +240,19 @@ def load_rxninsight_database(path: str):
     """
     Load the Rxn-INSIGHT USPTO reaction database for condition suggestion.
 
-    The file is expected to be a Parquet file (despite the .gzip extension).
-    Columns required by find_neighbors():
-        RXN, SOLVENT, REAGENT, CATALYST, NAME, CLASS,
-        TAG2, rxn_str_patt_fp, rxn_dif_patt_fp,
-        rxn_str_morgan_fp, rxn_dif_morgan_fp
-
-    Only columns present in the file are loaded (graceful degradation).
-    Returns None — and prints a warning — if the file is absent or cannot
-    be parsed, so the rest of the research continues without condition
-    suggestion for predicted routes.
+    The file is expected to be a Parquet file despite the ``.gzip``
+    extension. Only columns required by ``find_neighbors()`` are retained.
+    Returns ``None`` if the file is absent or cannot be parsed.
 
     Parameters
-    ──────────
-    path : str  path to the .gzip Parquet file
+    ----------
+    path : str
+        Filesystem path to the Parquet file.
 
     Returns
-    ───────
+    -------
     pandas.DataFrame or None
+        DataFrame containing the USPTO reactions, or ``None`` if unavailable.
     """
     if not RXNINSIGHT_AVAILABLE:
         return None
@@ -272,23 +281,24 @@ def load_rxninsight_database(path: str):
 
 def load_generic_reaction_dataset(path: str) -> dict:
     """
-    Load a flat dataset of individual reactions used to validate AiZynthFinder
-    route steps against real experimental data.
+    Load a flat dataset of individual reactions for AiZynthFinder step
+    validation against real experimental data.
 
-    Format: same JSON schema as the main dataset (list of reaction dicts), but
-    each entry is an independent reaction (target field is absent or empty,
-    step_number = 1 everywhere).
+    Same JSON schema as the main dataset, but each entry is an independent
+    reaction (no route context, ``step_number = 1`` everywhere).
 
-    This dataset is used in validate_aiz_route_against_generic_dataset() to
-    supply real conditions and yields for steps that AiZynthFinder proposes
-    but that are absent from the main curated dataset.
+    Returns an empty dict and disables step validation if the file is absent.
 
-    Returns a dict with keys:
-        by_product      : {canonical_product_smiles: [reaction, ...]}
-        by_reaction_key : {(sorted_reactant_tuple, product): reaction}
-                          — used for exact step matching
-        all             : flat list of all reaction dicts
-    Returns {} (empty dict) if the file is absent, disabling step validation.
+    Parameters
+    ----------
+    path : str
+        Filesystem path to the JSON file.
+
+    Returns
+    -------
+    dict
+        A dict with keys ``by_product``, ``by_reaction_key``, and ``all``.
+        Returns ``{}`` if the file is absent.
     """
     if not path or not os.path.exists(path):
         print("[generic dataset] absent — step validation disabled")
@@ -325,20 +335,20 @@ def to_canonical(smiles) -> str:
     """
     Convert any SMILES input to its RDKit canonical form.
 
-    Handles edge cases:
-    • List input: fragments are joined with '.' before parsing (e.g. salt mixtures
-      stored as ["CCO"] instead of "CCO").
-    • Non-string scalars: converted to str then parsed.
-    • Invalid SMILES: returned as-is (no error raised) so callers can still
-      use the original string as a dict key.
+    List inputs are joined with ``'.'`` before parsing. Non-string scalars
+    are converted to ``str``. Invalid SMILES are returned as-is so callers
+    can still use the original string as a dict key.
 
     Parameters
-    ──────────
-    smiles : str, list, or any scalar
+    ----------
+    smiles : str, list, or scalar
+        SMILES string, list of SMILES fragments, or any scalar value.
 
     Returns
-    ───────
-    str  canonical SMILES, or the original value stringified if RDKit fails
+    -------
+    str
+        Canonical SMILES string, or the original value stringified if RDKit
+        cannot parse it.
     """
     if isinstance(smiles, list):
         smiles = '.'.join(str(s) for s in smiles if s)
@@ -354,16 +364,15 @@ def safe_mol(smiles: str):
     """
     Parse a SMILES string and return an RDKit Mol object, or None on failure.
 
-    Used throughout scoring functions as a guard before any RDKit operation
-    so that malformed SMILES in the dataset do not raise unhandled exceptions.
-
     Parameters
-    ──────────
+    ----------
     smiles : str
+        SMILES string to parse.
 
     Returns
-    ───────
+    -------
     rdkit.Chem.Mol or None
+        Parsed molecule, or ``None`` if the string is empty or invalid.
     """
     if not smiles:
         return None
@@ -372,18 +381,23 @@ def safe_mol(smiles: str):
 
 def validate_smiles_for_aizynthfinder(smiles: str) -> str:
     """
-    Validate and canonicalise a SMILES string before passing it to AiZynthFinder.
-
-    Raises ValueError for empty or unparseable SMILES so the Streamlit UI can
-    surface a friendly error message rather than a cryptic AiZ crash.
+    Validate and canonicalise a SMILES string before passing it to
+    AiZynthFinder.
 
     Parameters
-    ──────────
-    smiles : str  user-supplied or dataset-derived SMILES
+    ----------
+    smiles : str
+        User-supplied or dataset-derived SMILES string.
 
     Returns
-    ───────
-    str  canonical SMILES guaranteed parseable by RDKit
+    -------
+    str
+        Canonical SMILES guaranteed parseable by RDKit.
+
+    Raises
+    ------
+    ValueError
+        If ``smiles`` is empty or cannot be parsed by RDKit.
     """
     if not smiles:
         raise ValueError("empty SMILES")
@@ -395,20 +409,21 @@ def validate_smiles_for_aizynthfinder(smiles: str) -> str:
 
 def build_dataset_smiles_index(dataset: dict) -> set:
     """
-    Build a set of all canonical SMILES appearing in the dataset (products and
-    reactants combined).
+    Build a set of all canonical SMILES appearing in the dataset.
 
-    Used by is_route_covered_by_dataset() to quickly check whether an
-    AiZynthFinder-proposed route recycles molecules already present in the
-    curated dataset, which would indicate it is not truly novel.
+    Covers both products and reactants. Used by
+    ``is_route_covered_by_dataset()`` to check whether an AiZynthFinder
+    route overlaps with molecules already in the curated dataset.
 
     Parameters
-    ──────────
-    dataset : dict returned by load_reaction_dataset()
+    ----------
+    dataset : dict
+        As returned by ``load_reaction_dataset()``.
 
     Returns
-    ───────
-    set of canonical SMILES strings
+    -------
+    set of str
+        Canonical SMILES strings of all molecules in the dataset.
     """
     index = set()
     for rxn in dataset["all"]:
@@ -428,20 +443,23 @@ def build_dataset_smiles_index(dataset: dict) -> set:
 
 def _walk_reaction_tree(node: dict, steps: list) -> None:
     """
-    Recursively traverse an AiZynthFinder reaction tree dict (from to_dict())
-    and collect all reaction steps in retrosynthetic order (target → starting
-    materials).
+    Recursively traverse an AiZynthFinder reaction tree and collect steps.
 
-    The caller reverses the result to obtain the forward synthetic order.
-
-    Each collected step is a dict:
-        reactants : list of SMILES strings (precursors in this step)
-        product   : SMILES string (molecule produced by this step)
+    Traverses in retrosynthetic order (target → starting materials). The
+    caller reverses the result to obtain the forward synthetic order. Each
+    collected step is a dict with keys ``reactants`` (list of SMILES) and
+    ``product`` (SMILES string).
 
     Parameters
-    ──────────
-    node  : dict  node from AiZynthFinder's tree.to_dict() output
-    steps : list  accumulator; modified in place
+    ----------
+    node : dict
+        Node from AiZynthFinder's ``tree.to_dict()`` output.
+    steps : list
+        Accumulator list modified in place.
+
+    Returns
+    -------
+    None
     """
     if node.get("type") != "mol":
         return
@@ -460,24 +478,23 @@ def _walk_reaction_tree(node: dict, steps: list) -> None:
 
 def adapt_route(route: dict) -> dict:
     """
-    Convert a raw AiZynthFinder route object into the internal route dict format.
+    Convert a raw AiZynthFinder route object into the internal route dict
+    format.
 
-    Uses to_dict() on the reaction tree for reliable hierarchy extraction,
-    then reverses the retrosynthetic order to obtain the forward synthetic
-    sequence (starting materials → target).
-
-    Also derives:
-    • starting_materials : leaf nodes (molecules consumed but never produced)
-    • target_smiles      : canonical SMILES of the root molecule (synthesis target)
+    Reverses the retrosynthetic step order to produce a forward synthetic
+    sequence. Also derives the list of starting materials (leaf nodes) and
+    the canonical target SMILES.
 
     Parameters
-    ──────────
-    route : dict  one entry from finder.routes after build_routes()
+    ----------
+    route : dict
+        One entry from ``finder.routes`` after ``build_routes()``.
 
     Returns
-    ───────
-    dict with keys: route_id, route_name, steps, starting_materials,
-                    target_smiles, raw
+    -------
+    dict
+        Route dict with keys: ``route_id``, ``route_name``, ``steps``,
+        ``starting_materials``, ``target_smiles``, ``raw``.
     """
     tree = route["reaction_tree"]
     try:
@@ -508,23 +525,25 @@ def adapt_route(route: dict) -> dict:
 def run_aizynthfinder(target_smiles: str, config_path: str = "config.yml",
                       n_routes: int = 25) -> list:
     """
-    Run AiZynthFinder MCTS search on a target molecule and return adapted routes.
+    Run AiZynthFinder MCTS on a target molecule and return adapted routes.
 
-    Configuration:
-    • Stock  : "zinc"   — defines purchasable building blocks
-    • Policy : "uspto"  — expansion and filter policy networks trained on USPTO
-    • n_routes is set higher than top_n (default 25) to maximise the chance
-      of matching steps in the generic reaction dataset during validation.
+    Uses the ``"zinc"`` stock and ``"uspto"`` expansion and filter policies.
+    Requests more routes than ``top_n`` to maximise the chance of matching
+    steps in the generic dataset during validation.
 
     Parameters
-    ──────────
-    target_smiles : str  canonical SMILES of the synthesis target
-    config_path   : str  path to the AiZynthFinder YAML config file
-    n_routes      : int  maximum number of routes to retrieve from the tree
+    ----------
+    target_smiles : str
+        Canonical SMILES of the synthesis target.
+    config_path : str, optional
+        Path to the AiZynthFinder YAML config file (default ``"config.yml"``).
+    n_routes : int, optional
+        Maximum number of routes to retrieve from the tree (default 25).
 
     Returns
-    ───────
-    list of dicts, each produced by adapt_route()
+    -------
+    list of dict
+        Each element is an adapted route dict from ``adapt_route()``.
     """
     canon = validate_smiles_for_aizynthfinder(target_smiles)
     print(f"[AiZynthFinder] target: {canon} (requesting up to {n_routes} routes)")
@@ -547,19 +566,21 @@ def run_aizynthfinder(target_smiles: str, config_path: str = "config.yml",
 def _best_condition(df_cond) -> str:
     """
     Extract the most frequently suggested condition from a Rxn-INSIGHT
-    suggestion DataFrame (e.g. suggested_solvent, suggested_catalyst,
-    suggested_reagent).
+    suggestion DataFrame.
 
-    Each DataFrame has columns NAME (condition string) and COUNT (frequency).
-    Empty NAME strings are filtered out before selecting the top row.
+    Each DataFrame has columns ``NAME`` (condition string) and ``COUNT``
+    (frequency). Empty ``NAME`` strings are filtered out before selecting
+    the top row.
 
     Parameters
-    ──────────
+    ----------
     df_cond : pandas.DataFrame or None
+        Suggestion DataFrame from Rxn-INSIGHT (e.g. ``suggested_solvent``).
 
     Returns
-    ───────
-    str  most common non-empty condition name, or "" on failure
+    -------
+    str
+        Most common non-empty condition name, or ``""`` on failure.
     """
     try:
         if df_cond is None or not hasattr(df_cond, "empty") or df_cond.empty:
@@ -576,32 +597,26 @@ def get_reaction_info_rxninsight(reactants: list, product: str, rxni_db) -> dict
     """
     Classify a reaction and suggest conditions using Rxn-INSIGHT.
 
-    Two levels of output depending on whether the USPTO database is provided:
-    • Without rxni_db (None): reaction type/class are available via
-      get_reaction_info() (which uses pattern matching internally), but no
-      condition suggestion is possible.
-    • With rxni_db: additionally calls find_neighbors() + suggest_conditions()
-      for data-driven solvent/catalyst/reagent prediction.
-
-    Only reactants with valid SMILES are passed to Rxn-INSIGHT; if none remain
-    after filtering, an empty dict is returned.
+    Without ``rxni_db``: reaction type and class are returned via pattern
+    matching. With ``rxni_db``: additionally calls ``find_neighbors()`` and
+    ``suggest_conditions()`` for data-driven solvent/catalyst/reagent
+    prediction. Returns an empty dict if Rxn-INSIGHT is unavailable or
+    inputs are invalid.
 
     Parameters
-    ──────────
-    reactants : list of SMILES strings
-    product   : str  SMILES of the product
-    rxni_db   : pandas.DataFrame or None  (from load_rxninsight_database)
+    ----------
+    reactants : list of str
+        SMILES strings of the reactants.
+    product : str
+        SMILES string of the product.
+    rxni_db : pandas.DataFrame or None
+        USPTO database from ``load_rxninsight_database()``.
 
     Returns
-    ───────
-    dict with keys:
-        reaction_type  : str  (human-readable name)
-        reaction_class : str
-        fg_reactants   : list of functional group labels
-        fg_products    : list of functional group labels
-        by_products    : list of by-product SMILES
-        conditions     : dict {temperature_C, temp_range, solvent, co_solvent,
-                                reagents (list), apparatus}
+    -------
+    dict
+        Keys: ``reaction_type``, ``reaction_class``, ``fg_reactants``,
+        ``fg_products``, ``by_products``, ``conditions``.
     """
     if not RXNINSIGHT_AVAILABLE:
         return {}
@@ -653,24 +668,26 @@ def get_reaction_info_rxninsight(reactants: list, product: str, rxni_db) -> dict
 
 def enrich_aiz_route_with_rxninsight(aiz_route: dict, rxni_db, route_index: int) -> dict:
     """
-    Create synthetic dataset_steps for an AiZynthFinder route that has no
-    matching steps in the generic reaction dataset (fully predicted route).
+    Create synthetic dataset steps for a fully predicted AiZynthFinder route.
 
     Each step is annotated by Rxn-INSIGHT for reaction type and suggested
-    conditions. Yield is set to None and is never displayed or used in scoring
-    for predicted routes.
+    conditions. Yield is set to ``None`` and excluded from scoring.
 
     Parameters
-    ──────────
-    aiz_route    : dict  adapted AiZ route (from adapt_route)
-    rxni_db      : pandas.DataFrame or None
-    route_index  : int   1-based index used to build unique step IDs
+    ----------
+    aiz_route : dict
+        Adapted AiZ route from ``adapt_route()``.
+    rxni_db : pandas.DataFrame or None
+        USPTO database for condition prediction.
+    route_index : int
+        1-based index used to build unique step IDs.
 
     Returns
-    ───────
-    dict  enriched route with keys added:
-        dataset_steps, matched_route_id, matched_route_name,
-        matched_target, coverage, is_predicted
+    -------
+    dict
+        Enriched route dict with added keys: ``dataset_steps``,
+        ``matched_route_id``, ``matched_route_name``, ``matched_target``,
+        ``coverage``, ``is_predicted``.
     """
     steps         = aiz_route.get("steps", [])
     target_smiles = aiz_route.get("target_smiles", "")
@@ -710,22 +727,26 @@ def enrich_aiz_route_with_rxninsight(aiz_route: dict, rxni_db, route_index: int)
 def is_route_covered_by_dataset(aiz_route: dict, dataset_smiles_index: set,
                                  threshold: float = 0.4) -> bool:
     """
-    Determine whether an AiZ route is substantially covered by the main dataset.
+    Determine whether an AiZ route is substantially covered by the main
+    dataset.
 
-    A route is considered "covered" if at least `threshold` fraction of its
-    product SMILES appear in the main dataset's SMILES index. Covered routes
-    are skipped by process_novel_routes() because they would duplicate entries
-    already present in the dataset section.
+    A route is considered covered if at least ``threshold`` fraction of its
+    product SMILES appear in the main dataset's SMILES index.
 
     Parameters
-    ──────────
-    aiz_route            : dict  adapted AiZ route
-    dataset_smiles_index : set   built by build_dataset_smiles_index()
-    threshold            : float fraction [0, 1] — default 0.4 (40 %)
+    ----------
+    aiz_route : dict
+        Adapted AiZ route from ``adapt_route()``.
+    dataset_smiles_index : set
+        Built by ``build_dataset_smiles_index()``.
+    threshold : float, optional
+        Minimum fraction of products that must appear in the dataset
+        (default 0.4).
 
     Returns
-    ───────
-    bool  True if the route should be skipped (already in main dataset)
+    -------
+    bool
+        ``True`` if the route should be skipped as already covered.
     """
     steps    = aiz_route.get("steps", [])
     products = [to_canonical(s.get("product", "")) for s in steps if s.get("product")]
@@ -742,22 +763,22 @@ def match_step_in_generic_dataset(reactants: list, product: str, generic_ds: dic
     """
     Search for a reaction step in the generic reactions dataset.
 
-    Two-level matching strategy:
-    1. Exact match  : canonical reactant tuple + canonical product must equal
-                      a stored (reactants, product) key exactly.
-    2. Product-only : if no exact match, return the first reaction in the
-                      dataset that produces the same canonical product SMILES
-                      (less strict — may return a related but non-identical reaction).
+    Uses a two-level strategy: exact match on (sorted canonical reactants,
+    canonical product), then product-only match as a fallback.
 
     Parameters
-    ──────────
-    reactants  : list of SMILES strings (AiZ-proposed precursors)
-    product    : str  SMILES of the step product
-    generic_ds : dict returned by load_generic_reaction_dataset()
+    ----------
+    reactants : list of str
+        SMILES strings of the AiZ-proposed precursors.
+    product : str
+        SMILES string of the step product.
+    generic_ds : dict
+        As returned by ``load_generic_reaction_dataset()``.
 
     Returns
-    ───────
-    dict  matching reaction entry, or None if no match found
+    -------
+    dict or None
+        Matching reaction entry, or ``None`` if no match is found.
     """
     if not generic_ds:
         return None
@@ -777,30 +798,29 @@ def validate_aiz_route_against_generic_dataset(aiz_route: dict, generic_ds: dict
     """
     Validate each step of an AiZynthFinder route against the generic dataset.
 
-    For each step:
-    • Match found    → use real conditions/yield from generic dataset
-                       (source = "generic_dataset")
-    • No match found → annotate with Rxn-INSIGHT predicted conditions
-                       (source = "rxn-insight", yield = None)
-
-    Validation status assigned:
-    • "validated" : ALL steps matched in generic dataset
-    • "partial"   : SOME steps matched (at least one)
-    • "predicted" : NO steps matched (routed to predicted section instead)
+    Matched steps use real conditions and yield; unmatched steps receive
+    Rxn-INSIGHT predicted conditions. Assigns one of three validation
+    statuses: ``"validated"`` (all steps matched), ``"partial"`` (some),
+    or ``"predicted"`` (none).
 
     Parameters
-    ──────────
-    aiz_route    : dict  adapted AiZ route
-    generic_ds   : dict  from load_generic_reaction_dataset()
-    rxni_db      : pandas.DataFrame or None  for condition prediction fallback
-    route_index  : int   1-based index for unique ID generation
+    ----------
+    aiz_route : dict
+        Adapted AiZ route from ``adapt_route()``.
+    generic_ds : dict
+        As returned by ``load_generic_reaction_dataset()``.
+    rxni_db : pandas.DataFrame or None
+        USPTO database for condition prediction fallback.
+    route_index : int
+        1-based index for unique ID generation.
 
     Returns
-    ───────
-    dict  enriched route with added keys:
-        dataset_steps, matched_route_id, matched_route_name, matched_target,
-        coverage, validation_status, validated_steps_count, total_steps_count,
-        is_predicted, is_validated
+    -------
+    dict
+        Enriched route dict with added keys: ``dataset_steps``,
+        ``matched_route_id``, ``matched_route_name``, ``matched_target``,
+        ``coverage``, ``validation_status``, ``validated_steps_count``,
+        ``total_steps_count``, ``is_predicted``, ``is_validated``.
     """
     steps         = aiz_route.get("steps", [])
     target_smiles = aiz_route.get("target_smiles", "")
@@ -875,28 +895,30 @@ def validate_aiz_route_against_generic_dataset(aiz_route: dict, generic_ds: dict
 def process_novel_routes(aiz_routes: list, dataset: dict, generic_ds: dict,
                           target_name: str, rxni_db) -> tuple:
     """
-    Process AiZynthFinder routes that are not covered by the main dataset.
+    Process AiZynthFinder routes not covered by the main dataset.
 
-    Each route is validated step-by-step against the generic dataset:
-    • validated → added to validated_routes only (all steps experimentally confirmed)
-    • partial   → added to BOTH validated_routes (real conditions on matched steps)
-                  AND predicted_routes (to encourage exploration of unvalidated steps)
-    • predicted → added to predicted_routes only (no experimental confirmation)
-
-    Routes already covered by the main dataset (is_route_covered_by_dataset
-    returns True) are silently skipped to avoid duplicate entries.
+    Validates each route step-by-step against the generic dataset and
+    classifies routes as validated, partial, or predicted. Routes already
+    covered by the main dataset are silently skipped.
 
     Parameters
-    ──────────
-    aiz_routes  : list of dicts from run_aizynthfinder()
-    dataset     : dict from load_reaction_dataset()
-    generic_ds  : dict from load_generic_reaction_dataset()
-    target_name : str  used to label routes and filter by target
-    rxni_db     : pandas.DataFrame or None
+    ----------
+    aiz_routes : list of dict
+        Adapted AiZ routes from ``run_aizynthfinder()``.
+    dataset : dict
+        As returned by ``load_reaction_dataset()``.
+    generic_ds : dict
+        As returned by ``load_generic_reaction_dataset()``.
+    target_name : str
+        Human-readable target name used to label routes.
+    rxni_db : pandas.DataFrame or None
+        USPTO database for condition prediction.
 
     Returns
-    ───────
-    (validated_routes, predicted_routes) — both are lists of enriched route dicts
+    -------
+    tuple of (list, list)
+        ``(validated_routes, predicted_routes)`` — both lists of enriched
+        route dicts.
     """
     if not RXNINSIGHT_AVAILABLE:
         print("[rxn-insight] not installed")
@@ -949,20 +971,27 @@ def process_novel_routes(aiz_routes: list, dataset: dict, generic_ds: dict,
 
 def get_novel_routes_from_aizynthfinder(aiz_routes, dataset, target_name, rxni_db) -> list:
     """
-    Legacy helper — enriches novel AiZ routes with Rxn-INSIGHT only (no generic
-    dataset validation). Kept for backward compatibility; prefer process_novel_routes()
-    which also validates against the generic dataset.
+    Legacy helper that enriches novel AiZ routes with Rxn-INSIGHT only,
+    without generic dataset validation.
+
+    Kept for backward compatibility. Prefer ``process_novel_routes()``
+    which also cross-validates steps against the generic dataset.
 
     Parameters
-    ──────────
-    aiz_routes  : list of dicts from run_aizynthfinder()
-    dataset     : dict from load_reaction_dataset()
+    ----------
+    aiz_routes : list of dict
+        Adapted AiZ routes from ``run_aizynthfinder()``.
+    dataset : dict
+        As returned by ``load_reaction_dataset()``.
     target_name : str
-    rxni_db     : pandas.DataFrame or None
+        Human-readable target name.
+    rxni_db : pandas.DataFrame or None
+        USPTO database for condition prediction.
 
     Returns
-    ───────
-    list of enriched route dicts (all classified as "predicted")
+    -------
+    list of dict
+        Enriched route dicts, all classified as ``"predicted"``.
     """
     if not RXNINSIGHT_AVAILABLE:
         print("[rxn-insight] not installed")
@@ -992,27 +1021,27 @@ def get_novel_routes_from_aizynthfinder(aiz_routes, dataset, target_name, rxni_d
 def get_all_dataset_routes_for_target(dataset: dict, target_name: str,
                                        target_smiles: str = "") -> list:
     """
-    Return all routes in the main dataset whose target matches target_name
-    AND whose final step product matches target_smiles (when provided).
+    Return all routes whose target name and final product match the query.
 
-    Both conditions must pass to prevent routes for a different molecule from
-    appearing when a user searches a SMILES that is not in the dataset but
-    whose name coincidentally matches a dataset target.
-
-    Used as a fallback inside filter_routes_by_starting_materials() to ensure
-    that known dataset routes are always included even when AiZynthFinder does
-    not propose routes that share their starting materials.
+    Both the target name (case-insensitive) and the canonical SMILES of the
+    last step's product must match when ``target_smiles`` is provided. Used
+    as a fallback in ``filter_routes_by_starting_materials()`` to ensure
+    known dataset routes are always included.
 
     Parameters
-    ──────────
-    dataset       : dict from load_reaction_dataset()
-    target_name   : str  human-readable target name (case-insensitive match)
-    target_smiles : str  canonical SMILES of the search target (optional but
-                         strongly recommended — enables canonical product check)
+    ----------
+    dataset : dict
+        As returned by ``load_reaction_dataset()``.
+    target_name : str
+        Human-readable target name (case-insensitive).
+    target_smiles : str, optional
+        Canonical SMILES of the search target. When provided, routes whose
+        last product does not match are excluded.
 
     Returns
-    ───────
-    list of route dicts (each with dataset_steps and matched_* fields set)
+    -------
+    list of dict
+        Route dicts with ``dataset_steps`` and ``matched_*`` fields set.
     """
     canon_target = to_canonical(target_smiles) if target_smiles else ""
     result = []
@@ -1047,23 +1076,27 @@ def get_all_dataset_routes_for_target(dataset: dict, target_name: str,
 def filter_routes_by_starting_materials(aiz_routes, dataset, target_smiles,
                                           target_name="") -> list:
     """
-    Return ALL dataset routes whose final product matches the target SMILES
-    (canonical RDKit comparison) OR whose target name matches target_name.
+    Return all dataset routes whose final product matches the target SMILES.
 
-    Every matching route is returned — top_n truncation happens later in
-    find_best_routes() after scoring, so the user always sees the N best
-    routes rather than whichever one AiZ happened to find first.
+    Falls back to target-name matching when canonical SMILES comparison
+    fails. All matching routes are returned; ``top_n`` truncation happens
+    later in ``find_best_routes()`` after scoring.
 
     Parameters
-    ──────────
-    aiz_routes    : list  kept for API compatibility — no longer used
-    dataset       : dict  from load_reaction_dataset()
-    target_smiles : str   canonical SMILES of the search target
-    target_name   : str   human-readable name (secondary filter)
+    ----------
+    aiz_routes : list
+        Kept for API compatibility — no longer used internally.
+    dataset : dict
+        As returned by ``load_reaction_dataset()``.
+    target_smiles : str
+        Canonical SMILES of the search target.
+    target_name : str, optional
+        Human-readable target name used as a secondary filter.
 
     Returns
-    ───────
-    list of enriched route dicts ready for rank_weighted()
+    -------
+    list of dict
+        Enriched route dicts ready for ``rank_weighted()``.
     """
     canon_target = to_canonical(target_smiles) if target_smiles else ""
     by_route     = dataset["by_route"]
@@ -1121,16 +1154,17 @@ def bottleneck_yield(steps: list) -> float | None:
     """
     Return the minimum step yield in a route (the rate-limiting step).
 
-    Used in route metric cards and the Analysis tab comparison table.
-    Steps without a reported yield are excluded from the minimum calculation.
+    Steps without a reported yield are excluded from the minimum.
 
     Parameters
-    ──────────
-    steps : list of step dicts (each may have a "yield_percent" key)
+    ----------
+    steps : list of dict
+        Step dicts from ``route["dataset_steps"]``.
 
     Returns
-    ───────
-    float  minimum yield in percent, or None if no yield data available
+    -------
+    float or None
+        Minimum yield in percent, or ``None`` if no yield data is available.
     """
     ys = [s.get("yield_percent") for s in steps if s.get("yield_percent") is not None]
     return min(ys) if ys else None
@@ -1140,16 +1174,17 @@ def average_yield(steps: list) -> float | None:
     """
     Return the mean step yield across all steps that report a yield.
 
-    Used in route metric cards and the Analysis tab comparison table.
     Steps without a reported yield are excluded from the average.
 
     Parameters
-    ──────────
-    steps : list of step dicts
+    ----------
+    steps : list of dict
+        Step dicts from ``route["dataset_steps"]``.
 
     Returns
-    ───────
-    float  average yield in percent, or None if no yield data available
+    -------
+    float or None
+        Average yield in percent, or ``None`` if no yield data is available.
     """
     ys = [s.get("yield_percent") for s in steps if s.get("yield_percent") is not None]
     return sum(ys) / len(ys) if ys else None
@@ -1157,22 +1192,20 @@ def average_yield(steps: list) -> float | None:
 
 def cumulative_yield(steps: list) -> float:
     """
-    Return the overall cumulative yield (product of all step yields, expressed
-    as a fraction in [0, 1]).
+    Return the overall cumulative yield as a fraction in [0, 1].
 
-    Missing yields are treated as 1.0 (neutral — they do not penalise the
-    route) to avoid unfairly downranking routes with incomplete data.
-
-    Used for the yield criterion raw score and the Dataset Explorer summary
-    table.
+    Computed as the product of all reported step yields. Missing yields are
+    treated as 1.0 (neutral) to avoid penalising routes with incomplete data.
 
     Parameters
-    ──────────
-    steps : list of step dicts
+    ----------
+    steps : list of dict
+        Step dicts from ``route["dataset_steps"]``.
 
     Returns
-    ───────
-    float  cumulative yield in [0, 1]
+    -------
+    float
+        Cumulative yield in [0, 1].
     """
     r = 1.0
     for s in steps:
@@ -1183,24 +1216,18 @@ def cumulative_yield(steps: list) -> float:
 
 def get_substances_list(steps_data: list) -> dict:
     """
-    Extract categorised substance lists from a route's steps.
-
-    Categories:
-    • to_buy     : starting materials — reactants that are never produced
-                   within the route (leaves of the synthesis tree)
-    • to_prepare : intermediates — molecules produced in at least one step
-    • solvents   : unique solvent SMILES / names extracted from conditions dicts
-    • reagents   : unique reagent SMILES / names extracted from conditions dicts
-
-    Used in the 'Substances needed' expander in each route card.
+    Extract categorised substance lists from a route's dataset steps.
 
     Parameters
-    ──────────
-    steps_data : list of step dicts (from route["dataset_steps"])
+    ----------
+    steps_data : list of dict
+        Step dicts from ``route["dataset_steps"]``.
 
     Returns
-    ───────
-    dict with keys: to_buy, to_prepare, solvents, reagents (all sorted lists)
+    -------
+    dict
+        Keys ``to_buy`` (starting materials), ``to_prepare``
+        (intermediates), ``solvents``, and ``reagents`` — all sorted lists.
     """
     all_prod = {to_canonical(s.get("product_smiles", "")) for s in steps_data}
     all_reac = {to_canonical(r) for s in steps_data for r in s.get("reactants_smiles", [])}
@@ -1221,20 +1248,23 @@ def get_substances_list(steps_data: list) -> dict:
 
 def fmt_conditions(cond: dict) -> str:
     """
-    Format a conditions dict into a human-readable '·'-separated string.
+    Format a conditions dict into a human-readable string.
 
-    Used in the Dataset Explorer step-by-step view beneath each step header.
-    Fields included (in order): temperature, solvent, co-solvent, reagents,
-    apparatus. Empty / None fields are silently skipped.
+    Fields included in order: temperature, solvent, co-solvent, reagents,
+    apparatus. Empty and ``None`` fields are silently skipped.
 
     Parameters
-    ──────────
-    cond : dict with optional keys: temperature_C, temp_range, solvent,
-           co_solvent, reagents (list), apparatus
+    ----------
+    cond : dict
+        Conditions dict with optional keys ``temperature_C``,
+        ``temp_range``, ``solvent``, ``co_solvent``, ``reagents``,
+        ``apparatus``.
 
     Returns
-    ───────
-    str  formatted conditions string, or "" if cond is empty
+    -------
+    str
+        ``'  ·  '``-separated conditions string, or ``""`` if ``cond``
+        is empty.
     """
     if not cond:
         return ""
@@ -1259,20 +1289,21 @@ def fmt_conditions(cond: dict) -> str:
 
 def calc_atom_economy(reactants_smiles, product_smiles) -> float:
     """
-    Calculate the atom economy score for a single reaction step.
+    Calculate atom economy for a single reaction step.
 
     Atom economy = MW(product) / sum(MW(reactants)), capped at 1.0.
-    A score of 1.0 means all reactant atoms are incorporated into the product.
-    Returns 0.0 if the product cannot be parsed.
 
     Parameters
-    ──────────
-    reactants_smiles : list of SMILES strings
-    product_smiles   : str
+    ----------
+    reactants_smiles : list of str
+        SMILES strings of the reactants.
+    product_smiles : str
+        SMILES string of the product.
 
     Returns
-    ───────
-    float  atom economy in [0, 1]
+    -------
+    float
+        Atom economy score in [0, 1]. Returns 0.0 if the product is invalid.
     """
     prod_mol = safe_mol(product_smiles)
     if not prod_mol:
@@ -1286,21 +1317,22 @@ def calc_e_factor(reactants_smiles, product_smiles, yield_fraction) -> float:
     """
     Calculate the E-factor score for a single reaction step.
 
-    E-factor = kg_waste / kg_product.
-    Score = 1 / (1 + E-factor) so that higher waste → score closer to 0.
-
-    Missing yield is treated as 1.0 (100 %) to avoid division-by-zero and to
-    avoid penalising steps without reported yield data.
+    Score = 1 / (1 + E-factor), where E-factor = kg waste / kg product.
+    Missing yield is treated as 1.0 to avoid penalising unreported steps.
 
     Parameters
-    ──────────
-    reactants_smiles : list of SMILES strings
-    product_smiles   : str
-    yield_fraction   : float  step yield as a fraction in (0, 1]
+    ----------
+    reactants_smiles : list of str
+        SMILES strings of the reactants.
+    product_smiles : str
+        SMILES string of the product.
+    yield_fraction : float
+        Step yield as a fraction in (0, 1].
 
     Returns
-    ───────
-    float  E-factor score in (0, 1]
+    -------
+    float
+        E-factor score in (0, 1].
     """
     prod_mol = safe_mol(product_smiles)
     if not prod_mol:
@@ -1314,24 +1346,26 @@ def calc_e_factor(reactants_smiles, product_smiles, yield_fraction) -> float:
 
 def calc_toxicity_score(reactants_smiles, conditions, tox_index, solvent_map) -> float:
     """
-    Calculate the safety (inverse toxicity) score for a single reaction step.
+    Calculate the safety score for a single reaction step.
 
-    Score = 1 − mean(hazard_score for all reactants and solvents).
-    A score of 1.0 means all reagents/solvents are completely safe.
-
-    Compounds not found in tox_index are assigned a default hazard of 0.5
-    (neutral — unknown safety profile).
+    Score = 1 − mean(hazard_score) across all reactants and solvents.
+    Compounds absent from ``tox_index`` are assigned a hazard of 0.5.
 
     Parameters
-    ──────────
-    reactants_smiles : list of SMILES strings
-    conditions       : dict  (may contain "solvent" and "co_solvent" keys)
-    tox_index        : dict  from load_toxicity_dataset()
-    solvent_map      : dict  from build_solvent_map() — maps abbreviations to SMILES
+    ----------
+    reactants_smiles : list of str
+        SMILES strings of the reactants.
+    conditions : dict
+        Conditions dict (may contain ``"solvent"`` and ``"co_solvent"``).
+    tox_index : dict
+        As returned by ``load_toxicity_dataset()``.
+    solvent_map : dict
+        As returned by ``build_solvent_map()``.
 
     Returns
-    ───────
-    float  safety score in [0, 1]
+    -------
+    float
+        Safety score in [0, 1].
     """
     to_check = list(reactants_smiles)
     for key in ("solvent", "co_solvent"):
@@ -1348,22 +1382,21 @@ def calc_toxicity_score(reactants_smiles, conditions, tox_index, solvent_map) ->
 
 def build_solvent_map(tox_index: dict) -> dict:
     """
-    Build a mapping from common solvent abbreviations / names to their SMILES.
+    Build a mapping from common solvent abbreviations and names to SMILES.
 
-    This map is used by calc_toxicity_score() to resolve solvent names that
-    appear in conditions dicts (e.g. "DCM", "THF", "MeOH") to canonical SMILES
-    so they can be looked up in the toxicity index.
-
-    The hard-coded abbreviation table is augmented with all canonical SMILES
-    keys already present in tox_index (so known compounds are always resolved).
+    Used by ``calc_toxicity_score()`` to resolve solvent names in conditions
+    dicts to canonical SMILES for toxicity index lookup. The hard-coded
+    abbreviation table is augmented with all keys already in ``tox_index``.
 
     Parameters
-    ──────────
-    tox_index : dict from load_toxicity_dataset()
+    ----------
+    tox_index : dict
+        As returned by ``load_toxicity_dataset()``.
 
     Returns
-    ───────
-    dict  {abbreviation_or_name: SMILES}
+    -------
+    dict
+        ``{abbreviation_or_name (str): SMILES (str)}``.
     """
     abbrev = {
         "PhMe": "Cc1ccccc1", "toluene": "Cc1ccccc1",
@@ -1397,17 +1430,19 @@ def compute_steps(route_data: dict, tox_index: dict) -> float:
     """
     Compute the steps criterion score for a route.
 
-    Score = 1 / number_of_steps. Fewer steps → score closer to 1.
-    A route with a single step scores 1.0; a 10-step route scores 0.1.
+    Score = 1 / number_of_steps. Fewer steps gives a score closer to 1.
 
     Parameters
-    ──────────
-    route_data : dict  enriched route dict (must have "dataset_steps")
-    tox_index  : dict  (unused — kept for uniform function signature)
+    ----------
+    route_data : dict
+        Enriched route dict with a ``"dataset_steps"`` key.
+    tox_index : dict
+        Unused — kept for uniform function signature across all criteria.
 
     Returns
-    ───────
-    float  steps score in (0, 1]
+    -------
+    float
+        Steps score in (0, 1].
     """
     return 1.0 / max(len(route_data.get("dataset_steps", [])), 1)
 
@@ -1416,24 +1451,22 @@ def compute_yield(route_data: dict, tox_index: dict) -> float:
     """
     Compute the yield criterion score for a route.
 
-    Behaviour by validation status:
-    • "predicted" : returns 1.0 (neutral placeholder — yield is always excluded
-                    from scoring for predicted routes by rank_weighted()).
-    • "validated"/"partial"/"dataset" : product of all reported step yields
-                    (missing yields treated as 1.0 — neutral, not penalised).
-
-    For validated/partial routes, only steps with source "generic_dataset" or
-    "dataset" contribute a real yield; Rxn-INSIGHT steps (source "rxn-insight")
-    are treated as 1.0 until real data is available.
+    For predicted routes returns 1.0 (neutral placeholder; yield is always
+    excluded from scoring by ``rank_weighted()``). For all other routes,
+    returns the product of all reported step yields (missing yields treated
+    as 1.0).
 
     Parameters
-    ──────────
-    route_data : dict  enriched route dict
-    tox_index  : dict  (unused — kept for uniform function signature)
+    ----------
+    route_data : dict
+        Enriched route dict.
+    tox_index : dict
+        Unused — kept for uniform function signature.
 
     Returns
-    ───────
-    float  cumulative yield as a fraction in [0, 1]
+    -------
+    float
+        Cumulative yield score as a fraction in [0, 1].
     """
     steps  = route_data.get("dataset_steps", [])
     status = route_data.get("validation_status", "dataset")
@@ -1456,18 +1489,17 @@ def compute_atom_economy(route_data: dict, tox_index: dict) -> float:
     """
     Compute the atom economy criterion score averaged across all steps.
 
-    Each step's atom economy is calculated by calc_atom_economy().
-    The route score is the arithmetic mean over all steps.
-    Returns 0.0 for routes with no steps.
-
     Parameters
-    ──────────
-    route_data : dict  enriched route dict
-    tox_index  : dict  (unused — kept for uniform function signature)
+    ----------
+    route_data : dict
+        Enriched route dict.
+    tox_index : dict
+        Unused — kept for uniform function signature.
 
     Returns
-    ───────
-    float  mean atom economy score in [0, 1]
+    -------
+    float
+        Mean atom economy score in [0, 1]. Returns 0.0 for empty routes.
     """
     steps  = route_data.get("dataset_steps", [])
     scores = [
@@ -1481,18 +1513,20 @@ def compute_e_factor(route_data: dict, tox_index: dict) -> float:
     """
     Compute the E-factor criterion score averaged across all steps.
 
-    Each step's E-factor score is calculated by calc_e_factor().
-    Missing yields are treated as 1.0 (100 %) to avoid penalising steps with
-    no reported data. The route score is the arithmetic mean over all steps.
+    Missing yields are treated as 1.0 (100 %) to avoid penalising steps
+    with no reported data.
 
     Parameters
-    ──────────
-    route_data : dict  enriched route dict
-    tox_index  : dict  (unused — kept for uniform function signature)
+    ----------
+    route_data : dict
+        Enriched route dict.
+    tox_index : dict
+        Unused — kept for uniform function signature.
 
     Returns
-    ───────
-    float  mean E-factor score in (0, 1]
+    -------
+    float
+        Mean E-factor score in (0, 1]. Returns 0.0 for empty routes.
     """
     steps  = route_data.get("dataset_steps", [])
     scores = [
@@ -1508,20 +1542,19 @@ def compute_e_factor(route_data: dict, tox_index: dict) -> float:
 
 def compute_toxicity(route_data: dict, tox_index: dict) -> float:
     """
-    Compute the safety (inverse toxicity) criterion score averaged across all steps.
-
-    Each step's safety score is calculated by calc_toxicity_score().
-    The route score is the arithmetic mean over all steps.
-    Returns 0.5 (neutral default) for routes with no steps.
+    Compute the safety criterion score averaged across all steps.
 
     Parameters
-    ──────────
-    route_data : dict  enriched route dict
-    tox_index  : dict  from load_toxicity_dataset()
+    ----------
+    route_data : dict
+        Enriched route dict.
+    tox_index : dict
+        As returned by ``load_toxicity_dataset()``.
 
     Returns
-    ───────
-    float  mean safety score in [0, 1]
+    -------
+    float
+        Mean safety score in [0, 1]. Returns 0.5 for empty routes.
     """
     solvent_map = build_solvent_map(tox_index)
     steps  = route_data.get("dataset_steps", [])
@@ -1558,18 +1591,17 @@ def compute_weights(criteria: list) -> dict:
     Compute criterion weights using an inverse-square priority scheme.
 
     Weight for rank i (1-based) = 1 / i², then normalised to sum to 1.
-    Resulting approximate weights for 3 criteria: #1 ≈ 73 %, #2 ≈ 18 %, #3 ≈ 9 %.
-
-    This scheme ensures the first criterion dominates the score while still
-    allowing lower-priority criteria to break ties.
+    Approximate weights for 3 criteria: #1 ≈ 73 %, #2 ≈ 18 %, #3 ≈ 9 %.
 
     Parameters
-    ──────────
-    criteria : list of criterion keys in priority order (highest priority first)
+    ----------
+    criteria : list of str
+        Criterion keys in priority order (highest priority first).
 
     Returns
-    ───────
-    dict  {criterion_key: normalised_weight (float)}
+    -------
+    dict
+        ``{criterion_key (str): normalised_weight (float)}``.
     """
     raw   = {c: 1.0 / (i + 1) ** 2 for i, c in enumerate(criteria)}
     total = sum(raw.values())
@@ -1578,20 +1610,22 @@ def compute_weights(criteria: list) -> dict:
 
 def compute_all_scores(route: dict, tox_index: dict) -> dict:
     """
-    Compute raw scores for all criteria in CRITERIA_REGISTRY on a single route.
+    Compute raw scores for all criteria in CRITERIA_REGISTRY on one route.
 
-    Used by the Analysis tab comparison table to show scores for criteria that
-    were not selected as the primary ranking criteria, giving a full picture
-    of each route's profile.
+    Used by the Analysis tab to show scores for criteria not selected as
+    primary ranking criteria.
 
     Parameters
-    ──────────
-    route     : dict  enriched route dict
-    tox_index : dict  from load_toxicity_dataset()
+    ----------
+    route : dict
+        Enriched route dict.
+    tox_index : dict
+        As returned by ``load_toxicity_dataset()``.
 
     Returns
-    ───────
-    dict  {criterion_key: raw_score (float, rounded to 4 dp)}
+    -------
+    dict
+        ``{criterion_key (str): raw_score (float)}``, rounded to 4 d.p.
     """
     return {
         c: round(CRITERIA_REGISTRY[c]["fn"](route, tox_index), 4)
@@ -1603,32 +1637,26 @@ def rank_weighted(routes: list, criteria: list, tox_index: dict) -> list:
     """
     Score and rank a list of routes using weighted criterion scores.
 
-    Scoring rules:
-    • Weights follow the 1/i² inverse-square scheme (compute_weights).
-    • For purely predicted routes (validation_status == "predicted"), the
-      "yield" criterion is excluded from scoring and the remaining criteria
-      are re-weighted so their weights still sum to 1.0.
-    • For validated/partial routes, all criteria including yield are active
-      because at least some steps have real experimental yield data.
-
-    Each route produces a (total_score, details_dict, route_dict) tuple.
-    The details_dict contains per-criterion info:
-        raw       : float raw score [0,1] (None for excluded criteria)
-        weight    : float normalised weight used
-        weighted  : float = raw × weight
-        excluded  : bool  True only for yield in predicted routes
-
-    The list is sorted in descending order of total_score.
+    For purely predicted routes the yield criterion is excluded and the
+    remaining criteria are re-weighted to sum to 1.0. All other routes
+    use the full 1/i² weight scheme.
 
     Parameters
-    ──────────
-    routes   : list of enriched route dicts
-    criteria : list of 3 criterion keys in priority order
-    tox_index: dict from load_toxicity_dataset()
+    ----------
+    routes : list of dict
+        Enriched route dicts to score.
+    criteria : list of str
+        Three criterion keys in priority order.
+    tox_index : dict
+        As returned by ``load_toxicity_dataset()``.
 
     Returns
-    ───────
-    list of (total_score, details_dict, route_dict) tuples, sorted descending
+    -------
+    list of tuple
+        ``(total_score, details_dict, route_dict)`` tuples sorted in
+        descending order of ``total_score``. Each ``details_dict`` contains
+        per-criterion keys ``raw``, ``weight``, ``weighted``, ``excluded``,
+        and ``_all_scores``.
     """
     weights = compute_weights(criteria)
     scored  = []
@@ -1688,50 +1716,49 @@ def find_best_routes(
     n_aiz_routes:         int  = 25,
 ) -> dict:
     """
-    Top-level function: find and rank synthesis routes for a target molecule.
+    Find and rank synthesis routes for a target molecule.
 
-    Reasearch (4 stages):
-    ─────────────────────
-    1. Load all datasets (main, toxicity, generic, Rxn-INSIGHT USPTO).
-    2. Run AiZynthFinder MCTS to generate up to n_aiz_routes candidate routes.
-    3. Classify routes into three sections:
-         dataset   — routes from the main curated dataset for this target
-         validated — novel AiZ routes with ≥ 1 step in the generic dataset
-         predicted — novel AiZ routes with no steps in any dataset
-    4. Score and rank each section independently using rank_weighted().
-
-    Result sections:
-    ─────────────────
-    dataset   : top_n dataset routes (truncated by top_n, same as validated/predicted)
-    validated : top_n validated/partial AiZ routes (real conditions available)
-    predicted : top_n purely predicted routes (Rxn-INSIGHT conditions only,
-                yield excluded from scoring)
+    Runs a four-stage pipeline: load datasets, run AiZynthFinder MCTS,
+    classify routes into dataset / validated / predicted sections, then
+    score and rank each section independently.
 
     Parameters
-    ──────────
-    target_smiles        : str   canonical or parseable SMILES of the target
-    criteria_priority    : list  exactly 3 criterion keys in priority order
-    dataset_path         : str   path to reaction_dataset.json
-    toxicity_path        : str   path to toxicity_dataset.json
-    config_path          : str   path to AiZynthFinder config.yml
-    top_n                : int   max routes shown in validated/predicted sections
-    target_name          : str   human-readable target name (optional)
-    include_predicted    : bool  whether to process predicted routes at all
-    rxninsight_db_path   : str   path to Rxn-INSIGHT USPTO .gzip Parquet file
-    generic_dataset_path : str   path to generic_reactions.json
-    n_aiz_routes         : int   number of AiZ MCTS routes to retrieve
+    ----------
+    target_smiles : str
+        Canonical or parseable SMILES of the synthesis target.
+    criteria_priority : list of str
+        Exactly 3 criterion keys in descending priority order.
+    dataset_path : str, optional
+        Path to ``reaction_dataset.json`` (default ``"reaction_dataset.json"``).
+    toxicity_path : str, optional
+        Path to ``toxicity_dataset.json`` (default ``"toxicity_dataset.json"``).
+    config_path : str, optional
+        Path to AiZynthFinder ``config.yml`` (default ``"config.yml"``).
+    top_n : int, optional
+        Maximum routes shown per section (default 3).
+    target_name : str, optional
+        Human-readable target name for display and filtering.
+    include_predicted : bool, optional
+        Whether to process predicted routes (default ``True``).
+    rxninsight_db_path : str, optional
+        Path to the Rxn-INSIGHT USPTO Parquet file.
+    generic_dataset_path : str, optional
+        Path to ``generic_reactions.json``.
+    n_aiz_routes : int, optional
+        Number of AiZynthFinder MCTS routes to retrieve (default 25).
 
     Returns
-    ───────
-    dict with keys:
-        "dataset"   : list of (score, details, route) tuples — all dataset routes
-        "validated" : list of (score, details, route) tuples — top_n validated
-        "predicted" : list of (score, details, route) tuples — top_n predicted
+    -------
+    dict
+        Keys ``"dataset"``, ``"validated"``, ``"predicted"`` — each a list
+        of ``(score, details_dict, route_dict)`` tuples.
 
     Raises
-    ──────
-    ValueError        if criteria_priority does not contain exactly 3 known criteria
-    FileNotFoundError if dataset_path or config_path does not exist
+    ------
+    ValueError
+        If ``criteria_priority`` does not contain exactly 3 known criteria.
+    FileNotFoundError
+        If ``dataset_path`` or ``config_path`` does not exist.
     """
     if len(criteria_priority) != 3:
         raise ValueError(f"exactly 3 criteria needed, got {len(criteria_priority)}")
