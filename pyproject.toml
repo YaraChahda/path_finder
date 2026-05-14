@@ -45,8 +45,8 @@ predicted = [
 ]
 
 [project.scripts]
-path-finder       = "path_finder.cli:main"
-path-finder-setup = "path_finder.cli:setup"
+path-finder       = "path_finder.launch:main"
+path-finder-setup = "path_finder.launch:setup"
 
 [project.urls]
 Homepage   = "https://github.com/YaraChahda/path_finder"
