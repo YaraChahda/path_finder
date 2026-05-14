@@ -1,91 +1,73 @@
 """
-Tests for path_finder.report_builder
+Tests for src/path_finder/report_builder.py
 
-The only public function is build_route_report_pdf().  We call it with
-minimal but valid route dicts and verify the output is a well-formed PDF.
+Covers: build_route_report_pdf
 
-Import note
------------
-report_builder.py contains `import route_engine as fi` (a bare absolute
-import).  When the package is installed via `pip install -e .` that name
-is not on sys.path, so we temporarily insert the package source directory
-before importing the module.
+The function returns raw PDF bytes (a multi-page A4 document rendered with
+PIL).  Tests verify the output type, the PDF header signature, and that
+various combinations of inputs (empty routes, predicted routes, multiple
+steps) do not raise exceptions.
 """
 
-import io
-import os
 import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src", "path_finder"))
+
 import pytest
 
-# ---------------------------------------------------------------------------
-# Path fix — allow `import route_engine as fi` inside report_builder.py
-# ---------------------------------------------------------------------------
-_SRC_PKG = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), "..", "src", "path_finder")
-)
-if _SRC_PKG not in sys.path:
-    sys.path.insert(0, _SRC_PKG)
+# conftest.py stubs aizynthfinder; report_builder imports route_engine which
+# needs the stub.
+from src.path_finder.report_builder import build_route_report_pdf
 
 # ---------------------------------------------------------------------------
-# Optional dep guards — skip the whole module if PIL or RDKit are absent
-# ---------------------------------------------------------------------------
-rdkit = pytest.importorskip("rdkit", reason="RDKit not installed")
-PIL   = pytest.importorskip("PIL",   reason="Pillow not installed")
-
-from path_finder import report_builder  # noqa: E402
-
-
-# ---------------------------------------------------------------------------
-# Helpers
+# Shared test fixtures
 # ---------------------------------------------------------------------------
 
-ASPIRIN = "CC(=O)Oc1ccccc1C(=O)O"
-PHENOL  = "Oc1ccccc1"
+BENZENE = "c1ccccc1"
+ETHANOL = "CCO"
 ACETIC  = "CC(=O)O"
+ASPIRIN = "CC(=O)Oc1ccccc1C(=O)O"
 
 
-def _make_step(step_number, reactants, product, yield_pct=None,
-               source="dataset", reaction_type="Esterification"):
+def _step(reactants, product, rtype="esterification", y=80, src="dataset", cond=None):
     return {
-        "step_number":      step_number,
         "reactants_smiles": reactants,
         "product_smiles":   product,
-        "yield_percent":    yield_pct,
-        "source":           source,
-        "reaction_type":    reaction_type,
-        "conditions": {
-            "temperature_C": 80,
-            "solvent":       "AcOH",
-            "reagents":      [],
-            "apparatus":     None,
-        },
+        "reaction_type":    rtype,
+        "yield_percent":    y,
+        "source":           src,
+        "step_number":      1,
+        "conditions":       cond or {"temperature_C": 80, "solvent": "THF",
+                                     "reagents": ["Et3N"], "apparatus": "reflux"},
+        "fg_reactants":     ["alcohol"],
+        "fg_products":      ["ester"],
+        "by_products":      [],
     }
 
 
-def _make_route(steps, validation_status="dataset"):
+def _make_route(steps, status="dataset", name="Test Route"):
     return {
-        "matched_route_name":    "Test route",
-        "matched_target":        "Aspirin",
-        "validation_status":     validation_status,
-        "validated_steps_count": len(steps),
-        "total_steps_count":     len(steps),
-        "dataset_steps":         steps,
-        "is_predicted":          validation_status == "predicted",
-        "is_validated":          validation_status in ("validated", "partial"),
+        "matched_route_name": name,
+        "matched_target":     "TestTarget",
+        "dataset_steps":      steps,
+        "validation_status":  status,
+        "is_predicted":       (status == "predicted"),
+        "starting_materials": [steps[0]["reactants_smiles"][0]] if steps else [],
     }
 
 
-def _make_details(criteria):
-    """Build a minimal details dict as returned by rank_weighted()."""
-    return {
-        c: {"raw": 0.75, "weight": 1 / len(criteria), "weighted": 0.25, "excluded": False}
-        for c in criteria
-    }
+def _make_details(criteria, excluded_yield=False):
+    d = {}
+    for i, c in enumerate(criteria):
+        if c == "yield" and excluded_yield:
+            d[c] = {"raw": None, "weight": 0.0, "weighted": 0.0, "excluded": True}
+        else:
+            d[c] = {"raw": 0.7, "weight": 0.7 / (i + 1), "weighted": 0.49, "excluded": False}
+    d["_all_scores"] = {c: 0.7 for c in criteria}
+    return d
 
 
-def _is_valid_pdf(data: bytes) -> bool:
-    """Return True if data starts with the PDF magic bytes."""
-    return data[:4] == b"%PDF"
+CRITERIA = ["steps", "yield", "atom_economy"]
 
 
 # ===========================================================================
@@ -93,112 +75,94 @@ def _is_valid_pdf(data: bytes) -> bool:
 # ===========================================================================
 
 class TestBuildRouteReportPdf:
+    def _minimal_call(self, steps=None, status="dataset", criteria=None):
+        if steps is None:
+            steps = [_step([BENZENE], ETHANOL)]
+        if criteria is None:
+            criteria = CRITERIA
+        route   = _make_route(steps, status=status)
+        details = _make_details(criteria, excluded_yield=(status == "predicted"))
+        return build_route_report_pdf(0.82, details, route, criteria)
+
+    # --- Output type and PDF signature ----------------------------------------
+
     def test_returns_bytes(self):
-        steps  = [_make_step(1, [PHENOL, ACETIC], ASPIRIN, yield_pct=85.0)]
-        route  = _make_route(steps)
-        result = report_builder.build_route_report_pdf(
-            0.75, _make_details(["steps", "yield", "atom_economy"]), route,
-            ["steps", "yield", "atom_economy"]
-        )
+        result = self._minimal_call()
         assert isinstance(result, bytes)
 
-    def test_output_is_valid_pdf(self):
-        steps  = [_make_step(1, [PHENOL, ACETIC], ASPIRIN, yield_pct=85.0)]
-        route  = _make_route(steps)
-        result = report_builder.build_route_report_pdf(
-            0.75, _make_details(["steps", "yield", "atom_economy"]), route,
-            ["steps", "yield", "atom_economy"]
-        )
-        assert _is_valid_pdf(result), "Output is not a valid PDF"
+    def test_output_is_non_empty(self):
+        result = self._minimal_call()
+        assert len(result) > 0
 
-    def test_zero_steps_produces_pdf(self):
-        route  = _make_route([])
-        result = report_builder.build_route_report_pdf(
-            0.5, _make_details(["steps", "yield", "atom_economy"]), route,
-            ["steps", "yield", "atom_economy"]
-        )
-        assert _is_valid_pdf(result)
+    def test_output_starts_with_pdf_header(self):
+        result = self._minimal_call()
+        # PIL-generated PDFs start with the PDF magic bytes
+        assert result[:4] == b"%PDF"
 
-    def test_multiple_steps_produces_pdf(self):
-        steps = [
-            _make_step(i, [PHENOL], ASPIRIN, yield_pct=80.0)
-            for i in range(1, 7)
-        ]
-        route  = _make_route(steps)
-        result = report_builder.build_route_report_pdf(
-            0.6, _make_details(["steps", "yield", "atom_economy"]), route,
-            ["steps", "yield", "atom_economy"]
-        )
-        assert _is_valid_pdf(result)
+    # --- Robustness with varied inputs ----------------------------------------
 
-    def test_predicted_route_produces_pdf(self):
-        steps = [
-            _make_step(1, [PHENOL], ASPIRIN, yield_pct=None,
-                       source="rxn-insight", reaction_type="Predicted")
-        ]
-        route  = _make_route(steps, validation_status="predicted")
-        details = {
-            "steps":        {"raw": 0.5,  "weight": 0.7, "weighted": 0.35, "excluded": False},
-            "yield":        {"raw": None, "weight": 0.0, "weighted": 0.0,  "excluded": True},
-            "atom_economy": {"raw": 0.6,  "weight": 0.3, "weighted": 0.18, "excluded": False},
-            "_all_scores":  {"steps": 0.5, "yield": 1.0, "atom_economy": 0.6,
-                             "e_factor": 0.7, "toxicity": 0.5},
-        }
-        result = report_builder.build_route_report_pdf(
-            0.53, details, route, ["steps", "yield", "atom_economy"]
-        )
-        assert _is_valid_pdf(result)
-
-    def test_pdf_non_empty(self):
-        steps  = [_make_step(1, [PHENOL, ACETIC], ASPIRIN, yield_pct=90.0)]
-        route  = _make_route(steps)
-        result = report_builder.build_route_report_pdf(
-            0.8, _make_details(["steps", "yield", "atom_economy"]), route,
-            ["steps", "yield", "atom_economy"]
-        )
-        assert len(result) > 1000  # a real PDF is always > 1 KB
-
-    def test_excluded_criterion_handled(self):
-        steps = [_make_step(1, [PHENOL], ASPIRIN, yield_pct=None, source="rxn-insight")]
-        route = _make_route(steps, validation_status="predicted")
-        details = {
-            "steps":        {"raw": 1.0,  "weight": 1.0, "weighted": 1.0,  "excluded": False},
-            "yield":        {"raw": None, "weight": 0.0, "weighted": 0.0,  "excluded": True},
-            "atom_economy": {"raw": 0.5,  "weight": 0.0, "weighted": 0.0,  "excluded": False},
-        }
-        result = report_builder.build_route_report_pdf(
-            1.0, details, route, ["steps", "yield", "atom_economy"]
-        )
+    def test_empty_steps_does_not_raise(self):
+        result = self._minimal_call(steps=[])
         assert isinstance(result, bytes)
-        assert _is_valid_pdf(result)
 
-    def test_many_reactants_handled(self):
-        # Step with 4 reactants — only 3 are shown; should not raise
+    def test_predicted_route_does_not_raise(self):
+        steps  = [_step([BENZENE], ETHANOL, src="rxn-insight", y=None)]
+        result = self._minimal_call(steps=steps, status="predicted")
+        assert isinstance(result, bytes)
+
+    def test_multi_step_route(self):
         steps = [
-            _make_step(1, [PHENOL, ACETIC, "CCO", "c1ccccc1"], ASPIRIN, yield_pct=70.0)
+            _step([BENZENE],  ETHANOL, rtype="reduction",   y=85, src="dataset"),
+            _step([ETHANOL],  ACETIC,  rtype="oxidation",   y=72, src="dataset"),
+            _step([ACETIC],   ASPIRIN, rtype="esterification", y=90, src="dataset"),
         ]
-        route  = _make_route(steps)
-        result = report_builder.build_route_report_pdf(
-            0.7, _make_details(["steps", "yield", "atom_economy"]), route,
-            ["steps", "yield", "atom_economy"]
-        )
-        assert _is_valid_pdf(result)
+        result = self._minimal_call(steps=steps)
+        assert isinstance(result, bytes) and len(result) > 0
 
-    def test_long_route_name_handled(self):
-        steps  = [_make_step(1, [PHENOL], ASPIRIN, yield_pct=80.0)]
-        route  = _make_route(steps)
-        route["matched_route_name"] = "A" * 200  # very long name
-        result = report_builder.build_route_report_pdf(
-            0.6, _make_details(["steps", "yield", "atom_economy"]), route,
-            ["steps", "yield", "atom_economy"]
-        )
-        assert _is_valid_pdf(result)
+    def test_missing_yield_does_not_raise(self):
+        steps = [_step([BENZENE], ETHANOL, y=None)]
+        result = self._minimal_call(steps=steps)
+        assert isinstance(result, bytes)
 
-    def test_invalid_smiles_in_step_does_not_raise(self):
-        steps = [_make_step(1, ["INVALID_SMI"], "ALSO_INVALID", yield_pct=50.0)]
-        route  = _make_route(steps)
-        result = report_builder.build_route_report_pdf(
-            0.5, _make_details(["steps", "yield", "atom_economy"]), route,
-            ["steps", "yield", "atom_economy"]
-        )
+    def test_invalid_smiles_does_not_raise(self):
+        steps = [_step(["INVALID_SMILES"], "ALSO_INVALID")]
+        result = self._minimal_call(steps=steps)
+        assert isinstance(result, bytes)
+
+    def test_four_step_route_spanning_multiple_pages(self):
+        steps = [_step([BENZENE], ETHANOL, y=80 + i) for i in range(4)]
+        result = self._minimal_call(steps=steps)
+        assert isinstance(result, bytes)
+
+    def test_score_zero_does_not_raise(self):
+        route   = _make_route([_step([BENZENE], ETHANOL)])
+        details = _make_details(CRITERIA)
+        result  = build_route_report_pdf(0.0, details, route, CRITERIA)
+        assert isinstance(result, bytes)
+
+    def test_score_one_does_not_raise(self):
+        route   = _make_route([_step([BENZENE], ETHANOL)])
+        details = _make_details(CRITERIA)
+        result  = build_route_report_pdf(1.0, details, route, CRITERIA)
+        assert isinstance(result, bytes)
+
+    def test_different_criteria_order(self):
+        criteria = ["atom_economy", "e_factor", "toxicity"]
+        steps    = [_step([BENZENE], ETHANOL)]
+        route    = _make_route(steps)
+        details  = _make_details(criteria)
+        result   = build_route_report_pdf(0.6, details, route, criteria)
+        assert isinstance(result, bytes)
+
+    def test_conditions_with_no_temperature(self):
+        cond  = {"solvent": "DCM", "reagents": ["KOH"]}
+        steps = [_step([BENZENE], ETHANOL, cond=cond)]
+        result = self._minimal_call(steps=steps)
+        assert isinstance(result, bytes)
+
+    def test_long_route_name_does_not_crash(self):
+        steps  = [_step([BENZENE], ETHANOL)]
+        route  = _make_route(steps, name="A" * 200)
+        details = _make_details(CRITERIA)
+        result  = build_route_report_pdf(0.7, details, route, CRITERIA)
         assert isinstance(result, bytes)

@@ -249,3 +249,10 @@ docs/docs_outzinc_stock.hdf5
 models/
 *.onnx
 *.hdf5
+
+echo "__pycache__/" >> .gitignore
+echo "*.pyc" >> .gitignore
+
+echo "dist/" >> .gitignore
+
+echo "*.egg-info/" >> .gitignore
