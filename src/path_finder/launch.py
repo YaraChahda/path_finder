@@ -39,8 +39,10 @@ def main():
     if not (data / "config.yml").exists():
         print("WARNING: config.yml not found — run `path-finder-setup` first.\n")
 
-    print("Launching Path Finder — Retrosynthesis Interface")
-    print("Open http://localhost:8501 in your browser.\n")
+    print("\nPath Finder — Retrosynthesis Interface")
+    print("AiZynthFinder · Rxn-INSIGHT · Chemistry by Design")
+    print("Yara Chahda · Corentin Postmann · Inès Ouchen Laksiri — EPFL 2026")
+    print("\nOpen http://localhost:8501 in your browser.\n")
     subprocess.run(
         [sys.executable, "-m", "streamlit", "run", str(app)],
         check=True,
