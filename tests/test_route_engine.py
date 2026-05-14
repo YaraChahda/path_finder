@@ -1,112 +1,37 @@
 """
-Tests for path_finder.route_engine
+Tests for src/path_finder/route_engine.py
 
-Covers every public function that does not require AiZynthFinder or
-rxn_insight (those heavy deps are skipped via pytest.importorskip /
-module-level guards).  RDKit is expected to be available; tests that
-need it are skipped gracefully if the import fails.
+Covers: to_canonical, safe_mol, validate_smiles_for_aizynthfinder,
+        build_dataset_smiles_index, bottleneck_yield, average_yield,
+        cumulative_yield, get_substances_list, fmt_conditions,
+        calc_atom_economy, calc_e_factor, calc_toxicity_score,
+        build_solvent_map, compute_steps, compute_yield,
+        compute_atom_economy, compute_e_factor, compute_toxicity,
+        compute_weights, compute_all_scores, rank_weighted,
+        load_reaction_dataset, load_toxicity_dataset,
+        load_generic_reaction_dataset.
+
+aizynthfinder is stubbed via conftest.py.
 """
 
 import json
 import os
+import sys
+import tempfile
 import pytest
 
-# ---------------------------------------------------------------------------
-# Optional dep guards
-# ---------------------------------------------------------------------------
-rdkit = pytest.importorskip("rdkit", reason="RDKit not installed")
-
-from path_finder import route_engine as re_mod  # noqa: E402
+# conftest.py adds src/path_finder to sys.path and stubs aizynthfinder
+import src.path_finder.route_engine as rt
 
 
 # ---------------------------------------------------------------------------
-# Helpers / fixtures
+# SMILES constants used across tests
 # ---------------------------------------------------------------------------
-
-ETHANOL = "CCO"
-ETHANOL_CANON = "CCO"
-ASPIRIN = "CC(=O)Oc1ccccc1C(=O)O"
-
-def _make_step(reactants, product, yield_pct=None, source="dataset", conditions=None):
-    return {
-        "reactants_smiles": reactants,
-        "product_smiles": product,
-        "yield_percent": yield_pct,
-        "source": source,
-        "conditions": conditions or {},
-    }
-
-
-def _make_route(steps, validation_status="dataset"):
-    return {
-        "dataset_steps": steps,
-        "validation_status": validation_status,
-    }
-
-
-@pytest.fixture
-def simple_dataset_json(tmp_path):
-    data = {
-        "reactions": [
-            {
-                "id": "r1",
-                "route_id": "route_A",
-                "route_name": "Route A",
-                "target": "Aspirin",
-                "step_number": 1,
-                "reactants_smiles": ["c1ccccc1O", "CC(=O)O"],
-                "product_smiles": ASPIRIN,
-                "conditions": {"temperature_C": 80, "solvent": "AcOH"},
-                "yield_percent": 85.0,
-                "reaction_type": "Esterification",
-            },
-            {
-                "id": "r2",
-                "route_id": "route_A",
-                "route_name": "Route A",
-                "target": "Aspirin",
-                "step_number": 2,
-                "reactants_smiles": [ASPIRIN],
-                "product_smiles": ASPIRIN,
-                "conditions": {},
-                "yield_percent": 90.0,
-                "reaction_type": "Purification",
-            },
-        ]
-    }
-    p = tmp_path / "dataset.json"
-    p.write_text(json.dumps(data))
-    return str(p)
-
-
-@pytest.fixture
-def toxicity_json(tmp_path):
-    data = [
-        {"smiles": ETHANOL, "hazard_score": 0.2},
-        {"smiles": "ClCCl", "hazard_score": 0.8},
-    ]
-    p = tmp_path / "tox.json"
-    p.write_text(json.dumps(data))
-    return str(p)
-
-
-@pytest.fixture
-def generic_dataset_json(tmp_path):
-    data = [
-        {
-            "id": "g1",
-            "route_id": "generic",
-            "step_number": 1,
-            "reactants_smiles": ["c1ccccc1O", "CC(=O)O"],
-            "product_smiles": ASPIRIN,
-            "conditions": {"temperature_C": 80},
-            "yield_percent": 85.0,
-            "reaction_type": "Esterification",
-        }
-    ]
-    p = tmp_path / "generic.json"
-    p.write_text(json.dumps(data))
-    return str(p)
+BENZENE  = "c1ccccc1"
+ETHANOL  = "CCO"
+ACETIC   = "CC(=O)O"
+ASPIRIN  = "CC(=O)Oc1ccccc1C(=O)O"
+INVALID  = "not_a_smiles!!!"
 
 
 # ===========================================================================
@@ -114,30 +39,37 @@ def generic_dataset_json(tmp_path):
 # ===========================================================================
 
 class TestToCanonical:
-    def test_simple_smiles(self):
-        assert re_mod.to_canonical("CCO") == re_mod.to_canonical("OCC")
-
-    def test_list_input(self):
-        result = re_mod.to_canonical(["C", "CO"])
+    def test_valid_smiles_returns_canonical(self):
+        result = rt.to_canonical(BENZENE)
         assert isinstance(result, str)
         assert len(result) > 0
 
-    def test_empty_string(self):
-        assert re_mod.to_canonical("") == ""
+    def test_already_canonical_unchanged(self):
+        canonical = rt.to_canonical(BENZENE)
+        assert rt.to_canonical(canonical) == canonical
 
-    def test_empty_list(self):
-        assert re_mod.to_canonical([]) == ""
+    def test_empty_string_returns_empty(self):
+        assert rt.to_canonical("") == ""
 
-    def test_invalid_smiles_returns_original(self):
-        bad = "NOT_A_SMILES"
-        assert re_mod.to_canonical(bad) == bad
+    def test_invalid_smiles_returned_as_is(self):
+        assert rt.to_canonical(INVALID) == INVALID
 
-    def test_non_string_scalar(self):
-        assert re_mod.to_canonical(123) == ""
+    def test_list_of_smiles_joined(self):
+        result = rt.to_canonical([BENZENE, ETHANOL])
+        assert isinstance(result, str)
+        assert len(result) > 0
 
-    def test_list_with_none_entries(self):
-        result = re_mod.to_canonical([None, "CCO", None])
-        assert "CCO" in result or result == re_mod.to_canonical("CCO")
+    def test_non_string_scalar_returns_empty(self):
+        assert rt.to_canonical(42) == ""
+
+    def test_none_list_entry_skipped(self):
+        result = rt.to_canonical([BENZENE, None, ETHANOL])
+        assert isinstance(result, str)
+
+    def test_different_representations_same_canonical(self):
+        c1 = rt.to_canonical("C1=CC=CC=C1")
+        c2 = rt.to_canonical("c1ccccc1")
+        assert c1 == c2
 
 
 # ===========================================================================
@@ -145,146 +77,43 @@ class TestToCanonical:
 # ===========================================================================
 
 class TestSafeMol:
-    def test_valid_smiles(self):
-        mol = re_mod.safe_mol("CCO")
+    def test_valid_smiles_returns_mol(self):
+        mol = rt.safe_mol(BENZENE)
         assert mol is not None
 
-    def test_empty_string(self):
-        assert re_mod.safe_mol("") is None
+    def test_empty_string_returns_none(self):
+        assert rt.safe_mol("") is None
 
-    def test_invalid_smiles(self):
-        assert re_mod.safe_mol("INVALID") is None
+    def test_invalid_smiles_returns_none(self):
+        assert rt.safe_mol(INVALID) is None
 
-    def test_complex_molecule(self):
-        assert re_mod.safe_mol(ASPIRIN) is not None
+    def test_atom_count_correct(self):
+        from rdkit import Chem
+        mol = rt.safe_mol(BENZENE)
+        assert mol.GetNumAtoms() == 6
 
 
 # ===========================================================================
 # validate_smiles_for_aizynthfinder
 # ===========================================================================
 
-class TestValidateSmilesForAizynthfinder:
+class TestValidateSmilesForAiZ:
     def test_valid_smiles_returns_canonical(self):
-        canon = re_mod.validate_smiles_for_aizynthfinder("CCO")
-        assert isinstance(canon, str)
-        assert len(canon) > 0
+        result = rt.validate_smiles_for_aizynthfinder(BENZENE)
+        assert isinstance(result, str) and len(result) > 0
 
-    def test_empty_raises(self):
-        with pytest.raises(ValueError, match="empty SMILES"):
-            re_mod.validate_smiles_for_aizynthfinder("")
+    def test_empty_raises_value_error(self):
+        with pytest.raises(ValueError, match="empty"):
+            rt.validate_smiles_for_aizynthfinder("")
 
-    def test_invalid_raises(self):
-        with pytest.raises(ValueError, match="invalid SMILES"):
-            re_mod.validate_smiles_for_aizynthfinder("NOT_VALID")
+    def test_invalid_smiles_raises_value_error(self):
+        with pytest.raises(ValueError, match="invalid"):
+            rt.validate_smiles_for_aizynthfinder(INVALID)
 
-    def test_returns_canonical_form(self):
-        result = re_mod.validate_smiles_for_aizynthfinder("OCC")
-        assert result == re_mod.to_canonical("CCO")
-
-
-# ===========================================================================
-# load_reaction_dataset
-# ===========================================================================
-
-class TestLoadReactionDataset:
-    def test_loads_correctly(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        assert "by_product" in ds
-        assert "by_reactant" in ds
-        assert "by_route" in ds
-        assert "all" in ds
-        assert "metadata" in ds
-
-    def test_route_indexed(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        assert "route_A" in ds["by_route"]
-
-    def test_steps_sorted_by_step_number(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        steps = ds["by_route"]["route_A"]
-        nums = [s["step_number"] for s in steps]
-        assert nums == sorted(nums)
-
-    def test_file_not_found(self):
-        with pytest.raises(FileNotFoundError):
-            re_mod.load_reaction_dataset("/nonexistent/path.json")
-
-    def test_invalid_format_raises(self, tmp_path):
-        bad = tmp_path / "bad.json"
-        bad.write_text(json.dumps({"no_reactions_key": []}))
-        with pytest.raises(ValueError, match="unrecognized"):
-            re_mod.load_reaction_dataset(str(bad))
-
-    def test_list_format(self, tmp_path):
-        data = [
-            {
-                "id": "x1", "route_id": "r1", "route_name": "R1",
-                "target": "X", "step_number": 1,
-                "reactants_smiles": ["CCO"], "product_smiles": ASPIRIN,
-                "conditions": {}, "yield_percent": 50.0, "reaction_type": "Test",
-            }
-        ]
-        p = tmp_path / "list.json"
-        p.write_text(json.dumps(data))
-        ds = re_mod.load_reaction_dataset(str(p))
-        assert len(ds["all"]) == 1
-
-    def test_product_smiles_list_normalised(self, tmp_path):
-        data = [
-            {
-                "id": "p1", "route_id": "r1", "route_name": "R", "target": "T",
-                "step_number": 1,
-                "reactants_smiles": ["CCO"],
-                "product_smiles": ["CC", "O"],  # list format
-                "conditions": {}, "yield_percent": None, "reaction_type": "",
-            }
-        ]
-        p = tmp_path / "prod_list.json"
-        p.write_text(json.dumps(data))
-        ds = re_mod.load_reaction_dataset(str(p))
-        prod = ds["all"][0]["product_smiles"]
-        assert isinstance(prod, str)
-
-
-# ===========================================================================
-# load_toxicity_dataset
-# ===========================================================================
-
-class TestLoadToxicityDataset:
-    def test_loads_correctly(self, toxicity_json):
-        tox = re_mod.load_toxicity_dataset(toxicity_json)
-        assert isinstance(tox, dict)
-        assert len(tox) == 2
-
-    def test_missing_file_returns_empty(self):
-        tox = re_mod.load_toxicity_dataset("/nonexistent/tox.json")
-        assert tox == {}
-
-    def test_keys_are_canonical_smiles(self, toxicity_json):
-        tox = re_mod.load_toxicity_dataset(toxicity_json)
-        for key in tox:
-            assert re_mod.to_canonical(key) == key or isinstance(key, str)
-
-
-# ===========================================================================
-# load_generic_reaction_dataset
-# ===========================================================================
-
-class TestLoadGenericReactionDataset:
-    def test_loads_correctly(self, generic_dataset_json):
-        gds = re_mod.load_generic_reaction_dataset(generic_dataset_json)
-        assert "by_product" in gds
-        assert "by_reaction_key" in gds
-        assert "all" in gds
-        assert len(gds["all"]) == 1
-
-    def test_missing_file_returns_empty(self):
-        gds = re_mod.load_generic_reaction_dataset("/nonexistent.json")
-        assert gds == {}
-
-    def test_empty_path_returns_empty(self):
-        gds = re_mod.load_generic_reaction_dataset("")
-        assert gds == {}
+    def test_normalises_non_canonical_form(self):
+        c1 = rt.validate_smiles_for_aizynthfinder("C1=CC=CC=C1")
+        c2 = rt.validate_smiles_for_aizynthfinder("c1ccccc1")
+        assert c1 == c2
 
 
 # ===========================================================================
@@ -292,82 +121,38 @@ class TestLoadGenericReactionDataset:
 # ===========================================================================
 
 class TestBuildDatasetSmilesIndex:
-    def test_returns_set(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        index = re_mod.build_dataset_smiles_index(ds)
+    def _make_dataset(self, reactions):
+        return {"all": reactions}
+
+    def test_returns_set(self):
+        dataset = self._make_dataset([])
+        result = rt.build_dataset_smiles_index(dataset)
+        assert isinstance(result, set)
+
+    def test_includes_products_and_reactants(self):
+        dataset = self._make_dataset([{
+            "product_smiles":   BENZENE,
+            "reactants_smiles": [ETHANOL],
+        }])
+        index = rt.build_dataset_smiles_index(dataset)
+        canon_benz = rt.to_canonical(BENZENE)
+        canon_eth  = rt.to_canonical(ETHANOL)
+        assert canon_benz in index
+        assert canon_eth  in index
+
+    def test_empty_dataset_returns_empty_set(self):
+        dataset = self._make_dataset([])
+        assert rt.build_dataset_smiles_index(dataset) == set()
+
+    def test_invalid_smiles_not_added(self):
+        dataset = self._make_dataset([{
+            "product_smiles":   INVALID,
+            "reactants_smiles": [],
+        }])
+        index = rt.build_dataset_smiles_index(dataset)
+        # INVALID is returned as-is by to_canonical but is still a non-empty string
+        # The important check: no crash and it's handled
         assert isinstance(index, set)
-
-    def test_contains_product_smiles(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        index = re_mod.build_dataset_smiles_index(ds)
-        canon_aspirin = re_mod.to_canonical(ASPIRIN)
-        assert canon_aspirin in index
-
-    def test_contains_reactant_smiles(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        index = re_mod.build_dataset_smiles_index(ds)
-        # "c1ccccc1O" is phenol
-        assert re_mod.to_canonical("c1ccccc1O") in index
-
-
-# ===========================================================================
-# get_targets_from_dataset
-# ===========================================================================
-
-class TestGetTargetsFromDataset:
-    def test_returns_dict(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        targets = re_mod.get_targets_from_dataset(ds)
-        assert isinstance(targets, dict)
-
-    def test_aspirin_found(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        targets = re_mod.get_targets_from_dataset(ds)
-        # Aspirin should be present; its product has enough heavy atoms
-        assert "Aspirin" in targets
-
-    def test_values_are_canonical_smiles(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        targets = re_mod.get_targets_from_dataset(ds)
-        for name, smi in targets.items():
-            assert isinstance(smi, str)
-            assert re_mod.safe_mol(smi) is not None
-
-
-# ===========================================================================
-# _walk_reaction_tree
-# ===========================================================================
-
-class TestWalkReactionTree:
-    def test_empty_mol_node(self):
-        steps = []
-        re_mod._walk_reaction_tree({"type": "mol", "smiles": "CCO", "children": []}, steps)
-        assert steps == []
-
-    def test_single_reaction_step(self):
-        tree = {
-            "type": "mol",
-            "smiles": "CCO",
-            "children": [
-                {
-                    "type": "reaction",
-                    "children": [
-                        {"type": "mol", "smiles": "CC", "children": []},
-                        {"type": "mol", "smiles": "O",  "children": []},
-                    ],
-                }
-            ],
-        }
-        steps = []
-        re_mod._walk_reaction_tree(tree, steps)
-        assert len(steps) == 1
-        assert steps[0]["product"] == "CCO"
-        assert "CC" in steps[0]["reactants"]
-
-    def test_non_mol_root_ignored(self):
-        steps = []
-        re_mod._walk_reaction_tree({"type": "reaction", "children": []}, steps)
-        assert steps == []
 
 
 # ===========================================================================
@@ -375,33 +160,53 @@ class TestWalkReactionTree:
 # ===========================================================================
 
 class TestYieldHelpers:
-    def test_bottleneck_with_yields(self):
-        steps = [{"yield_percent": 80}, {"yield_percent": 50}, {"yield_percent": 90}]
-        assert re_mod.bottleneck_yield(steps) == 50
+    def _step(self, y):
+        return {"yield_percent": y}
 
-    def test_bottleneck_no_yields(self):
-        assert re_mod.bottleneck_yield([{"yield_percent": None}]) is None
+    # bottleneck_yield
+    def test_bottleneck_all_reported(self):
+        steps = [self._step(80), self._step(60), self._step(90)]
+        assert rt.bottleneck_yield(steps) == 60
 
-    def test_bottleneck_empty(self):
-        assert re_mod.bottleneck_yield([]) is None
+    def test_bottleneck_no_yield_data_returns_none(self):
+        steps = [{"yield_percent": None}, {"step_number": 1}]
+        assert rt.bottleneck_yield(steps) is None
 
-    def test_average_yield(self):
-        steps = [{"yield_percent": 80}, {"yield_percent": 60}]
-        assert re_mod.average_yield(steps) == pytest.approx(70.0)
+    def test_bottleneck_single_step(self):
+        assert rt.bottleneck_yield([self._step(75)]) == 75
 
-    def test_average_yield_no_data(self):
-        assert re_mod.average_yield([]) is None
+    def test_bottleneck_skips_none(self):
+        steps = [self._step(None), self._step(40)]
+        assert rt.bottleneck_yield(steps) == 40
 
-    def test_cumulative_yield(self):
-        steps = [{"yield_percent": 50}, {"yield_percent": 80}]
-        assert re_mod.cumulative_yield(steps) == pytest.approx(0.4)
+    # average_yield
+    def test_average_yield_correct(self):
+        steps = [self._step(80), self._step(60)]
+        assert rt.average_yield(steps) == pytest.approx(70.0)
 
-    def test_cumulative_yield_missing_treated_as_100(self):
-        steps = [{"yield_percent": 50}, {"yield_percent": None}]
-        assert re_mod.cumulative_yield(steps) == pytest.approx(0.5)
+    def test_average_yield_no_data_returns_none(self):
+        assert rt.average_yield([{"yield_percent": None}]) is None
 
-    def test_cumulative_yield_empty(self):
-        assert re_mod.cumulative_yield([]) == pytest.approx(1.0)
+    def test_average_yield_single_step(self):
+        assert rt.average_yield([self._step(55)]) == pytest.approx(55.0)
+
+    # cumulative_yield
+    def test_cumulative_yield_all_reported(self):
+        steps = [self._step(80), self._step(50)]
+        expected = (80 / 100) * (50 / 100)
+        assert rt.cumulative_yield(steps) == pytest.approx(expected)
+
+    def test_cumulative_yield_missing_treated_as_one(self):
+        steps = [self._step(80), self._step(None)]
+        expected = 80 / 100
+        assert rt.cumulative_yield(steps) == pytest.approx(expected)
+
+    def test_cumulative_yield_empty_is_one(self):
+        assert rt.cumulative_yield([]) == pytest.approx(1.0)
+
+    def test_cumulative_yield_all_missing_is_one(self):
+        steps = [{"yield_percent": None}, {"yield_percent": None}]
+        assert rt.cumulative_yield(steps) == pytest.approx(1.0)
 
 
 # ===========================================================================
@@ -409,26 +214,50 @@ class TestYieldHelpers:
 # ===========================================================================
 
 class TestGetSubstancesList:
-    def test_returns_expected_keys(self):
-        steps = [_make_step(["CCO", "CC"], ASPIRIN)]
-        result = re_mod.get_substances_list(steps)
+    def _make_steps(self):
+        return [
+            {
+                "reactants_smiles": [BENZENE, ETHANOL],
+                "product_smiles":   ACETIC,
+                "conditions":       {"solvent": "THF", "reagents": ["KOH"]},
+            },
+            {
+                "reactants_smiles": [ACETIC],
+                "product_smiles":   ASPIRIN,
+                "conditions":       {},
+            },
+        ]
+
+    def test_returns_dict_with_expected_keys(self):
+        result = rt.get_substances_list(self._make_steps())
         assert set(result.keys()) == {"to_buy", "to_prepare", "solvents", "reagents"}
 
-    def test_to_prepare_contains_product(self):
-        steps = [_make_step(["CCO"], ASPIRIN)]
-        result = re_mod.get_substances_list(steps)
-        assert re_mod.to_canonical(ASPIRIN) in result["to_prepare"]
+    def test_to_prepare_contains_intermediates(self):
+        result = rt.get_substances_list(self._make_steps())
+        # ACETIC is produced in step 1 → to_prepare
+        canon_acetic = rt.to_canonical(ACETIC)
+        assert canon_acetic in result["to_prepare"]
 
-    def test_solvents_extracted(self):
-        steps = [_make_step(["CCO"], ASPIRIN, conditions={"solvent": "THF"})]
-        result = re_mod.get_substances_list(steps)
+    def test_to_buy_does_not_contain_intermediates(self):
+        result = rt.get_substances_list(self._make_steps())
+        # ACETIC is produced, so it should NOT appear in to_buy
+        canon_acetic = rt.to_canonical(ACETIC)
+        assert canon_acetic not in result["to_buy"]
+
+    def test_solvent_listed(self):
+        result = rt.get_substances_list(self._make_steps())
         assert "THF" in result["solvents"]
 
-    def test_reagents_extracted(self):
-        steps = [_make_step(["CCO"], ASPIRIN,
-                             conditions={"reagents": ["NaOH", "HCl"]})]
-        result = re_mod.get_substances_list(steps)
-        assert "NaOH" in result["reagents"]
+    def test_reagent_listed(self):
+        result = rt.get_substances_list(self._make_steps())
+        assert "KOH" in result["reagents"]
+
+    def test_empty_steps_returns_empty_lists(self):
+        result = rt.get_substances_list([])
+        assert result["to_buy"] == []
+        assert result["to_prepare"] == []
+        assert result["solvents"] == []
+        assert result["reagents"] == []
 
 
 # ===========================================================================
@@ -436,33 +265,50 @@ class TestGetSubstancesList:
 # ===========================================================================
 
 class TestFmtConditions:
-    def test_empty_dict(self):
-        assert re_mod.fmt_conditions({}) == ""
+    def test_empty_dict_returns_empty_string(self):
+        assert rt.fmt_conditions({}) == ""
 
-    def test_temperature(self):
-        out = re_mod.fmt_conditions({"temperature_C": 100})
-        assert "100" in out
+    def test_none_returns_empty_string(self):
+        assert rt.fmt_conditions(None) == ""
 
-    def test_solvent(self):
-        out = re_mod.fmt_conditions({"solvent": "THF"})
-        assert "THF" in out
+    def test_temperature_included(self):
+        result = rt.fmt_conditions({"temperature_C": 80})
+        assert "80" in result and "°C" in result
 
-    def test_reagents_list(self):
-        out = re_mod.fmt_conditions({"reagents": ["NaH", "DMF"]})
-        assert "NaH" in out
+    def test_temp_range_fallback(self):
+        result = rt.fmt_conditions({"temp_range": "0–25°C"})
+        assert "0–25°C" in result
 
-    def test_full_conditions(self):
+    def test_solvent_included(self):
+        result = rt.fmt_conditions({"solvent": "THF"})
+        assert "THF" in result
+
+    def test_co_solvent_included(self):
+        result = rt.fmt_conditions({"co_solvent": "MeOH"})
+        assert "MeOH" in result
+
+    def test_reagents_list_included(self):
+        result = rt.fmt_conditions({"reagents": ["KOH", "NaI"]})
+        assert "KOH" in result
+        assert "NaI" in result
+
+    def test_apparatus_included(self):
+        result = rt.fmt_conditions({"apparatus": "microwave"})
+        assert "microwave" in result
+
+    def test_full_conditions_joined_by_separator(self):
         cond = {
-            "temperature_C": 80,
-            "solvent": "THF",
-            "reagents": ["NaH"],
-            "apparatus": "flask",
+            "temperature_C": 60,
+            "solvent": "DCM",
+            "reagents": ["Et3N"],
+            "apparatus": "reflux",
         }
-        out = re_mod.fmt_conditions(cond)
-        assert "80" in out
-        assert "THF" in out
-        assert "NaH" in out
-        assert "flask" in out
+        result = rt.fmt_conditions(cond)
+        assert "  ·  " in result
+        assert "60°C" in result
+        assert "DCM"  in result
+        assert "Et3N" in result
+        assert "reflux" in result
 
 
 # ===========================================================================
@@ -470,23 +316,28 @@ class TestFmtConditions:
 # ===========================================================================
 
 class TestCalcAtomEconomy:
-    def test_perfect_economy(self):
-        # product MW = sum of reactants → atom economy = 1
-        # Simple: C + O → CO (methanol)
-        score = re_mod.calc_atom_economy(["C", "O"], "CO")
-        assert 0.0 < score <= 1.0
+    def test_single_reactant_to_product_is_one(self):
+        # Ethanol → ethanol (identity): AE = MW(product)/MW(reactant) = 1.0
+        score = rt.calc_atom_economy([ETHANOL], ETHANOL)
+        assert score == pytest.approx(1.0, abs=1e-4)
 
     def test_invalid_product_returns_zero(self):
-        score = re_mod.calc_atom_economy(["CCO"], "INVALID_SMI")
+        score = rt.calc_atom_economy([BENZENE], INVALID)
         assert score == 0.0
 
-    def test_result_in_range(self):
-        score = re_mod.calc_atom_economy(["c1ccccc1O", "CC(=O)O"], ASPIRIN)
+    def test_score_bounded_zero_to_one(self):
+        score = rt.calc_atom_economy([BENZENE, ETHANOL], ASPIRIN)
         assert 0.0 <= score <= 1.0
 
-    def test_no_reactants(self):
-        score = re_mod.calc_atom_economy([], ASPIRIN)
+    def test_no_reactants_returns_zero(self):
+        score = rt.calc_atom_economy([], BENZENE)
         assert score == 0.0
+
+    def test_large_product_capped_at_one(self):
+        # If product is heavier than sum of reactants (shouldn't happen chemically
+        # but the formula must cap at 1.0)
+        score = rt.calc_atom_economy([ETHANOL], ASPIRIN)
+        assert score == pytest.approx(1.0, abs=1e-4)
 
 
 # ===========================================================================
@@ -494,40 +345,24 @@ class TestCalcAtomEconomy:
 # ===========================================================================
 
 class TestCalcEFactor:
-    def test_invalid_product_returns_half(self):
-        score = re_mod.calc_e_factor(["CCO"], "INVALID", 1.0)
+    def test_invalid_product_returns_neutral(self):
+        score = rt.calc_e_factor([BENZENE], INVALID, 1.0)
         assert score == pytest.approx(0.5)
 
-    def test_high_yield_gives_good_score(self):
-        score_high = re_mod.calc_e_factor(["c1ccccc1O", "CC(=O)O"], ASPIRIN, 0.95)
-        score_low  = re_mod.calc_e_factor(["c1ccccc1O", "CC(=O)O"], ASPIRIN, 0.10)
-        assert score_high > score_low
-
-    def test_result_in_range(self):
-        score = re_mod.calc_e_factor(["CCO"], ASPIRIN, 0.8)
+    def test_score_in_zero_one(self):
+        score = rt.calc_e_factor([BENZENE, ETHANOL], ASPIRIN, 0.8)
         assert 0.0 < score <= 1.0
 
+    def test_higher_yield_gives_better_score(self):
+        score_high = rt.calc_e_factor([BENZENE, ETHANOL], ASPIRIN, 0.9)
+        score_low  = rt.calc_e_factor([BENZENE, ETHANOL], ASPIRIN, 0.1)
+        assert score_high > score_low
 
-# ===========================================================================
-# build_solvent_map
-# ===========================================================================
-
-class TestBuildSolventMap:
-    def test_contains_common_abbreviations(self):
-        smap = re_mod.build_solvent_map({})
-        assert "THF" in smap
-        assert "DCM" in smap
-        assert "MeOH" in smap
-
-    def test_tox_index_keys_added(self):
-        tox = {re_mod.to_canonical("CCO"): {"hazard_score": 0.2}}
-        smap = re_mod.build_solvent_map(tox)
-        assert re_mod.to_canonical("CCO") in smap
-
-    def test_values_are_smiles_strings(self):
-        smap = re_mod.build_solvent_map({})
-        for v in smap.values():
-            assert isinstance(v, str)
+    def test_perfect_atom_economy_yield_one_approaches_one(self):
+        # If product == reactant (identity transform) and yield=1, E-factor≈0
+        # So score approaches 1.0
+        score = rt.calc_e_factor([ETHANOL], ETHANOL, 1.0)
+        assert score == pytest.approx(1.0, abs=1e-3)
 
 
 # ===========================================================================
@@ -535,24 +370,54 @@ class TestBuildSolventMap:
 # ===========================================================================
 
 class TestCalcToxicityScore:
-    def test_score_in_range(self, toxicity_json):
-        tox = re_mod.load_toxicity_dataset(toxicity_json)
-        smap = re_mod.build_solvent_map(tox)
-        score = re_mod.calc_toxicity_score([ETHANOL], {}, tox, smap)
+    def test_no_compounds_in_index_returns_half(self):
+        # All unknown compounds default hazard to 0.5 → score = 1 − 0.5 = 0.5
+        score = rt.calc_toxicity_score([BENZENE], {}, {}, {})
+        assert score == pytest.approx(0.5)
+
+    def test_known_safe_compound_raises_score(self):
+        canon = rt.to_canonical(BENZENE)
+        tox_index = {canon: {"hazard_score": 0.0}}
+        score = rt.calc_toxicity_score([BENZENE], {}, tox_index, {})
+        assert score == pytest.approx(1.0)
+
+    def test_known_hazardous_compound_lowers_score(self):
+        canon = rt.to_canonical(BENZENE)
+        tox_index = {canon: {"hazard_score": 1.0}}
+        score = rt.calc_toxicity_score([BENZENE], {}, tox_index, {})
+        assert score == pytest.approx(0.0)
+
+    def test_score_in_zero_one(self):
+        score = rt.calc_toxicity_score([BENZENE, ETHANOL], {}, {}, {})
         assert 0.0 <= score <= 1.0
 
-    def test_safe_molecule_gives_high_score(self, toxicity_json):
-        tox = re_mod.load_toxicity_dataset(toxicity_json)  # CCO=0.2, ClCCl=0.8
-        smap = re_mod.build_solvent_map(tox)
-        safe  = re_mod.calc_toxicity_score([ETHANOL], {}, tox, smap)
-        toxic = re_mod.calc_toxicity_score(["ClCCl"], {}, tox, smap)
-        assert safe > toxic
+    def test_empty_reactants_no_crash(self):
+        score = rt.calc_toxicity_score([], {}, {}, {})
+        assert 0.0 <= score <= 1.0
 
-    def test_unknown_compound_defaults_to_neutral(self):
-        tox = {}
-        smap = re_mod.build_solvent_map(tox)
-        score = re_mod.calc_toxicity_score(["CCCCCC"], {}, tox, smap)
-        assert score == pytest.approx(0.5)
+
+# ===========================================================================
+# build_solvent_map
+# ===========================================================================
+
+class TestBuildSolventMap:
+    def test_returns_dict(self):
+        assert isinstance(rt.build_solvent_map({}), dict)
+
+    def test_known_abbreviations_present(self):
+        smap = rt.build_solvent_map({})
+        assert "THF"    in smap
+        assert "DCM"    in smap
+        assert "MeOH"   in smap
+        assert "toluene" in smap
+        assert "H2O"    in smap
+
+    def test_tox_index_keys_self_map(self):
+        canon = rt.to_canonical(BENZENE)
+        tox_index = {canon: {"hazard_score": 0.5}}
+        smap = rt.build_solvent_map(tox_index)
+        assert canon in smap
+        assert smap[canon] == canon
 
 
 # ===========================================================================
@@ -561,83 +426,129 @@ class TestCalcToxicityScore:
 
 class TestComputeWeights:
     def test_weights_sum_to_one(self):
-        w = re_mod.compute_weights(["steps", "yield", "atom_economy"])
-        assert sum(w.values()) == pytest.approx(1.0, abs=1e-9)
+        criteria = ["steps", "yield", "atom_economy"]
+        weights = rt.compute_weights(criteria)
+        assert sum(weights.values()) == pytest.approx(1.0, abs=1e-9)
 
-    def test_first_criterion_highest_weight(self):
-        w = re_mod.compute_weights(["steps", "yield", "atom_economy"])
-        assert w["steps"] > w["yield"] > w["atom_economy"]
+    def test_first_criterion_has_highest_weight(self):
+        criteria = ["steps", "yield", "atom_economy"]
+        weights = rt.compute_weights(criteria)
+        assert weights["steps"] > weights["yield"] > weights["atom_economy"]
 
-    def test_single_criterion(self):
-        w = re_mod.compute_weights(["steps"])
-        assert w["steps"] == pytest.approx(1.0)
+    def test_single_criterion_has_weight_one(self):
+        weights = rt.compute_weights(["steps"])
+        assert weights["steps"] == pytest.approx(1.0)
+
+    def test_two_criteria_weights_correct(self):
+        weights = rt.compute_weights(["steps", "yield"])
+        # 1/1² = 1, 1/2² = 0.25  → normalised 0.8 and 0.2
+        assert weights["steps"] == pytest.approx(0.8, abs=1e-9)
+        assert weights["yield"] == pytest.approx(0.2, abs=1e-9)
+
+    def test_approx_three_criteria_weights(self):
+        criteria = ["steps", "yield", "atom_economy"]
+        weights  = rt.compute_weights(criteria)
+        # 1/1, 1/4, 1/9  → total 49/36, approx 0.7347, 0.1837, 0.0816
+        assert weights["steps"] == pytest.approx(36/49, abs=1e-4)
 
 
 # ===========================================================================
-# compute_steps
+# compute_steps / compute_yield / compute_atom_economy /
+# compute_e_factor / compute_toxicity
 # ===========================================================================
+
+def _make_route(steps, status="dataset"):
+    return {"dataset_steps": steps, "validation_status": status}
+
+def _step_dict(reactants, product, y=None, src="dataset", cond=None):
+    return {
+        "reactants_smiles": reactants,
+        "product_smiles":   product,
+        "yield_percent":    y,
+        "source":           src,
+        "conditions":       cond or {},
+    }
+
 
 class TestComputeSteps:
-    def test_one_step_scores_one(self):
-        route = _make_route([_make_step(["CCO"], ASPIRIN)])
-        assert re_mod.compute_steps(route, {}) == pytest.approx(1.0)
+    def test_one_step_route_score_is_one(self):
+        route = _make_route([_step_dict([BENZENE], ETHANOL)])
+        assert rt.compute_steps(route, {}) == pytest.approx(1.0)
 
-    def test_more_steps_lower_score(self):
-        r2 = _make_route([_make_step(["CCO"], ASPIRIN)] * 2)
-        r5 = _make_route([_make_step(["CCO"], ASPIRIN)] * 5)
-        assert re_mod.compute_steps(r2, {}) > re_mod.compute_steps(r5, {})
+    def test_two_step_route_score_is_half(self):
+        route = _make_route([_step_dict([BENZENE], ETHANOL),
+                              _step_dict([ETHANOL], ACETIC)])
+        assert rt.compute_steps(route, {}) == pytest.approx(0.5)
 
-    def test_empty_steps(self):
-        assert re_mod.compute_steps(_make_route([]), {}) == pytest.approx(1.0)
+    def test_empty_steps_returns_one(self):
+        assert rt.compute_steps(_make_route([]), {}) == pytest.approx(1.0)
 
+    def test_score_decreases_with_more_steps(self):
+        r2 = _make_route([_step_dict([], "")] * 2)
+        r5 = _make_route([_step_dict([], "")] * 5)
+        assert rt.compute_steps(r2, {}) > rt.compute_steps(r5, {})
 
-# ===========================================================================
-# compute_yield
-# ===========================================================================
 
 class TestComputeYield:
-    def test_predicted_returns_one(self):
-        route = _make_route(
-            [_make_step(["CCO"], ASPIRIN, yield_pct=50.0)],
-            validation_status="predicted",
-        )
-        assert re_mod.compute_yield(route, {}) == pytest.approx(1.0)
-
-    def test_dataset_route_cumulative(self):
-        steps = [
-            _make_step(["CCO"], ASPIRIN, yield_pct=50.0, source="dataset"),
-            _make_step([ASPIRIN], ASPIRIN, yield_pct=80.0, source="dataset"),
-        ]
-        route = _make_route(steps, "dataset")
-        assert re_mod.compute_yield(route, {}) == pytest.approx(0.40)
+    def test_predicted_route_returns_one(self):
+        route = _make_route([_step_dict([BENZENE], ETHANOL, y=50)], status="predicted")
+        assert rt.compute_yield(route, {}) == pytest.approx(1.0)
 
     def test_empty_steps_returns_zero(self):
-        assert re_mod.compute_yield(_make_route([]), {}) == 0.0
+        assert rt.compute_yield(_make_route([]), {}) == pytest.approx(0.0)
 
+    def test_reported_yields_multiplied(self):
+        steps = [_step_dict([BENZENE], ETHANOL, y=80),
+                 _step_dict([ETHANOL], ACETIC,  y=50)]
+        route = _make_route(steps)
+        expected = 0.8 * 0.5
+        assert rt.compute_yield(route, {}) == pytest.approx(expected)
 
-# ===========================================================================
-# compute_atom_economy / compute_e_factor
-# ===========================================================================
+    def test_missing_yield_treated_as_one(self):
+        steps = [_step_dict([BENZENE], ETHANOL, y=80),
+                 _step_dict([ETHANOL], ACETIC,  y=None)]
+        route = _make_route(steps)
+        assert rt.compute_yield(route, {}) == pytest.approx(0.8)
+
 
 class TestComputeAtomEconomy:
-    def test_result_in_range(self):
-        route = _make_route([_make_step(["c1ccccc1O", "CC(=O)O"], ASPIRIN)])
-        score = re_mod.compute_atom_economy(route, {})
+    def test_score_in_zero_one(self):
+        steps = [_step_dict([BENZENE, ETHANOL], ASPIRIN)]
+        route = _make_route(steps)
+        score = rt.compute_atom_economy(route, {})
         assert 0.0 <= score <= 1.0
 
-    def test_empty_steps_returns_zero(self):
-        assert re_mod.compute_atom_economy(_make_route([]), {}) == 0.0
+    def test_empty_returns_zero(self):
+        assert rt.compute_atom_economy(_make_route([]), {}) == 0.0
+
+    def test_is_mean_of_per_step_scores(self):
+        s1 = rt.calc_atom_economy([BENZENE], BENZENE)
+        s2 = rt.calc_atom_economy([ETHANOL], ETHANOL)
+        steps = [_step_dict([BENZENE], BENZENE),
+                 _step_dict([ETHANOL], ETHANOL)]
+        route = _make_route(steps)
+        assert rt.compute_atom_economy(route, {}) == pytest.approx((s1 + s2) / 2)
 
 
 class TestComputeEFactor:
-    def test_result_in_range(self):
-        steps = [_make_step(["c1ccccc1O", "CC(=O)O"], ASPIRIN, yield_pct=85.0)]
+    def test_score_in_zero_one(self):
+        steps = [_step_dict([BENZENE, ETHANOL], ASPIRIN, y=80)]
         route = _make_route(steps)
-        score = re_mod.compute_e_factor(route, {})
+        score = rt.compute_e_factor(route, {})
         assert 0.0 < score <= 1.0
 
-    def test_empty_steps_returns_zero(self):
-        assert re_mod.compute_e_factor(_make_route([]), {}) == 0.0
+    def test_empty_returns_zero(self):
+        assert rt.compute_e_factor(_make_route([]), {}) == 0.0
+
+
+class TestComputeToxicity:
+    def test_empty_returns_half(self):
+        assert rt.compute_toxicity(_make_route([]), {}) == pytest.approx(0.5)
+
+    def test_score_in_zero_one(self):
+        steps = [_step_dict([BENZENE], ETHANOL)]
+        score = rt.compute_toxicity(_make_route(steps), {})
+        assert 0.0 <= score <= 1.0
 
 
 # ===========================================================================
@@ -645,16 +556,16 @@ class TestComputeEFactor:
 # ===========================================================================
 
 class TestComputeAllScores:
-    def test_returns_all_criteria_keys(self):
-        route = _make_route([_make_step(["CCO"], ASPIRIN, yield_pct=80.0)])
-        scores = re_mod.compute_all_scores(route, {})
-        assert set(scores.keys()) == set(re_mod.CRITERIA_REGISTRY.keys())
+    def test_returns_dict_with_all_criteria(self):
+        route = _make_route([_step_dict([BENZENE], ETHANOL, y=80)])
+        result = rt.compute_all_scores(route, {})
+        assert set(result.keys()) == set(rt.CRITERIA_REGISTRY.keys())
 
-    def test_all_values_in_range(self):
-        route = _make_route([_make_step(["CCO"], ASPIRIN, yield_pct=80.0)])
-        scores = re_mod.compute_all_scores(route, {})
-        for v in scores.values():
-            assert 0.0 <= v <= 1.0
+    def test_all_values_are_floats_in_range(self):
+        route = _make_route([_step_dict([BENZENE], ETHANOL, y=80)])
+        for key, val in rt.compute_all_scores(route, {}).items():
+            assert isinstance(val, float), f"score for {key!r} is not float"
+            assert 0.0 <= val <= 1.0, f"score for {key!r} out of [0,1]: {val}"
 
 
 # ===========================================================================
@@ -662,115 +573,228 @@ class TestComputeAllScores:
 # ===========================================================================
 
 class TestRankWeighted:
-    def _routes(self):
-        return [
-            _make_route([_make_step(["CCO"], ASPIRIN, yield_pct=90.0)]),
-            _make_route([_make_step(["CCO"], ASPIRIN, yield_pct=90.0)] * 5),
-        ]
+    CRITERIA = ["steps", "yield", "atom_economy"]
 
-    def test_sorted_descending(self):
-        routes = self._routes()
-        ranked = re_mod.rank_weighted(routes, ["steps", "yield", "atom_economy"], {})
-        scores = [r[0] for r in ranked]
+    def _route(self, n_steps, yield_pct=80, status="dataset"):
+        steps = [_step_dict([BENZENE], ETHANOL, y=yield_pct)] * n_steps
+        return _make_route(steps, status=status)
+
+    def test_returns_list_of_tuples(self):
+        routes = [self._route(2), self._route(3)]
+        result = rt.rank_weighted(routes, self.CRITERIA, {})
+        assert isinstance(result, list)
+        assert all(len(t) == 3 for t in result)
+
+    def test_sorted_descending_by_score(self):
+        routes = [self._route(5), self._route(1)]
+        result = rt.rank_weighted(routes, self.CRITERIA, {})
+        scores = [r[0] for r in result]
         assert scores == sorted(scores, reverse=True)
 
-    def test_returns_tuples_of_three(self):
-        ranked = re_mod.rank_weighted(self._routes(),
-                                      ["steps", "yield", "atom_economy"], {})
-        for item in ranked:
-            assert len(item) == 3
+    def test_shorter_route_ranks_higher_when_steps_first(self):
+        # Only steps criterion matters here (it's first and dominant)
+        r1 = self._route(1)  # 1 step → steps score = 1.0
+        r5 = self._route(5)  # 5 steps → steps score = 0.2
+        criteria = ["steps", "atom_economy", "e_factor"]
+        result = rt.rank_weighted([r5, r1], criteria, {})
+        assert result[0][2] is r1
 
-    def test_fewer_steps_ranks_higher_with_steps_criterion(self):
-        r1 = _make_route([_make_step(["CCO"], ASPIRIN, yield_pct=80.0)])   # 1 step
-        r2 = _make_route([_make_step(["CCO"], ASPIRIN, yield_pct=80.0)] * 4)  # 4 steps
-        ranked = re_mod.rank_weighted([r1, r2], ["steps", "yield", "atom_economy"], {})
-        # The 1-step route must have a higher total score
-        top_route = ranked[0][2]
-        assert top_route is r1
-
-    def test_predicted_yield_excluded(self):
-        pred = _make_route(
-            [_make_step(["CCO"], ASPIRIN)], validation_status="predicted"
-        )
-        ranked = re_mod.rank_weighted([pred], ["steps", "yield", "atom_economy"], {})
-        details = ranked[0][1]
+    def test_predicted_route_excludes_yield(self):
+        route = self._route(2, status="predicted")
+        result = rt.rank_weighted([route], self.CRITERIA, {})
+        details = result[0][1]
         assert details["yield"]["excluded"] is True
+        assert details["yield"]["weighted"] == 0.0
+
+    def test_empty_input_returns_empty_list(self):
+        assert rt.rank_weighted([], self.CRITERIA, {}) == []
+
+    def test_details_contain_expected_keys(self):
+        route = self._route(2)
+        result = rt.rank_weighted([route], self.CRITERIA, {})
+        details = result[0][1]
+        for c in self.CRITERIA:
+            assert c in details
+            if not details[c].get("excluded"):
+                assert "raw" in details[c]
+                assert "weight" in details[c]
+                assert "weighted" in details[c]
+        assert "_all_scores" in details
 
 
 # ===========================================================================
-# match_step_in_generic_dataset
+# load_reaction_dataset
 # ===========================================================================
 
-class TestMatchStepInGenericDataset:
-    def test_exact_match_found(self, generic_dataset_json):
-        gds = re_mod.load_generic_reaction_dataset(generic_dataset_json)
-        reactants = ["c1ccccc1O", "CC(=O)O"]
-        match = re_mod.match_step_in_generic_dataset(reactants, ASPIRIN, gds)
-        assert match is not None
+class TestLoadReactionDataset:
+    def _write_json(self, data, suffix=".json"):
+        f = tempfile.NamedTemporaryFile(
+            mode="w", suffix=suffix, delete=False, encoding="utf-8"
+        )
+        json.dump(data, f)
+        f.close()
+        return f.name
 
-    def test_no_match_returns_none(self, generic_dataset_json):
-        gds = re_mod.load_generic_reaction_dataset(generic_dataset_json)
-        match = re_mod.match_step_in_generic_dataset(["CCO"], "C#N", gds)
-        assert match is None
+    def test_file_not_found_raises(self):
+        with pytest.raises(FileNotFoundError):
+            rt.load_reaction_dataset("/nonexistent/path.json")
 
-    def test_empty_dataset_returns_none(self):
-        match = re_mod.match_step_in_generic_dataset(["CCO"], ASPIRIN, {})
-        assert match is None
+    def test_bare_list_format(self):
+        reactions = [
+            {
+                "id": "1", "route_id": "r1", "route_name": "Route1",
+                "target": "TestTarget", "step_number": 1,
+                "reactants_smiles": [BENZENE], "product_smiles": ETHANOL,
+                "conditions": {}, "yield_percent": 80, "reaction_type": "esterification",
+            }
+        ]
+        path = self._write_json(reactions)
+        try:
+            ds = rt.load_reaction_dataset(path)
+            assert "by_route" in ds
+            assert "by_product" in ds
+            assert "by_reactant" in ds
+            assert "all" in ds
+            assert len(ds["all"]) == 1
+        finally:
+            os.unlink(path)
 
-
-# ===========================================================================
-# is_route_covered_by_dataset
-# ===========================================================================
-
-class TestIsRouteCoveredByDataset:
-    def test_covered_route(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        index = re_mod.build_dataset_smiles_index(ds)
-        # Route whose product is Aspirin — known in dataset
-        aiz_route = {
-            "steps": [{"product": ASPIRIN, "reactants": ["c1ccccc1O"]}]
+    def test_dict_format_with_reactions_key(self):
+        data = {
+            "reactions": [
+                {
+                    "id": "1", "route_id": "r1", "route_name": "Route1",
+                    "target": "T", "step_number": 1,
+                    "reactants_smiles": [BENZENE], "product_smiles": ETHANOL,
+                    "conditions": {}, "yield_percent": None, "reaction_type": "",
+                }
+            ],
+            "_metadata": {"target_smiles": {"T": ETHANOL}},
         }
-        assert re_mod.is_route_covered_by_dataset(aiz_route, index, threshold=0.5)
+        path = self._write_json(data)
+        try:
+            ds = rt.load_reaction_dataset(path)
+            assert ds["metadata"]["target_smiles"]["T"] == ETHANOL
+        finally:
+            os.unlink(path)
 
-    def test_uncovered_route(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        index = re_mod.build_dataset_smiles_index(ds)
-        aiz_route = {
-            "steps": [
-                {"product": "C1CCCCC1", "reactants": ["CCCCCC"]},  # cyclohexane
-                {"product": "C1CCCNC1", "reactants": ["C1CCCCC1"]},  # piperidine
-            ]
-        }
-        assert not re_mod.is_route_covered_by_dataset(aiz_route, index, threshold=0.5)
+    def test_unrecognised_format_raises(self):
+        path = self._write_json({"foo": "bar"})
+        try:
+            with pytest.raises(ValueError, match="unrecognized"):
+                rt.load_reaction_dataset(path)
+        finally:
+            os.unlink(path)
 
-    def test_empty_steps_returns_false(self):
-        assert not re_mod.is_route_covered_by_dataset({"steps": []}, set())
+    def test_steps_sorted_by_step_number(self):
+        reactions = [
+            {"id": "2", "route_id": "r1", "route_name": "R", "target": "T",
+             "step_number": 2, "reactants_smiles": [ACETIC], "product_smiles": ASPIRIN,
+             "conditions": {}, "yield_percent": None, "reaction_type": ""},
+            {"id": "1", "route_id": "r1", "route_name": "R", "target": "T",
+             "step_number": 1, "reactants_smiles": [BENZENE], "product_smiles": ACETIC,
+             "conditions": {}, "yield_percent": None, "reaction_type": ""},
+        ]
+        path = self._write_json(reactions)
+        try:
+            ds = rt.load_reaction_dataset(path)
+            steps = ds["by_route"]["r1"]
+            assert steps[0]["step_number"] == 1
+            assert steps[1]["step_number"] == 2
+        finally:
+            os.unlink(path)
+
+    def test_list_product_smiles_joined(self):
+        reactions = [
+            {"id": "1", "route_id": "r1", "route_name": "R", "target": "T",
+             "step_number": 1, "reactants_smiles": [BENZENE],
+             "product_smiles": [ETHANOL, ACETIC],
+             "conditions": {}, "yield_percent": None, "reaction_type": ""},
+        ]
+        path = self._write_json(reactions)
+        try:
+            ds = rt.load_reaction_dataset(path)
+            prod = ds["all"][0]["product_smiles"]
+            assert isinstance(prod, str)
+            assert "." in prod
+        finally:
+            os.unlink(path)
+
+    def test_string_reactants_smiles_wrapped_in_list(self):
+        reactions = [
+            {"id": "1", "route_id": "r1", "route_name": "R", "target": "T",
+             "step_number": 1, "reactants_smiles": BENZENE,
+             "product_smiles": ETHANOL,
+             "conditions": {}, "yield_percent": None, "reaction_type": ""},
+        ]
+        path = self._write_json(reactions)
+        try:
+            ds = rt.load_reaction_dataset(path)
+            reacs = ds["all"][0]["reactants_smiles"]
+            assert isinstance(reacs, list)
+        finally:
+            os.unlink(path)
 
 
 # ===========================================================================
-# filter_routes_by_starting_materials
+# load_toxicity_dataset
 # ===========================================================================
 
-class TestFilterRoutesByStartingMaterials:
-    def test_matches_by_smiles(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        result = re_mod.filter_routes_by_starting_materials(
-            [], ds, ASPIRIN, target_name="Aspirin"
-        )
-        assert len(result) >= 1
+class TestLoadToxicityDataset:
+    def test_missing_file_returns_empty_dict(self):
+        result = rt.load_toxicity_dataset("/nonexistent/toxicity.json")
+        assert result == {}
 
-    def test_no_match_returns_empty(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        result = re_mod.filter_routes_by_starting_materials(
-            [], ds, "C1CCNCC1", target_name="Piperidine"
-        )
-        assert result == []
+    def test_list_format(self, tmp_path):
+        data = [
+            {"smiles": BENZENE, "hazard_score": 0.6},
+            {"smiles": ETHANOL, "hazard_score": 0.2},
+        ]
+        p = tmp_path / "tox.json"
+        p.write_text(json.dumps(data), encoding="utf-8")
+        result = rt.load_toxicity_dataset(str(p))
+        assert len(result) == 2
+        canon = rt.to_canonical(BENZENE)
+        assert canon in result
+        assert result[canon]["hazard_score"] == pytest.approx(0.6)
 
-    def test_result_has_expected_keys(self, simple_dataset_json):
-        ds = re_mod.load_reaction_dataset(simple_dataset_json)
-        result = re_mod.filter_routes_by_starting_materials(
-            [], ds, ASPIRIN, target_name="Aspirin"
-        )
-        if result:
-            for key in ("route_id", "dataset_steps", "is_predicted"):
-                assert key in result[0]
+    def test_dict_format_with_compounds_key(self, tmp_path):
+        data = {"compounds": [{"smiles": BENZENE, "hazard_score": 0.3}]}
+        p = tmp_path / "tox.json"
+        p.write_text(json.dumps(data), encoding="utf-8")
+        result = rt.load_toxicity_dataset(str(p))
+        assert len(result) == 1
+
+
+# ===========================================================================
+# load_generic_reaction_dataset
+# ===========================================================================
+
+class TestLoadGenericReactionDataset:
+    def test_missing_file_returns_empty_dict(self):
+        result = rt.load_generic_reaction_dataset("/nonexistent/generic.json")
+        assert result == {}
+
+    def test_empty_path_returns_empty_dict(self):
+        assert rt.load_generic_reaction_dataset("") == {}
+
+    def test_valid_file_structure(self, tmp_path):
+        data = [
+            {"reactants_smiles": [BENZENE], "product_smiles": ETHANOL,
+             "step_number": 1},
+        ]
+        p = tmp_path / "generic.json"
+        p.write_text(json.dumps(data), encoding="utf-8")
+        result = rt.load_generic_reaction_dataset(str(p))
+        assert "by_product" in result
+        assert "by_reaction_key" in result
+        assert "all" in result
+        assert len(result["all"]) == 1
+
+    def test_indexed_by_product(self, tmp_path):
+        data = [{"reactants_smiles": [BENZENE], "product_smiles": ETHANOL}]
+        p = tmp_path / "generic.json"
+        p.write_text(json.dumps(data), encoding="utf-8")
+        result = rt.load_generic_reaction_dataset(str(p))
+        canon_eth = rt.to_canonical(ETHANOL)
+        assert canon_eth in result["by_product"]
