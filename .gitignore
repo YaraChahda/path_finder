@@ -249,6 +249,3 @@ docs/docs_outzinc_stock.hdf5
 models/
 *.onnx
 *.hdf5
-data/config.yml
-data/aizynthfinder/
-data/orderly/

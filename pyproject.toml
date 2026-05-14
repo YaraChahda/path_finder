@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "path-finder-retrosynthesis"
-version = "1.0.2"
+version = "1.0.3"
 description = "Retrosynthesis route finder — AiZynthFinder + Rxn-INSIGHT + Chemistry by Design"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -24,7 +24,6 @@ keywords = [
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Topic :: Scientific/Engineering :: Chemistry",
 ]

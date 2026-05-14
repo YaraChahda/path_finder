@@ -29,7 +29,7 @@ def _data_dir() -> Path:
 
 def main():
     """Launch the Streamlit app. Console script: path-finder"""
-    app = _pkg_root() / "app_path_finder.py"
+    app = _pkg_root() / "app.py"
     if not app.exists():
         print(f"[ERROR] App not found at {app}")
         print("Try reinstalling: pip install --force-reinstall path-finder-retrosynthesis")
