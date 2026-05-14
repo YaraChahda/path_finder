@@ -1,8 +1,9 @@
-# Path Finder
+![Project Logo](assets/banner.png)
+![Coverage Status](assets/coverage-badge.svg)
 
-<p align="center">
-  <img src="src/path_finder/assets/banner.png" width="400"/>
-</p>
+<h1 align="center">
+path_finder
+</h1>
 
 **Retrosynthesis route finder** — AiZynthFinder · Rxn-INSIGHT · Chemistry by Design
 
