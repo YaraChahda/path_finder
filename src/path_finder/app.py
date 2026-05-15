@@ -158,11 +158,11 @@ def main() -> None:
         st.divider()
         st.subheader(T["files_section"])
 
-        dataset_path         = st.text_input(T["ds_label"],      value="../../data/reaction_dataset.json",      help=T["help_ds"])
-        toxicity_path        = st.text_input(T["tox_label"]+" *", value="../../data/toxicity_dataset.json",    help=T["help_tox"])
-        config_path          = st.text_input(T["cfg_label"],      value="../../data/config.yml",                help=T["help_cfg"])
-        rxninsight_db_path   = st.text_input(T["rxni_label"],     value="../../data/uspto_rxn_insight.gzip",    help=T["help_rxni"])
-        generic_dataset_path = st.text_input(T["generic_label"],  value="../../data/generic_reactions.json",   help=T["help_generic"])
+        dataset_path         = st.text_input(T["ds_label"],      value="data/reaction_dataset.json",      help=T["help_ds"])
+        toxicity_path        = st.text_input(T["tox_label"]+" *", value="data/toxicity_dataset.json",    help=T["help_tox"])
+        config_path          = st.text_input(T["cfg_label"],      value="data/config.yml",                help=T["help_cfg"])
+        rxninsight_db_path   = st.text_input(T["rxni_label"],     value="data/uspto_rxn_insight.gzip",    help=T["help_rxni"])
+        generic_dataset_path = st.text_input(T["generic_label"],  value="data/generic_reactions.json",   help=T["help_generic"])
 
         if not os.path.exists(toxicity_path):
             st.warning(f"⚠️ `{toxicity_path}` not found — Safety scores will default to 0.5")
@@ -182,7 +182,7 @@ def main() -> None:
                 ),
             )
         else:
-            st.caption("🤖 Predicted routes disabled (`pip install rxn-insight`)")
+            st.caption("🤖 Predicted routes disabled — add `data/uspto_rxn_insight.gzip` to enable (see README)")
 
         st.divider()
         if "criteria" in st.session_state:

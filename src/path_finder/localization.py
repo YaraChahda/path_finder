@@ -275,14 +275,14 @@ LANG = {
 
 CRITERIA_LABELS = {
     "en": {
-        "steps":        "🪜 Steps",
+        "steps":        "Steps",
         "yield":        "📈 Yield",
         "atom_economy": "⚗️ Atom economy",
         "e_factor":     "♻️ E-factor",
         "toxicity":     "☣️ Safety",
     },
     "fr": {
-        "steps":        "🪜 Étapes",
+        "steps":        "Étapes",
         "yield":        "📈 Rendement",
         "atom_economy": "⚗️ Écon. atomique",
         "e_factor":     "♻️ E-factor",
