@@ -190,8 +190,7 @@ def main() -> None:
                 crit_w = rt.compute_weights(st.session_state["criteria"])
                 for c in st.session_state["criteria"]:
                     w = crit_w[c]
-                    st.progress(float(w), text=f"{CL[c]} — {w * 100:.1f}%")
-
+                    st.progress(float(w), text=f"{strip_emoji(CL[c])} — {w * 100:.1f}%")
     # ── Page header ───────────────────────────────────────────────────────────
     st.title(T["page_title"])
     st.caption(T["page_caption"])
