@@ -1,11 +1,7 @@
 # app_utensils.py
-# =============================================================================
-# Helper functions for the Path Finder Streamlit application.
-#
-# All rendering, HTML-building, chart creation, and cached data-loading
-# functions are defined here so that app.py stays thin and readable.
-# The functions in this file are imported and used by app.py to build the UI.
-# =============================================================================
+# UI helper functions for the Path Finder app.
+# All rendering, chart creation, HTML builders, and cached loaders live here
+# so that app.py stays readable. Imported directly by app.py.
 
 import re
 import json
@@ -37,10 +33,10 @@ except Exception:
     Chem = None
 
 
-# =============================================================================
+
 # CSS injected inside isolated st.html() / components.html() frames.
 # Scoped to avoid leaking into the Streamlit global stylesheet.
-# =============================================================================
+
 COMPONENT_STYLE = """
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
@@ -152,9 +148,9 @@ _EMOJI_RE = re.compile(
 )
 
 
-# =============================================================================
+
 # 1. load_banner
-# =============================================================================
+
 def load_banner(path: str) -> str:
     """
     Load a local image file and return a base-64 data URI for HTML embedding.
@@ -179,9 +175,9 @@ def load_banner(path: str) -> str:
     return f"data:{mime};base64,{data}"
 
 
-# =============================================================================
+
 # 2. hires_fig
-# =============================================================================
+
 def hires_fig(*args, dpi: int = 180, **kwargs):
     """
     Create a high-resolution matplotlib figure with the app background colour.
@@ -214,16 +210,14 @@ def hires_fig(*args, dpi: int = 180, **kwargs):
     return fig, ax
 
 
-# =============================================================================
+
 # 3. strip_emoji
-# =============================================================================
+
 def strip_emoji(text: str) -> str:
     """
     Remove all Unicode emoji characters from a string.
 
-    matplotlib cannot render emoji glyphs (raises a UserWarning) so any label
-    string that may contain emoji — criterion labels, axis titles, legend
-    entries — must be cleaned before being passed to a matplotlib method.
+    Matplotlib can't render emoji so we strip them before any chart call.
 
     Parameters
     ----------
@@ -238,9 +232,9 @@ def strip_emoji(text: str) -> str:
     return _EMOJI_RE.sub("", text).strip()
 
 
-# =============================================================================
+
 # 4. is_purification_step
-# =============================================================================
+
 def is_purification_step(step: dict) -> bool:
     """
     Determine whether a reaction step is a purification or isolation step.
@@ -285,9 +279,9 @@ def is_purification_step(step: dict) -> bool:
     return False
 
 
-# =============================================================================
+
 # 5. build_clickable_scheme_html
-# =============================================================================
+
 def build_clickable_scheme_html(
     steps_data: list,
     route_id: str,
@@ -668,9 +662,9 @@ def build_clickable_scheme_html(
     )
 
 
-# =============================================================================
+
 # 6. build_score_table_html
-# =============================================================================
+
 def build_score_table_html(
     details: dict,
     criteria: list,
@@ -742,9 +736,9 @@ def build_score_table_html(
     )
 
 
-# =============================================================================
+
 # 7. make_ranking_chart
-# =============================================================================
+
 def make_ranking_chart(results: list, target_name: str, lang: str = "en"):
     """
     Render a horizontal bar chart ranking routes by total score.
@@ -792,9 +786,9 @@ def make_ranking_chart(results: list, target_name: str, lang: str = "en"):
     return fig
 
 
-# =============================================================================
+
 # 8. make_yield_chart
-# =============================================================================
+
 def make_yield_chart(steps_route: list, lang: str = "en"):
     """
     Render a bar chart of reported step yields for a single route.
@@ -848,9 +842,9 @@ def make_yield_chart(steps_route: list, lang: str = "en"):
     return fig
 
 
-# =============================================================================
+
 # 9. make_comparison_chart
-# =============================================================================
+
 def make_comparison_chart(sel_results: list, criteria: list, lang: str = "en"):
     """
     Render a grouped horizontal bar chart comparing raw criterion scores.
@@ -909,9 +903,9 @@ def make_comparison_chart(sel_results: list, criteria: list, lang: str = "en"):
     return fig
 
 
-# =============================================================================
+
 # 10. build_why_ranked_html
-# =============================================================================
+
 def build_why_ranked_html(
     rank: int,
     score_total: float,
@@ -990,9 +984,9 @@ def build_why_ranked_html(
     )
 
 
-# =============================================================================
+
 # 11. smiles_copy_widget
-# =============================================================================
+
 def smiles_copy_widget(smiles: str, label: str = "") -> None:
     """
     Render a compact SMILES display widget with a clipboard Copy button.
@@ -1038,9 +1032,9 @@ def smiles_copy_widget(smiles: str, label: str = "") -> None:
     components.html(html_snip, height=36, scrolling=False)
 
 
-# =============================================================================
+
 # 12. display_route_card
-# =============================================================================
+
 def display_route_card(
     score_total: float,
     details: dict,
@@ -1188,9 +1182,9 @@ def display_route_card(
                 st.write("  ·  ".join(sub["reagents"][:10]))
 
 
-# =============================================================================
+
 # 13. load_dataset_cached
-# =============================================================================
+
 @st.cache_data(show_spinner=False)
 def load_dataset_cached(path: str) -> dict:
     """
@@ -1214,9 +1208,9 @@ def load_dataset_cached(path: str) -> dict:
     return rt.load_reaction_dataset(path)
 
 
-# =============================================================================
+
 # 14. get_targets_cached
-# =============================================================================
+
 @st.cache_data(show_spinner=False)
 def get_targets_cached(path: str) -> dict:
     """

@@ -1,15 +1,6 @@
 """
-path_finder/cli.py
-──────────────────
-Console entry points registered in pyproject.toml:
-
-    path-finder          → launches the Streamlit app
-    path-finder-setup    → interactive setup wizard (downloads everything)
-
-After `pip install path-finder-retrosynthesis`:
-    1. conda install -c conda-forge rdkit        (one-time)
-    2. path-finder-setup                         (downloads models, creates config)
-    3. path-finder                               (launches the app)
+Entry points for the path-finder CLI.
+Registered in pyproject.toml under [project.scripts].
 """
 
 import subprocess
@@ -28,7 +19,7 @@ def _data_dir() -> Path:
 
 
 def main():
-    """Launch the Streamlit app. Console script: path-finder"""
+    """Start the Streamlit app (called by the path-finder command)."""
     app = _pkg_root() / "app.py"
     if not app.exists():
         print(f"[ERROR] App not found at {app}")
@@ -51,14 +42,8 @@ def main():
 
 def setup():
     """
-    Interactive setup wizard. Console script: path-finder-setup
-
-    Steps:
-    1. Check RDKit / AiZynthFinder / Rxn-INSIGHT
-    2. Copy bundled datasets into data/
-    3. Download AiZynthFinder models via download_public_data
-    4. Create config.yml automatically
-    5. Validate
+    First-time setup wizard (called by path-finder-setup).
+    Checks dependencies, copies bundled data, downloads AiZ models, creates config.yml.
     """
     print("\n" + "=" * 62)
     print("  Path Finder - Setup Wizard  v1.0.1")

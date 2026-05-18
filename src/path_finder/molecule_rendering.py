@@ -1,36 +1,14 @@
 # molecule_rendering.py
-# =============================================================================
-# RDKit-based molecule image rendering for the Retrosynthesis Interface.
+# RDKit molecule rendering for the Path Finder app.
+# No Streamlit dependency — can be imported and tested independently.
 #
-# This module has No Streamlit dependency and can be imported independently
-# for testing or reuse outside the app.
-#
-# Public API:
-#   mol_png(smiles, w, h)              → bytes | None
-#       High-resolution PNG for st.image() calls throughout the app.
-#       Draws at 4× the requested pixel size via Cairo.
-#
-#   mol_b64_or_text_svg(smiles, w, h)  → str
-#       Base64 PNG data-URI for embedding inside self-contained HTML schemes.
-#       Draws at 8× then Lanczos-downsamples to 2× for maximum sharpness.
-#
-#   fallback_data_uri(text, w, h)      → str
-#       Grey placeholder rectangle with a text label; returned when RDKit
-#       cannot parse the SMILES so HTML <img> tags never show broken icons.
-#
-#   is_trivial_smiles(smiles)          → bool
-#       Returns True for single atoms, ions, or salt mixtures with ≤ 2 heavy
-#       atoms per fragment — used to decide whether to draw or label a species.
-#
-# Resolution strategy (why 4× / 8×):
-#   cairo renders vector-quality lines at any integer scale.  Drawing at 4×
-#   (mol_png) or 8× (scheme images) then displaying at 1× or 2× CSS pixels
-#   produces crisp bond lines on HiDPI / Retina screens without blurring.
-#
+# mol_png()               -> bytes  : high-res PNG for st.image()
+# mol_b64_or_text_svg()   -> str    : base64 PNG for embedded HTML schemes
+# fallback_data_uri()     -> str    : grey placeholder when SMILES is invalid
+# is_trivial_smiles()     -> bool   : True for single atoms / tiny ions
 # Dependencies:
 #   - RDKit  (rdkit-pypi or rdkit conda package)
 #   - Pillow (PIL) — only for _mol_b64_or_text_svg and _fallback_data_uri
-# =============================================================================
 
 import io
 import base64
@@ -53,31 +31,19 @@ except Exception:
 
 def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
     """
-    Render a molecule as a high-resolution PNG using RDKit Cairo.
-
-    Draws at 8× the requested pixel size and returns raw PNG bytes.
-    Passing the result to ``st.image()`` displays at the correct size
-    because Streamlit scales by CSS width, not pixel count.
+    Render a molecule as PNG using RDKit Cairo at 8x the display size.
 
     Parameters
     ----------
     smiles : str
-        SMILES string of the molecule to render.
-    w : int, optional
-        Display width in pixels (default 800). Cairo draws at 8×.
-    h : int, optional
-        Display height in pixels (default 540).
+        SMILES of the molecule to render.
+    w, h : int
+        Display size in pixels — Cairo renders at 8x for HiDPI sharpness.
 
     Returns
     -------
     bytes or None
-        Raw PNG data, or ``None`` if the SMILES is invalid or RDKit
-        is unavailable.
-
-    Notes
-    -----
-    Used by the target molecule preview, Dataset Explorer step columns,
-    substances-needed expander, and starting-material browser.
+        Raw PNG bytes, or None if the SMILES is invalid.
     """
     if not MODULE_OK or not smiles:
         return None
@@ -85,7 +51,7 @@ def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
     if mol is None:
         return None
     try:
-        # Draw at 8× the target dimensions for high-DPI sharpness
+        # 8x upscale — crisp on HiDPI
         drawer = rdMolDraw2D.MolDraw2DCairo(w * 8, h * 8)
         opts = drawer.drawOptions()
         opts.addStereoAnnotation = True
@@ -104,32 +70,19 @@ def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
 
 def mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
     """
-    Render a molecule as a base64-encoded PNG data-URI for HTML embedding.
-
-    Draws at 8× the requested display size via Cairo, then keeps the full
-    8× resolution so the browser can display at CSS width while retaining
-    full resolution for popup zoom.
+    Return a base64 PNG data-URI for embedding in the reaction scheme HTML.
 
     Parameters
     ----------
     smiles : str
-        SMILES of the molecule to render.
-    w : int
-        Target display width in CSS pixels.
-    h : int
-        Target display height in CSS pixels.
+        SMILES of the molecule.
+    w, h : int
+        Target display size in CSS pixels (renders at 8x internally).
 
     Returns
     -------
     str
-        A ``data:image/png;base64,...`` URI ready for ``<img src="...">``.
-        Falls back to ``fallback_data_uri()`` if the SMILES cannot be parsed.
-
-    Notes
-    -----
-    Used exclusively inside ``build_clickable_scheme_html()`` for both the
-    main molecule sequence and co-reactant images above arrows.
-    Single atoms and ions skip ``Compute2DCoords`` to avoid RDKit errors.
+        data:image/png;base64,... URI, or fallback_data_uri() if parsing fails.
     """
     if not smiles or not MODULE_OK:
         return fallback_data_uri(smiles or "?", w, h)
@@ -139,10 +92,10 @@ def mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
     try:
         from PIL import Image as _PI
         import io as _io
-        # Only compute 2-D coordinates for multi-atom molecules
+        # skip 2D coords for single atoms, they cause rdkit errors
         if mol.GetNumAtoms() > 1:
             rdDepictor.Compute2DCoords(mol)
-        # Draw at 8× the display size for crisp rendering at any DPI
+        # 8x upscale — crisp on HiDPI
         drawer = rdMolDraw2D.MolDraw2DCairo(w * 8, h * 8)
         drawer.drawOptions().bondLineWidth       = 1.0
         drawer.drawOptions().padding             = 0.15
@@ -150,7 +103,7 @@ def mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
         drawer.DrawMolecule(mol)
         drawer.FinishDrawing()
         data = drawer.GetDrawingText()
-        # Keep full 8× resolution — the HTML img tag uses CSS width/height
+        # keep 8x resolution, CSS width handles display size
         # so the browser displays at the correct size while retaining full
         # resolution for popup zoom.
         buf = _io.BytesIO(data)
@@ -162,25 +115,19 @@ def mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
 
 def fallback_data_uri(text: str, w: int, h: int) -> str:
     """
-    Generate a grey placeholder PNG data-URI with a centred text label.
-
-    Ensures every ``<img>`` tag in the reaction scheme has a valid ``src``
-    so the browser never shows a broken-image icon.
+    Grey placeholder PNG with a text label, for when SMILES can't be parsed.
 
     Parameters
     ----------
     text : str
-        Label to display, truncated to 18 characters with an ellipsis.
-    w : int
-        Image width in pixels.
-    h : int
-        Image height in pixels.
+        Label to show (truncated to 18 chars).
+    w, h : int
+        Image dimensions in pixels.
 
     Returns
     -------
     str
-        A ``data:image/png;base64,...`` URI. Falls back to a 1×1 transparent
-        PNG if Pillow is unavailable.
+        data:image/png;base64,... URI (falls back to 1x1 if Pillow unavailable).
     """
     try:
         from PIL import Image as _PI, ImageDraw as _PID
@@ -209,26 +156,18 @@ def fallback_data_uri(text: str, w: int, h: int) -> str:
 
 def is_trivial_smiles(smiles: str) -> bool:
     """
-    Return True for single atoms, ions, or salts with very few heavy atoms.
-
-    Determines whether a co-reactant should be drawn as a 2-D structure
-    image above the reaction arrow or shown as plain text below it.
+    Return True if the SMILES is too small to render as a structure image
+    (single atoms, ions, salts with ≤2 heavy atoms per fragment).
 
     Parameters
     ----------
     smiles : str
-        SMILES string to evaluate.
+        SMILES to check.
 
     Returns
     -------
     bool
-        ``True`` if every fragment of the molecule has 2 or fewer heavy
-        atoms, making it too small to be worth rendering as a structure.
-
-    Notes
-    -----
-    Catches single atoms ([Pd]), ions ([Na+]), and diatomics (Cl2, H2).
-    Returns ``True`` also when RDKit is unavailable or the SMILES is empty.
+        True if every fragment has 2 or fewer heavy atoms.
     """
     if not smiles or not MODULE_OK:
         return True

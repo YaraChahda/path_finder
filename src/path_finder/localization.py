@@ -1,36 +1,6 @@
 # localization.py
-# =============================================================================
-# All user-visible strings and display constants for the Retrosynthesis Interface.
-#
-# Contents:
-#   LANG             : nested dict of UI strings keyed by language code
-#                      ("en" | "fr") then by string key.
-#   CRITERIA_LABELS  : per-language display labels (with emoji) for the five
-#                      scoring criteria.
-#   PALETTE          : ordered list of hex colour strings used for multi-route
-#                      matplotlib charts (navy → light blue, cycles if > 5 routes).
-#   FIG_BG           : background hex colour shared by all matplotlib figures
-#                      and molecule image placeholders.
-#
-# Usage (in app_path_finder.py):
-#   from localization import LANG, CRITERIA_LABELS, PALETTE, FIG_BG
-#   T  = LANG[lang]          # e.g. lang = "en"
-#   CL = CRITERIA_LABELS[lang]
-#
-# Adding a new language:
-#   1. Add a new key block to LANG with all required string keys.
-#   2. Add a matching key block to CRITERIA_LABELS.
-#   3. Update the language selector radio widget in app_path_finder.py.
-#
-# No Streamlit, RDKit, or other runtime dependency — this module is pure Python
-# and can be imported or tested independently.
-# =============================================================================
-
-# =============================================================================
-# UI string catalogue
-# =============================================================================
-# Every string that appears in the Streamlit UI is defined here so that
-# adding or changing a language never requires touching app logic.
+# UI strings (EN/FR), colour palette, and matplotlib background colour.
+# Import: from localization import LANG, CRITERIA_LABELS, PALETTE, FIG_BG
 
 LANG = {
     "en": {
