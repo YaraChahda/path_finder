@@ -480,3 +480,67 @@ def test_criteria_score_desc_values_are_strings():
     for lang in ("en", "fr"):
         for k, v in CRITERIA_SCORE_DESC[lang].items():
             assert isinstance(v, str)
+
+# --- build_why_ranked_html ---
+from src.path_finder.app_utensils import build_why_ranked_html
+
+def _why_details(criteria):
+    return {c:{"raw":0.7,"weight":0.33,"weighted":0.23,"excluded":False} for c in criteria}
+
+def test_why_ranked_steps_criterion():
+    c = ["steps","yield","atom_economy"]
+    result = build_why_ranked_html(1, 0.8, _why_details(c), c,
+                                   {"steps":0.73,"yield":0.18,"atom_economy":0.09},
+                                   [_make_step(1,[BENZENE],TOLUENE,75.0)], "en")
+    assert "<div" in result
+
+def test_why_ranked_yield_with_bottleneck():
+    c = ["yield","steps","atom_economy"]
+    result = build_why_ranked_html(1, 0.7, _why_details(c), c,
+                                   {"yield":0.73,"steps":0.18,"atom_economy":0.09},
+                                   [_make_step(1,[BENZENE],TOLUENE,65.0)], "en")
+    assert "65" in result
+
+def test_why_ranked_yield_no_data():
+    c = ["yield","steps","atom_economy"]
+    result = build_why_ranked_html(1, 0.5, _why_details(c), c,
+                                   {"yield":0.73,"steps":0.18,"atom_economy":0.09},
+                                   [], "en")
+    assert isinstance(result, str)
+
+def test_why_ranked_atom_economy():
+    c = ["atom_economy","yield","steps"]
+    result = build_why_ranked_html(1, 0.9, _why_details(c), c,
+                                   {"atom_economy":0.73,"yield":0.18,"steps":0.09},
+                                   [], "en")
+    assert "atom economy" in result
+
+def test_why_ranked_e_factor():
+    c = ["e_factor","yield","steps"]
+    result = build_why_ranked_html(1, 0.8, _why_details(c), c,
+                                   {"e_factor":0.73,"yield":0.18,"steps":0.09},
+                                   [], "en")
+    assert "E-factor" in result
+
+def test_why_ranked_toxicity():
+    c = ["toxicity","yield","steps"]
+    result = build_why_ranked_html(1, 0.8, _why_details(c), c,
+                                   {"toxicity":0.73,"yield":0.18,"steps":0.09},
+                                   [], "en")
+    assert "safety" in result
+
+def test_why_ranked_french():
+    c = ["steps","yield","atom_economy"]
+    result = build_why_ranked_html(2, 0.75, _why_details(c), c,
+                                   {"steps":0.73,"yield":0.18,"atom_economy":0.09},
+                                   [_make_step(1,[BENZENE],TOLUENE,80.0)], "fr")
+    assert isinstance(result, str)
+
+# --- load_dataset_cached / get_targets_cached ---
+def test_load_dataset_cached_is_callable():
+    from src.path_finder.app_utensils import load_dataset_cached
+    assert callable(load_dataset_cached)
+
+def test_get_targets_cached_is_callable():
+    from src.path_finder.app_utensils import get_targets_cached
+    assert callable(get_targets_cached)

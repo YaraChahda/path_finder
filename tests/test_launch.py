@@ -205,3 +205,21 @@ def test_setup_creates_data_dir(tmp_path):
          patch("subprocess.run", return_value=MagicMock(returncode=0)):
         launch.setup()
     assert data_dir.exists()
+
+def test_write_config_uses_fallback_when_no_template(tmp_path):
+    fake_pkg = tmp_path / "fake_pkg"
+    fake_pkg.mkdir()
+    out = tmp_path / "config.yml"
+    aiz = tmp_path / "aiz"
+    aiz.mkdir()
+    launch._write_config_from_template(fake_pkg, out, aiz)
+    assert "expansion" in out.read_text()   # from _fallback_template
+
+def test_setup_validation_reports_missing(tmp_path):
+    with patch.object(launch, "_data_dir", return_value=tmp_path), \
+         patch.object(launch, "_pkg_root", return_value=launch._pkg_root()), \
+         patch("subprocess.run", return_value=MagicMock(returncode=0)), \
+         patch("builtins.print") as mock_print:
+        launch.setup()
+    printed = " ".join(str(c) for call in mock_print.call_args_list for c in call.args)
+    assert "MISSING" in printed or "incomplete" in printed
