@@ -1,20 +1,4 @@
-# report_builder.py
-# =============================================================================
-# PDF report generation for the Retrosynthesis Interface.
-#
-# Public API:
-#   build_route_report_pdf(score_total, details, route, criteria) → bytes
-#
-# Page layout:
-#   Page 1  : Navy header, metric cards, score table, starting materials.
-#   Pages 2+: Up to 3 steps per page — header band, conditions, mol images.
-#
-# Molecule images: RDKit Cairo at 3× display size, bondLineWidth=6,
-#   then PIL Lanczos downsample → crisp thick bonds at any zoom.
-#
-# Text policy: NO truncation anywhere. SMILES and reaction types are always
-#   displayed in full. Long strings are word-wrapped across multiple lines.
-# =============================================================================
+# report_builder.py — PDF generation
 
 try:
     from rdkit import Chem
@@ -63,14 +47,14 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
     from PIL import Image as _PI, ImageDraw as _PID, ImageFont as _PIF
     import io as _io
 
-    # ── Page geometry (A4 at 200 DPI) ─────────────────────────────────────────
+    #  Page geometry (A4 at 200 DPI) ─
     DPI = 200
     PW  = int(8.27  * DPI)   # 1654 px
     PH  = int(11.69 * DPI)   # 2338 px
     MG  = int(0.55  * DPI)   # 110 px  (left/right margin)
     CW  = PW - 2 * MG        # usable width
 
-    # ── Colours ───────────────────────────────────────────────────────────────
+    #  Colours 
     NAVY   = (26,  46,  68)
     WHITE  = (255, 255, 255)
     LIGHT  = (235, 242, 250)
@@ -81,28 +65,9 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
     SEP    = (220, 227, 236)
     BG     = (249, 251, 253)
 
-    # ── Fonts ─────────────────────────────────────────────────────────────────
+    #  Fonts 
     def _fnt(size, bold=False):
-        """
-        Load a font at the requested size, with graceful fallback.
-
-        Tries each candidate path in order and returns the first font that
-        loads successfully. Falls back to PIL's built-in default font if none
-        of the system paths are found, so the PDF always renders text even on
-        systems without DejaVu or Arial installed.
-
-        Parameters
-        ----------
-        size : int
-            Font size in points.
-        bold : bool, optional
-            If ``True``, attempts to load a bold variant (default ``False``).
-
-        Returns
-        -------
-        PIL.ImageFont.FreeTypeFont or PIL.ImageFont.ImageFont
-            Loaded font object ready for use with ``ImageDraw``.
-        """
+        # tries system fonts, falls back to PIL default
         candidates = (
             ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
              "/System/Library/Fonts/Supplemental/Arial Bold.ttf"]
@@ -118,44 +83,15 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         return _PIF.load_default()
 
     # Font size constants — adjust here to rescale all text uniformly
-    F_TITLE    = 52   # route name in page-1 header
-    F_SUBTITLE = 30   # target / status / score line
-    F_SECTION  = 28   # section headings ("Score breakdown", "Starting materials")
-    F_CARD_LBL = 20   # metric card label
-    F_CARD_VAL = 34   # metric card value
-    F_TH       = 20   # table header text
-    F_TD       = 20   # table cell text
-    F_ROW_H    = 32   # pixel height of each table row (must comfortably fit F_TD)
-    F_COND     = 22   # conditions text in step pages
-    F_STEP_HDR = 28   # step header ("Step N · reaction type")
-    F_YIELD    = 22   # yield text in step header (right-aligned)
-    F_SMILES   = 19   # SMILES label under molecule images
-
-    # ── Molecule renderer ─────────────────────────────────────────────────────
+    F_TITLE, F_SUBTITLE, F_SECTION = 52, 30, 28 # route name in page-1 header, target / status / score line, section headings
+    F_CARD_LBL, F_CARD_VAL = 20, 34 # metric card label, value
+    F_TH = F_TD = 20 # table header and cell text
+    F_ROW_H = 32 # pixel height of each table row (must comfortably fit F_TD)
+    F_COND, F_STEP_HDR, F_YIELD, F_SMILES = 22, 28, 22, 19 # conditions text in step pages, step header ("Step N · reaction type"), yield text in step header (right-aligned), SMILES label under molecule images
+    
+    #  Molecule renderer 
     def _mol_pil(smi, w, h):
-        """
-        Render a SMILES string to a PIL RGB Image of the requested pixel size.
-
-        Cairo draws at 3× the target dimensions then PIL Lanczos-downsamples
-        to ``(w, h)``, producing thick, crisp bond lines at normal and zoomed
-        viewing. ``Compute2DCoords`` is skipped for single-atom molecules to
-        avoid RDKit errors.
-
-        Parameters
-        ----------
-        smi : str
-            SMILES string of the molecule to render.
-        w : int
-            Target image width in pixels.
-        h : int
-            Target image height in pixels.
-
-        Returns
-        -------
-        PIL.Image.Image or None
-            RGB image of size ``(w, h)``, or ``None`` if the SMILES is invalid
-            or RDKit is unavailable.
-        """
+        # Render a SMILES string to a PIL image of given width and height
         if not smi or not MODULE_OK:
             return None
         mol = Chem.MolFromSmiles(smi)
@@ -180,54 +116,16 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         except Exception:
             return None
 
-    # ── Text helpers ──────────────────────────────────────────────────────────
+    #  Text helpers 
     def _text_w(draw, txt, font):
-        """
-        Return the rendered pixel width of a text string.
-
-        Parameters
-        ----------
-        draw : PIL.ImageDraw.Draw
-            Drawing context used for measurement.
-        txt : str
-            Text string to measure.
-        font : PIL.ImageFont
-            Font used for rendering.
-
-        Returns
-        -------
-        int
-            Width in pixels, falling back to a character-count estimate if
-            ``textlength`` is unavailable.
-        """
+        # Measure text width in pixels, with a fallback to character countif the font doesn't support measurement
         try:
             return int(draw.textlength(txt, font=font))
         except Exception:
             return len(txt) * max(6, font.size // 2)
 
     def _wrap_words(draw, txt, max_px, font):
-        """
-        Word-wrap text to fit within a maximum pixel width.
-
-        Splits on whitespace boundaries. Used for natural-language strings
-        such as conditions text and reaction type names.
-
-        Parameters
-        ----------
-        draw : PIL.ImageDraw.Draw
-            Drawing context used for width measurement.
-        txt : str
-            Text to wrap.
-        max_px : int
-            Maximum line width in pixels.
-        font : PIL.ImageFont
-            Font used for width measurement.
-
-        Returns
-        -------
-        list of str
-            Lines of text, each fitting within ``max_px``.
-        """
+        # Wrap text across lines by word boundary
         words = txt.split()
         lines = []
         line  = ""
@@ -286,31 +184,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         return lines
 
     def _draw_text_lines(draw, lines, x, y, font, fill, line_gap=4):
-        """
-        Draw a list of text lines starting at a given position.
-
-        Parameters
-        ----------
-        draw : PIL.ImageDraw.Draw
-            Drawing context.
-        lines : list of str
-            Lines to draw, one per vertical step.
-        x : int
-            Left edge in pixels.
-        y : int
-            Top edge of the first line in pixels.
-        font : PIL.ImageFont
-            Font used for rendering.
-        fill : tuple
-            RGB colour tuple for the text.
-        line_gap : int, optional
-            Additional vertical spacing between lines in pixels (default 4).
-
-        Returns
-        -------
-        int
-            The y coordinate immediately below the last line drawn.
-        """
+        # Draw multiple lines of text with fixed vertical spicing
         try:
             lh = font.size + line_gap
         except Exception:
@@ -321,81 +195,19 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         return y
 
     def _wrap(draw, txt, max_px, font):
-        """
-        Alias for ``_wrap_words``, kept for conditions text call sites.
-
-        Parameters
-        ----------
-        draw : PIL.ImageDraw.Draw
-            Drawing context used for width measurement.
-        txt : str
-            Text to wrap.
-        max_px : int
-            Maximum line width in pixels.
-        font : PIL.ImageFont
-            Font used for width measurement.
-
-        Returns
-        -------
-        list of str
-            Lines of text, each fitting within ``max_px``.
-        """
+        # General wrapper that tries word-wrapping first, then falls back to character-wrapping if the text contains no spaces
         return _wrap_words(draw, txt, max_px, font)
 
     def _draw_band(draw, y, h, color=NAVY):
-        """
-        Draw a full-width coloured rectangle spanning the page horizontally.
-
-        Used for page-1 header and step header bands.
-
-        Parameters
-        ----------
-        draw : PIL.ImageDraw.Draw
-            Drawing context.
-        y : int
-            Top edge of the band in pixels.
-        h : int
-            Height of the band in pixels.
-        color : tuple, optional
-            RGB fill colour (default ``NAVY``).
-
-        Returns
-        -------
-        None
-        """
+        # Draw a full-width horizontal band of given height and colour at vertical position y
         draw.rectangle([0, y, PW, y + h], fill=color)
 
     def _draw_rounded(draw, x, y, w, h, fill, outline=None, r=4):
-        """
-        Draw a filled rounded rectangle.
-
-        Parameters
-        ----------
-        draw : PIL.ImageDraw.Draw
-            Drawing context.
-        x : int
-            Left edge in pixels.
-        y : int
-            Top edge in pixels.
-        w : int
-            Width in pixels.
-        h : int
-            Height in pixels.
-        fill : tuple
-            RGB fill colour.
-        outline : tuple, optional
-            RGB outline colour. Defaults to ``fill`` if not provided.
-        r : int, optional
-            Corner radius in pixels (default 4).
-
-        Returns
-        -------
-        None
-        """
+        # Draw a rounded rectangle with given position, size, fill colour, optional outline colour, and corner radius
         draw.rounded_rectangle([x, y, x + w, y + h], radius=r,
                                 fill=fill, outline=outline or fill)
 
-    # ── Route metadata ────────────────────────────────────────────────────────
+    #  Route metadata 
     steps_data = route.get("dataset_steps", [])
     rname      = route.get("matched_route_name", "Unknown route")
     target     = route.get("matched_target", "?")
@@ -409,9 +221,9 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     pages = []
 
-    # =========================================================================
+    
     # PAGE 1 — Summary
-    # =========================================================================
+    
     p1 = _PI.new("RGB", (PW, PH), BG)
     d1 = _PID.Draw(p1)
 
@@ -518,48 +330,11 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     pages.append(p1)
 
-    # =========================================================================
+    
     # PAGES 2+ — Step-by-step
-    # =========================================================================
+    
     def _render_step_at(draw, page, step, x0, y0, avail_w, avail_h):
-        """
-        Draw one reaction step into a rectangular slot on a PDF page.
-
-        Layout from top to bottom:
-
-        1. Coloured header band — full reaction type (word-wrapped if long)
-        with yield right-aligned on the first line. Navy for dataset steps,
-        orange for Rxn-INSIGHT predicted steps.
-        2. Light conditions bar — full conditions text, word-wrapped to fit.
-        3. Molecule row — reactants separated by "+" signs, a centred arrow,
-        and the product, all horizontally centred in the available width.
-        Full SMILES labels (character-wrapped) appear below each image in
-        the same font and colour for reactants and product alike.
-
-        Nothing is ever truncated.
-
-        Parameters
-        ----------
-        draw : PIL.ImageDraw.Draw
-            Drawing context for the current page.
-        page : PIL.Image.Image
-            Page image onto which molecule images are pasted.
-        step : dict
-            Step dict from ``route["dataset_steps"]``.
-        x0 : int
-            Left edge of the slot in pixels.
-        y0 : int
-            Top edge of the slot in pixels.
-        avail_w : int
-            Width of the slot in pixels.
-        avail_h : int
-            Height of the slot in pixels.
-
-        Returns
-        -------
-        None
-            Draws and pastes directly onto ``draw`` and ``page``.
-        """
+        # Render a single reaction step within the given bounding box, with word-wrapped text and molecule images scaled to fit. Nothing is truncated — if text is too long, the header band and conditions bar grow vertically to accommodate it. The step header shows the step number and reaction type on the left, and yield (if available) on the right. The conditions bar lists temperature, solvent, and reagents if available. The molecule row shows up to 3 reactants (with "+" between them) → product, all centred horizontally, with full SMILES labels below.
         L = x0 + 6
         W = avail_w - 12
 
@@ -586,7 +361,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
             cond_parts.append(", ".join(str(r) for r in rr))
         cond_s = "  ·  ".join(cond_parts) or "—"
 
-        # ── Measure how many lines the reaction type needs in the header ──────
+        #  Measure how many lines the reaction type needs in the header ─
         # Reserve right side for yield text
         yld_txt  = f"Yield: {yld_s}"
         yld_w    = _text_w(draw, yld_txt, _fnt(F_YIELD))
@@ -605,13 +380,13 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         HDR_H  = n_hdr_lines * (F_STEP_HDR + 6) + 20
         HDR_H  = max(HDR_H, F_STEP_HDR + F_YIELD + 28)
 
-        # ── Measure conditions lines ──────────────────────────────────────────
+        #  Measure conditions lines 
         cond_lines = _wrap_words(draw, "Conditions: " + cond_s, W - 16, _fnt(F_COND))
         n_cond     = len(cond_lines)
         COND_H     = n_cond * (F_COND + 4) + 16
         COND_H     = max(COND_H, F_COND + 24)
 
-        # ── Draw header band ──────────────────────────────────────────────────
+        #  Draw header band 
         _draw_band(draw, y0, HDR_H, hdr_c)
 
         # Step + reaction type (left side)
@@ -630,7 +405,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
         y = y0 + HDR_H
 
-        # ── Draw conditions bar ───────────────────────────────────────────────
+        #  Draw conditions bar 
         _draw_rounded(draw, L, y, W, COND_H - 4, LIGHT, SEP, 3)
         cy = y + 8
         for cl in cond_lines:
@@ -638,7 +413,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
             cy += F_COND + 4
         y += COND_H
 
-        # ── Molecule row ──────────────────────────────────────────────────────
+        #  Molecule row ─
         # How many SMILES lines does each molecule label need?
         # We use the same max_px = mol_w for all labels.
         # First pass: compute mol dimensions.
@@ -714,7 +489,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         draw.line([(x0, y0 + avail_h - 2), (x0 + avail_w, y0 + avail_h - 2)],
                   fill=SEP, width=1)
 
-    # ── Paginate steps ────────────────────────────────────────────────────────
+    #  Paginate steps 
     STEPS_PER_PAGE = 3
     GAP_H  = int(0.12 * DPI)
     STEP_H = (PH - 2 * MG - GAP_H * (STEPS_PER_PAGE - 1)) // STEPS_PER_PAGE
@@ -733,7 +508,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
             _render_step_at(drw, pg, step, MG, y0, CW, STEP_H)
         pages.append(pg)
 
-    # ── Serialise to multi-page PDF ───────────────────────────────────────────
+    #  Serialise to multi-page PDF 
     buf = _io.BytesIO()
     if pages:
         pages[0].save(buf, format="PDF", save_all=True,

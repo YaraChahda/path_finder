@@ -1,26 +1,11 @@
 # route_engine.py
-# =============================================================================
-# Core backend for the Retrosynthesis Interface.
+# Backend for the Path Finder retrosynthesis interface.
 #
-# This module provides all data-loading, chemistry computation, scoring, and
-# route-ranking logic consumed by app_path_finder.py (Streamlit front-end).
+# Handles: dataset loading, SMILES canonicalisation, AiZynthFinder search,
+# Rxn-INSIGHT condition prediction, step validation against the generic dataset,
+# per-criterion scoring and weighted route ranking.
 #
-# Responsibilities:
-#   1. Loading and indexing reaction datasets (main, generic, toxicity)
-#   2. SMILES canonicalisation utilities
-#   3. AiZynthFinder integration (MCTS retrosynthesis tree search)
-#   4. Rxn-INSIGHT integration (reaction classification + condition prediction)
-#   5. Step-level validation against the generic reactions dataset
-#   6. Per-criterion scoring functions (steps, yield, atom economy, E-factor, safety)
-#   7. Weighted ranking of synthesis routes
-#   8. Main entry point: find_best_routes()
-#
-# External dependencies:
-#   - RDKit          : SMILES parsing, mol-weight, canonical SMILES
-#   - aizynthfinder  : MCTS retrosynthetic tree search
-#   - rxn_insight    : optional — reaction classification & condition suggestion
-#   - pandas         : loading the Rxn-INSIGHT USPTO database (Parquet format)
-# =============================================================================
+# Main entry point: find_best_routes()
 
 import json
 import os
@@ -29,7 +14,7 @@ from rdkit import Chem
 from rdkit.Chem import Descriptors
 from aizynthfinder.aizynthfinder import AiZynthFinder
 
-# -- optional Rxn-INSIGHT import ----------------------------------------------
+# optional Rxn-INSIGHT import
 # rxn_insight is not required; if absent, predicted-route enrichment is disabled
 # and RXNINSIGHT_AVAILABLE is set to False throughout the module.
 try:
@@ -39,9 +24,9 @@ except ImportError:
     RXNINSIGHT_AVAILABLE = False
 
 
-# =============================================================================
+
 # Data loading
-# =============================================================================
+
 
 def load_reaction_dataset(path: str) -> dict:
     """
@@ -82,7 +67,7 @@ def load_reaction_dataset(path: str) -> dict:
     with open(path, "r", encoding="utf-8") as f:
         raw = json.load(f)
 
-    # -- Detect format and extract flat reaction list --------------------------
+    # Detect format and extract flat reaction list
     if isinstance(raw, list):
         reactions = raw
         metadata  = {}
@@ -93,7 +78,7 @@ def load_reaction_dataset(path: str) -> dict:
         raise ValueError("unrecognized dataset format")
     print(f"[dataset] {len(reactions)} reactions loaded")
 
-    # -- Build secondary indices -----------------------------------------------
+    # Build secondary indices
     by_product = {}; by_reactant = {}; by_route = {}
     for rxn in reactions:
         # Normalise product_smiles: convert list → single SMILES string
@@ -201,25 +186,18 @@ def get_targets_from_dataset(dataset: dict) -> dict:
 
 def load_toxicity_dataset(path: str) -> dict:
     """
-    Load the toxicity/safety score index from a JSON file.
-
-    Expected format: a list of compound dicts (or a dict with a
-    ``"compounds"`` key), where each entry has at minimum a ``smiles``
-    field and a ``hazard_score`` field (float in [0, 1], where 1 is
-    maximally hazardous).
-
-    If the file is absent an empty dict is returned and safety scores
-    default to 0.5 (neutral) during scoring.
+    Load safety/hazard scores from JSON. Returns {canonical_SMILES: compound_dict}.
+    Missing file returns {} and scores default to 0.5 (neutral).
 
     Parameters
     ----------
     path : str
-        Filesystem path to the JSON toxicity file.
+        Path to the JSON toxicity file.
 
     Returns
     -------
     dict
-        ``{canonical_SMILES: compound_dict}``.
+        {canonical_SMILES: compound_dict}
     """
     if not os.path.exists(path):
         print("[toxicity] missing — Safety scores will default to 0.5 (required for correct scoring)")
@@ -238,21 +216,17 @@ def load_toxicity_dataset(path: str) -> dict:
 
 def load_rxninsight_database(path: str):
     """
-    Load the Rxn-INSIGHT USPTO reaction database for condition suggestion.
-
-    The file is expected to be a Parquet file despite the ``.gzip``
-    extension. Only columns required by ``find_neighbors()`` are retained.
-    Returns ``None`` if the file is absent or cannot be parsed.
+    Load the Rxn-INSIGHT USPTO parquet file for condition suggestion.
+    Returns None if the file is absent or rxn_insight is not installed.
 
     Parameters
     ----------
     path : str
-        Filesystem path to the Parquet file.
+        Path to the .gzip parquet file.
 
     Returns
     -------
     pandas.DataFrame or None
-        DataFrame containing the USPTO reactions, or ``None`` if unavailable.
     """
     if not RXNINSIGHT_AVAILABLE:
         return None
@@ -281,24 +255,18 @@ def load_rxninsight_database(path: str):
 
 def load_generic_reaction_dataset(path: str) -> dict:
     """
-    Load a flat dataset of individual reactions for AiZynthFinder step
-    validation against real experimental data.
-
-    Same JSON schema as the main dataset, but each entry is an independent
-    reaction (no route context, ``step_number = 1`` everywhere).
-
-    Returns an empty dict and disables step validation if the file is absent.
+    Load individual USPTO reactions used to validate AiZynthFinder steps.
+    Returns dict with keys by_product, by_reaction_key, all.
+    Returns {} if the file is missing.
 
     Parameters
     ----------
     path : str
-        Filesystem path to the JSON file.
+        Path to the JSON file.
 
     Returns
     -------
     dict
-        A dict with keys ``by_product``, ``by_reaction_key``, and ``all``.
-        Returns ``{}`` if the file is absent.
     """
     if not path or not os.path.exists(path):
         print("[generic dataset] absent — step validation disabled")
@@ -327,28 +295,13 @@ def load_generic_reaction_dataset(path: str) -> dict:
     }
 
 
-# =============================================================================
+
 # SMILES utilities
-# =============================================================================
+
 
 def to_canonical(smiles) -> str:
     """
-    Convert any SMILES input to its RDKit canonical form.
-
-    List inputs are joined with ``'.'`` before parsing. Non-string scalars
-    are converted to ``str``. Invalid SMILES are returned as-is so callers
-    can still use the original string as a dict key.
-
-    Parameters
-    ----------
-    smiles : str, list, or scalar
-        SMILES string, list of SMILES fragments, or any scalar value.
-
-    Returns
-    -------
-    str
-        Canonical SMILES string, or the original value stringified if RDKit
-        cannot parse it.
+    Convert a SMILES string to its canonical form using RDKit. Returns an empty
     """
     if isinstance(smiles, list):
         smiles = '.'.join(str(s) for s in smiles if s)
@@ -362,17 +315,7 @@ def to_canonical(smiles) -> str:
 
 def safe_mol(smiles: str):
     """
-    Parse a SMILES string and return an RDKit Mol object, or None on failure.
-
-    Parameters
-    ----------
-    smiles : str
-        SMILES string to parse.
-
-    Returns
-    -------
-    rdkit.Chem.Mol or None
-        Parsed molecule, or ``None`` if the string is empty or invalid.
+    Convert a SMILES string to an RDKit Mol object. Returns None if parsing fails.
     """
     if not smiles:
         return None
@@ -436,10 +379,6 @@ def build_dataset_smiles_index(dataset: dict) -> set:
                 index.add(c)
     return index
 
-
-# =============================================================================
-# AiZynthFinder integration
-# =============================================================================
 
 def _walk_reaction_tree(node: dict, steps: list) -> None:
     """
@@ -558,10 +497,6 @@ def run_aizynthfinder(target_smiles: str, config_path: str = "config.yml",
     print(f"[AiZynthFinder] {len(routes_raw)} routes found")
     return [adapt_route(r) for r in routes_raw]
 
-
-# =============================================================================
-# Rxn-INSIGHT integration
-# =============================================================================
 
 def _best_condition(df_cond) -> str:
     """
@@ -755,9 +690,9 @@ def is_route_covered_by_dataset(aiz_route: dict, dataset_smiles_index: set,
     return sum(1 for p in products if p in dataset_smiles_index) / len(products) >= threshold
 
 
-# =============================================================================
+
 # Generic dataset step matching
-# =============================================================================
+
 
 def match_step_in_generic_dataset(reactants: list, product: str, generic_ds: dict):
     """
@@ -1014,10 +949,6 @@ def get_novel_routes_from_aizynthfinder(aiz_routes, dataset, target_name, rxni_d
     return novel
 
 
-# =============================================================================
-# Dataset route filtering
-# =============================================================================
-
 def get_all_dataset_routes_for_target(dataset: dict, target_name: str,
                                        target_smiles: str = "") -> list:
     """
@@ -1145,26 +1076,9 @@ def filter_routes_by_starting_materials(aiz_routes, dataset, target_smiles,
     print(f"  {len(result)} dataset routes retained")
     return result
 
-
-# =============================================================================
-# Per-step yield / metric helpers
-# =============================================================================
-
 def bottleneck_yield(steps: list) -> float | None:
     """
-    Return the minimum step yield in a route (the rate-limiting step).
-
-    Steps without a reported yield are excluded from the minimum.
-
-    Parameters
-    ----------
-    steps : list of dict
-        Step dicts from ``route["dataset_steps"]``.
-
-    Returns
-    -------
-    float or None
-        Minimum yield in percent, or ``None`` if no yield data is available.
+    Return the bottleneck step yield (lowest reported yield) in percent.
     """
     ys = [s.get("yield_percent") for s in steps if s.get("yield_percent") is not None]
     return min(ys) if ys else None
@@ -1172,19 +1086,7 @@ def bottleneck_yield(steps: list) -> float | None:
 
 def average_yield(steps: list) -> float | None:
     """
-    Return the mean step yield across all steps that report a yield.
-
-    Steps without a reported yield are excluded from the average.
-
-    Parameters
-    ----------
-    steps : list of dict
-        Step dicts from ``route["dataset_steps"]``.
-
-    Returns
-    -------
-    float or None
-        Average yield in percent, or ``None`` if no yield data is available.
+    Return the average step yield in percent, ignoring steps with missing
     """
     ys = [s.get("yield_percent") for s in steps if s.get("yield_percent") is not None]
     return sum(ys) / len(ys) if ys else None
@@ -1282,10 +1184,6 @@ def fmt_conditions(cond: dict) -> str:
     if cond.get("apparatus"):       parts.append(f"({cond['apparatus']})")
     return "  ·  ".join(parts)
 
-
-# =============================================================================
-# Scoring metrics
-# =============================================================================
 
 def calc_atom_economy(reactants_smiles, product_smiles) -> float:
     """
@@ -1399,32 +1297,38 @@ def build_solvent_map(tox_index: dict) -> dict:
         ``{abbreviation_or_name (str): SMILES (str)}``.
     """
     abbrev = {
-        "PhMe": "Cc1ccccc1", "toluene": "Cc1ccccc1",
-        "DCM": "ClCCl", "CH2Cl2": "ClCCl",
+        "PhMe": "Cc1ccccc1", 
+        "toluene": "Cc1ccccc1", # same as PhMe
+        "DCM": "ClCCl", 
+        "CH2Cl2": "ClCCl",
         "THF": "C1CCOC1",
-        "MeOH": "CO", "EtOH": "CCO",
-        "DMF": "CN(C)C=O", "MeCN": "CC#N",
-        "AcOH": "CC(=O)O", "Et2O": "CCOCC",
-        "CHCl3": "ClC(Cl)Cl", "CCl4": "ClC(Cl)(Cl)Cl",
-        "PhH": "c1ccccc1", "benzene": "c1ccccc1",
-        "TFE": "OCC(F)(F)F", "t-BuOH": "CC(C)(C)O",
+        "MeOH": "CO", 
+        "EtOH": "CCO",
+        "DMF": "CN(C)C=O", 
+        "MeCN": "CC#N",
+        "AcOH": "CC(=O)O", 
+        "Et2O": "CCOCC",
+        "CHCl3": "ClC(Cl)Cl", 
+        "CCl4": "ClC(Cl)(Cl)Cl",
+        "PhH": "c1ccccc1", 
+        "benzene": "c1ccccc1",
+        "TFE": "OCC(F)(F)F", 
+        "t-BuOH": "CC(C)(C)O",
         "MeNO2": "C[N+](=O)[O-]",
         "H2O": "O",
-        "dioxane": "C1COCCO1", "1,4-dioxane": "C1COCCO1",
-        "hexane": "CCCCCC", "acetone": "CC(C)=O",
+        "dioxane": "C1COCCO1", 
+        "1,4-dioxane": "C1COCCO1",
+        "hexane": "CCCCCC", 
+        "acetone": "CC(C)=O",
         "pyridine": "c1ccncc1",
-        "i-PrOH": "CC(C)O", "DMSO": "CS(C)=O",
+        "i-PrOH": "CC(C)O", 
+        "DMSO": "CS(C)=O",
     }
     result = dict(abbrev)
     # Add all tox_index keys so known SMILES are always self-mapping
     for canon in tox_index:
         result[canon] = canon
     return result
-
-
-# =============================================================================
-# Scoring functions (one per criterion)
-# =============================================================================
 
 def compute_steps(route_data: dict, tox_index: dict) -> float:
     """
@@ -1570,9 +1474,7 @@ def compute_toxicity(route_data: dict, tox_index: dict) -> float:
     return sum(scores) / len(scores) if scores else 0.5
 
 
-# Registry of all available scoring criteria.
-# Each entry maps a criterion key to its display metadata and scoring function.
-# This dict is iterated by rank_weighted() and compute_all_scores().
+# scoring functions, one per criterion
 CRITERIA_REGISTRY = {
     "steps":        {"fn": compute_steps,        "description": "number of steps"},
     "yield":        {"fn": compute_yield,        "description": "cumulative yield"},
@@ -1582,27 +1484,8 @@ CRITERIA_REGISTRY = {
 }
 
 
-# =============================================================================
-# Weighted ranking
-# =============================================================================
-
 def compute_weights(criteria: list) -> dict:
-    """
-    Compute criterion weights using an inverse-square priority scheme.
-
-    Weight for rank i (1-based) = 1 / i², then normalised to sum to 1.
-    Approximate weights for 3 criteria: #1 ≈ 73 %, #2 ≈ 18 %, #3 ≈ 9 %.
-
-    Parameters
-    ----------
-    criteria : list of str
-        Criterion keys in priority order (highest priority first).
-
-    Returns
-    -------
-    dict
-        ``{criterion_key (str): normalised_weight (float)}``.
-    """
+    """Inverse-square weights (1/i²), normalised to sum 1."""
     raw   = {c: 1.0 / (i + 1) ** 2 for i, c in enumerate(criteria)}
     total = sum(raw.values())
     return {c: w / total for c, w in raw.items()}
@@ -1697,10 +1580,6 @@ def rank_weighted(routes: list, criteria: list, tox_index: dict) -> list:
     scored.sort(reverse=True, key=lambda x: x[0])
     return scored
 
-
-# =============================================================================
-# Main entry point
-# =============================================================================
 
 def find_best_routes(
     target_smiles:        str,

@@ -1,5 +1,5 @@
 # app.py
-# =============================================================================
+
 # Path Finder — Streamlit application entry point.
 #
 # This file contains only Streamlit layout and UI logic.
@@ -17,7 +17,7 @@
 #
 # Run:
 #   streamlit run app.py
-# =============================================================================
+
 
 import os
 import sys
@@ -51,7 +51,7 @@ from app_utensils import (
     get_targets_cached,
 )
 
-# -- Backend imports -----------------------------------------------------------
+# Backend imports
 try:
     import route_engine as rt
     from rdkit import Chem
@@ -68,9 +68,9 @@ except ImportError:
     RXNINSIGHT_OK = False
 
 
-# =============================================================================
+
 # Page configuration — must be the very first Streamlit call
-# =============================================================================
+
 st.set_page_config(
     page_title="Retrosynthesis — Chemistry by Design",
     page_icon="⚗️",
@@ -79,9 +79,9 @@ st.set_page_config(
 )
 
 
-# =============================================================================
+
 # Global CSS — typography, metric cards, expanders, buttons
-# =============================================================================
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
@@ -106,27 +106,16 @@ div[data-testid="stExpander"] { border: 1px solid #dce3ec; border-radius: 12px; 
 """, unsafe_allow_html=True)
 
 
-# =============================================================================
+
 # Main application
-# =============================================================================
+
 def main() -> None:
     """
-    Entry point for the Path Finder Streamlit application.
-
-    Builds the complete UI in four tabs:
-
-    - **Route Search** : target molecule input, criteria selection, AiZynthFinder
-      search, and route result cards.
-    - **Analysis**     : side-by-side route comparison table and criterion profile
-      chart for user-selected routes.
-    - **Dataset Explorer** : browsable view of every route in the curated dataset
-      with per-step yield chart and interactive reaction scheme.
-    - **Help**         : methodology documentation, file requirements, layout guide.
-
-    All helper functions are imported from ``app_utensils.py``; this function
-    contains only Streamlit layout and widget calls.
+    Main function for the Path Finder Streamlit app.
+    Builds the UI across four tabs: Route Search, Analysis, Dataset Explorer, Help.
+    Helper functions are all in app_utensils.py.
     """
-    # ── Optional banner image ─────────────────────────────────────────────────
+    # ── Optional banner image
     banner_uri = load_banner("../../assets/banner.png")
     if banner_uri:
         st.markdown(
@@ -136,7 +125,7 @@ def main() -> None:
             unsafe_allow_html=True,
         )
 
-    # ── Language selector (sidebar) ───────────────────────────────────────────
+    # Language selector (sidebar)
     with st.sidebar:
         lang_choice = st.radio(
             "🌐 Language / Langue",
@@ -148,7 +137,7 @@ def main() -> None:
     T    = LANG[lang]
     CL   = CRITERIA_LABELS[lang]
 
-    # ── Sidebar — file paths and search parameters ────────────────────────────
+    # Sidebar — file paths and search parameters
     with st.sidebar:
         st.title(T["sidebar_title"])
         if not MODULE_OK:
@@ -191,7 +180,7 @@ def main() -> None:
                 for c in st.session_state["criteria"]:
                     w = crit_w[c]
                     st.progress(float(w), text=f"{strip_emoji(CL[c])} — {w * 100:.1f}%")
-    # ── Page header ───────────────────────────────────────────────────────────
+    # Page header
     st.title(T["page_title"])
     st.caption(T["page_caption"])
 
@@ -199,9 +188,9 @@ def main() -> None:
         T["tab_search"], T["tab_analysis"], T["tab_dataset"], T["tab_help"],
     ])
 
-    # =========================================================================
+    
     # TAB 1 — ROUTE SEARCH
-    # =========================================================================
+    
     with tab_search:
         top_left, top_right = st.columns([3, 2])
 
@@ -268,7 +257,7 @@ def main() -> None:
 
         st.divider()
 
-        # -- Run search --------------------------------------------------------
+        # Run search
         if run_search and target_smiles:
             errs = []
             if not os.path.exists(dataset_path): errs.append(f"`{dataset_path}`")
@@ -313,7 +302,7 @@ def main() -> None:
                     except Exception as e:
                         status.update(label=T["err_other"], state="error"); st.exception(e)
 
-        # -- Display cached results --------------------------------------------
+        # Display cached results
         results_raw = st.session_state.get("results",   None)
         weights     = st.session_state.get("weights",   {})
         criteria    = st.session_state.get("criteria",  criteria)
@@ -416,9 +405,9 @@ def main() -> None:
                         display_route_card(score_total, details, route, criteria, weights,
                                            filtered, rank, T["badge_predicted"], lang)
 
-    # =========================================================================
+    
     # TAB 2 — ANALYSIS
-    # =========================================================================
+    
     with tab_analysis:
         results_raw = st.session_state.get("results",   None)
         criteria    = st.session_state.get("criteria",  list(CL.keys())[:3])
@@ -511,9 +500,9 @@ def main() -> None:
                                     height=480, scrolling=True,
                                 )
 
-    # =========================================================================
+    
     # TAB 3 — DATASET EXPLORER
-    # =========================================================================
+    
     with tab_dataset:
         if not os.path.exists(dataset_path):
             st.warning(T["ds_not_found"].format(path=dataset_path))
@@ -696,9 +685,9 @@ def main() -> None:
                     height=scheme_h, scrolling=True,
                 )
 
-    # =========================================================================
+    
     # TAB 4 — HELP
-    # =========================================================================
+    
     with tab_help:
         st.subheader(T["help_title"])
         if lang == "en":
@@ -776,8 +765,8 @@ et un badge "Purification", même si aucune liaison n'est formée.
     st.caption(T["footer"])
 
 
-# =============================================================================
+
 # Entry point
-# =============================================================================
+
 if __name__ == "__main__":
     main()
