@@ -19,7 +19,7 @@ def _data_dir() -> Path:
 
 
 def main():
-    """Start the Streamlit app (called by the path-finder command)."""
+    """Launches the Streamlit app. Called by the path-finder CLI command."""
     app = _pkg_root() / "app.py"
     if not app.exists():
         print(f"[ERROR] App not found at {app}")
@@ -41,7 +41,7 @@ def main():
 
 
 def setup():
-    """Run once after install to download models and create config.yml."""
+    """First-time setup: checks dependencies, copies data files, downloads AiZ models, writes config.yml."""
     print("\n" + "=" * 62)
     print("  Path Finder - Setup Wizard  v1.0.1")
     print("  Yara Chahda - Corentin Portmann - Ines Ouchen - EPFL 2025")
@@ -196,6 +196,7 @@ def setup():
 
 
 def _write_config_from_template(pkg: Path, output: Path, aiz_dir: Path) -> None:
+    """Writes config.yml from the bundled template, substituting the actual aizynthfinder model path."""
     template = pkg / "data" / "config_template.yml"
     content  = template.read_text() if template.exists() else _fallback_template()
     content  = content.replace(
@@ -207,6 +208,7 @@ def _write_config_from_template(pkg: Path, output: Path, aiz_dir: Path) -> None:
 
 
 def _fallback_template() -> str:
+    """Minimal config.yml content used when the bundled template file is missing."""
     return """\
 expansion:
   uspto:

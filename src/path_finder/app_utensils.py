@@ -1,7 +1,6 @@
 # app_utensils.py
-# UI helper functions for the Path Finder app.
-# All rendering, chart creation, HTML builders, and cached loaders live here
-# so that app.py stays readable. Imported directly by app.py.
+# UI helpers: HTML builders, charts, cached loaders.
+# Keeps app.py thin — everything rendering-related lives here
 
 import re
 import json
@@ -32,10 +31,7 @@ except Exception:
     rt   = None
     Chem = None
 
-
-
-# CSS injected inside isolated st.html() / components.html() frames.
-# Scoped to avoid leaking into the Streamlit global stylesheet.
+# CSS for isolated st.html() frames — scoped so it doesn't bleed into Streamlit's own styles
 
 COMPONENT_STYLE = """
 <style>
@@ -132,7 +128,7 @@ CRITERIA_SCORE_DESC = {
     },
 }
 
-# Emoji regex — compiled once at module level
+# compiled once — matplotlib can't render emoji so we strip them before any chart call
 _EMOJI_RE = re.compile(
     "["
     "\U0001F300-\U0001F9FF"
@@ -146,20 +142,7 @@ _EMOJI_RE = re.compile(
 )
 
 def load_banner(path: str) -> str:
-    """
-    Load a local image file and return a base-64 data URI for HTML embedding.
-
-    Parameters
-    ----------
-    path : str
-        Filesystem path to the image (PNG, JPG, SVG, …).
-
-    Returns
-    -------
-    str
-        A ``data:<mime>;base64,<data>`` URI, or an empty string if the file
-        does not exist.
-    """
+    """Reads a local image and returns a base64 data URI for HTML embedding. Returns "" if missing."""
     p = Path(path)
     if not p.exists():
         return ""
@@ -169,26 +152,7 @@ def load_banner(path: str) -> str:
     return f"data:{mime};base64,{data}"
 
 def hires_fig(*args, dpi: int = 180, **kwargs):
-    """
-    Create a high-resolution matplotlib figure with the app background colour.
-
-    Drop-in replacement for ``plt.subplots()``. Sets the figure and all axes
-    facecolour to ``FIG_BG`` so charts blend with the page without a white box.
-
-    Parameters
-    ----------
-    args : positional
-        Forwarded to ``plt.subplots()``.
-    dpi : int, optional
-        Dots per inch for the figure (default 180).
-    kwargs : keyword
-        Forwarded to ``plt.subplots()``.
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-    ax : matplotlib.axes.Axes or ndarray of Axes
-    """
+    """plt.subplots() wrapper that sets the background to FIG_BG so charts blend with the page."""
     fig, ax = plt.subplots(*args, dpi=dpi, **kwargs)
     fig.patch.set_facecolor(FIG_BG)
     if hasattr(ax, "__iter__"):
@@ -199,21 +163,7 @@ def hires_fig(*args, dpi: int = 180, **kwargs):
     return fig, ax
 
 def strip_emoji(text: str) -> str:
-    """
-    Remove all Unicode emoji characters from a string.
-
-    Matplotlib can't render emoji so we strip them before any chart call.
-
-    Parameters
-    ----------
-    text : str
-        Input string, possibly containing emoji.
-
-    Returns
-    -------
-    str
-        *text* with all emoji removed and leading/trailing whitespace stripped.
-    """
+    """Strips emoji from text and trims whitespace — matplotlib chokes on Unicode emoji."""
     return _EMOJI_RE.sub("", text).strip()
 
 def is_purification_step(step: dict) -> bool:
@@ -240,42 +190,9 @@ def build_clickable_scheme_html(
     is_predicted: bool = False,
 ) -> str: # layout sizes — tweak these to resize without touching the HTML / MOL_W, MOL_H = 158, 112
     """
-    Build the interactive HTML reaction scheme used in Route Search and Analysis.
-
-    Each molecule in the synthetic sequence is rendered as a double-resolution
-    Cairo PNG image.  Clicking any reaction arrow opens an inline detail panel
-    showing conditions, yield, reactant/product structures, and copyable SMILES.
-    Clicking the same arrow again collapses the panel.
-
-    Purification step handling
-    --------------------------
-    When ``is_purification_step()`` returns ``True`` for a step, the product
-    molecule is always added to the display sequence — even if its SMILES is
-    identical to the preceding molecule (standard steps skip duplicates).
-    The arrow is drawn with a dashed brown style and labelled
-    "Purification / Isolation".
-
-    Co-reactant rendering
-    ---------------------
-    Reactants that are not the substrate are rendered as small structure images
-    above the arrow.  Trivial species (single atoms, ions) are shown as text
-    labels below the arrow instead.
-
-    Parameters
-    ----------
-    steps_data : list
-        ``route["dataset_steps"]`` — list of step dicts.
-    route_id : str
-        Unique string identifier used as a prefix for all DOM element IDs.
-    is_predicted : bool, optional
-        If ``True``, arrows and detail panels use orange colouring to
-        distinguish predicted routes from validated ones (default ``False``).
-
-    Returns
-    -------
-    str
-        A complete, self-contained HTML document ready for
-        ``components.html()``.
+    Builds the interactive reaction scheme HTML. Each arrow is clickable and
+    opens a panel with conditions, yield, and copyable SMILES. Predicted routes
+    use orange colouring; purification steps get a dashed brown arrow.
     """
     if not steps_data:
         return "<p style='color:#888'>No steps.</p>"
@@ -608,32 +525,7 @@ def build_score_table_html(
     weights: dict,
     lang: str = "en",
 ) -> str:
-    """
-    Render the per-criterion score breakdown table for a route card.
-
-    Each row displays: criterion name, raw score 0–1 with a hoverable
-    tooltip explaining the formula, the criterion weight, and the weighted
-    contribution to the total score.  For predicted routes the yield row
-    shows "excluded (predicted route)" instead of a numeric score.
-
-    Parameters
-    ----------
-    details : dict
-        Per-criterion detail dicts from ``rank_weighted()`` with keys
-        ``raw``, ``weight``, ``weighted``, and optionally ``excluded``.
-    criteria : list of str
-        Three criterion keys in descending priority order.
-    weights : dict
-        ``{criterion_key: float}`` from ``rt.compute_weights()``.
-    lang : str, optional
-        Language code ``"en"`` or ``"fr"`` (default ``"en"``).
-
-    Returns
-    -------
-    str
-        HTML string that includes ``COMPONENT_STYLE``; safe to pass to
-        ``st.html()``.
-    """
+    """Renders the score breakdown table for a route card (raw score, weight, contribution per criterion)."""
     T   = LANG[lang]
     CL  = CRITERIA_LABELS[lang]
     csd = CRITERIA_SCORE_DESC.get(lang, CRITERIA_SCORE_DESC["en"])
@@ -673,26 +565,7 @@ def build_score_table_html(
     )
 
 def make_ranking_chart(results: list, target_name: str, lang: str = "en"):
-    """
-    Render a horizontal bar chart ranking routes by total score.
-
-    Displayed above the route cards whenever more than one route is found
-    in a given category.  Score values are annotated directly on each bar.
-
-    Parameters
-    ----------
-    results : list
-        List of ``(score, details, route)`` tuples from ``rank_weighted()``.
-    target_name : str
-        Target molecule name — used as the chart title suffix.
-    lang : str, optional
-        Language code for axis / title strings (default ``"en"``).
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-        Caller is responsible for calling ``plt.close(fig)``.
-    """
+    """Horizontal bar chart ranking routes by score. Shown above the route cards when more than one route exists."""
     T      = LANG[lang]
     labels = [r[2].get("matched_route_name", f"Route {i+1}")[:32]
               for i, r in enumerate(results)]
@@ -719,26 +592,7 @@ def make_ranking_chart(results: list, target_name: str, lang: str = "en"):
     return fig
 
 def make_yield_chart(steps_route: list, lang: str = "en"):
-    """
-    Render a bar chart of reported step yields for a single route.
-
-    Used in the Dataset Explorer route detail view.  Steps without a reported
-    yield are omitted from the chart entirely (no bar, no implied 0 %).
-    Yield labels use integer format; change ``":.0f"`` to ``":.1f"`` for one
-    decimal place.
-
-    Parameters
-    ----------
-    steps_route : list
-        List of step dicts from ``dataset["by_route"][route_id]``.
-    lang : str, optional
-        Language code for axis labels (default ``"en"``).
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-        Caller is responsible for calling ``plt.close(fig)``.
-    """
+    """Bar chart of reported step yields. Steps without a yield are simply omitted — no implied 0%."""
     T  = LANG[lang]
     n  = len(steps_route)
     reported_vals  = []
@@ -771,28 +625,7 @@ def make_yield_chart(steps_route: list, lang: str = "en"):
     return fig
 
 def make_comparison_chart(sel_results: list, criteria: list, lang: str = "en"):
-    """
-    Render a grouped horizontal bar chart comparing raw criterion scores.
-
-    Each route is plotted in a distinct colour from ``PALETTE``; each row
-    corresponds to one criterion.  Score values are annotated at the end of
-    each bar.  Used in the Analysis tab for side-by-side route comparison.
-
-    Parameters
-    ----------
-    sel_results : list
-        Subset of ``(score, details, route)`` tuples selected by the user
-        in the Analysis tab multiselect.
-    criteria : list of str
-        Three criterion keys in priority order.
-    lang : str, optional
-        Language code for axis and title labels (default ``"en"``).
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-        Caller is responsible for calling ``plt.close(fig)``.
-    """
+    """Grouped horizontal bar chart for side-by-side criterion score comparison in the Analysis tab."""
     T           = LANG[lang]
     CL          = CRITERIA_LABELS[lang]
     route_names = [r[2].get("matched_route_name", f"R{i+1}")[:20]
@@ -836,35 +669,7 @@ def build_why_ranked_html(
     steps_data: list,
     lang: str = "en",
 ) -> str:
-    """
-    Build the "Why is this route ranked #N?" reasoning box.
-
-    Generates one plain-language bullet per top-2 criterion using domain-relevant
-    values (step count, bottleneck yield, atom economy score, etc.) rather than
-    raw numeric scores.  Always produces at least one bullet.
-
-    Parameters
-    ----------
-    rank : int
-        1-based rank of the route within its category.
-    score_total : float
-        Total weighted score.
-    details : dict
-        Per-criterion detail dicts from ``rank_weighted()``.
-    criteria : list of str
-        Three criterion keys in descending priority order.
-    weights : dict
-        ``{criterion_key: float}`` from ``fi.compute_weights()``.
-    steps_data : list
-        ``route["dataset_steps"]`` used to compute yield statistics.
-    lang : str, optional
-        Language code ``"en"`` or ``"fr"`` (default ``"en"``).
-
-    Returns
-    -------
-    str
-        HTML string that includes ``COMPONENT_STYLE``; safe for ``st.html()``.
-    """
+    """Builds the 'Why is this route ranked #N?' box with one plain-language bullet per top-2 criterion."""
     T   = LANG[lang]
     CL  = CRITERIA_LABELS[lang]
     bn  = rt.bottleneck_yield(steps_data)
@@ -905,26 +710,7 @@ def build_why_ranked_html(
     )
 
 def smiles_copy_widget(smiles: str, label: str = "") -> None:
-    """
-    Render a compact SMILES display widget with a clipboard Copy button.
-
-    Displayed beneath each reactant and product molecule image in the Dataset
-    Explorer step-by-step view, allowing the chemist to copy any SMILES string
-    without manually transcribing it.
-
-    Parameters
-    ----------
-    smiles : str
-        SMILES string to display and make copyable via the browser clipboard.
-    label : str, optional
-        Reserved for future use (currently unused).
-
-    Returns
-    -------
-    None
-        Renders directly into the current Streamlit column via
-        ``components.html()``.
-    """
+    """Renders a compact SMILES label with a one-click Copy button using the browser clipboard API."""
     short = smiles[:38] + ("…" if len(smiles) > 38 else "")
     safe  = smiles.replace("`", "\\`").replace("\\", "\\\\")
     html_snip = (
@@ -960,46 +746,9 @@ def display_route_card(
     lang: str = "en",
 ) -> None:
     """
-    Render a complete route card inside a Streamlit expander.
-
-    The card contains (top to bottom):
-
-    1. Validation status banner (success / info / warning).
-    2. Four metric columns: total score, step count, bottleneck yield, avg yield.
-    3. Score breakdown table (``build_score_table_html``).
-    4. Why-ranked reasoning box (``build_why_ranked_html``).
-    5. PDF download button (``build_route_report_pdf``).
-    6. Horizontal rule followed by the interactive reaction scheme
-       (``build_clickable_scheme_html`` inside ``components.html``).
-    7. Substances-needed expander with molecule thumbnails, solvents, reagents.
-
-    The expander is expanded by default only for the first (rank 1) route.
-
-    Parameters
-    ----------
-    score_total : float
-        Total weighted score of the route.
-    details : dict
-        Per-criterion detail dicts from ``rank_weighted()``.
-    route : dict
-        Enriched route dict (output of the matching / enrichment pipeline).
-    criteria : list of str
-        Three criterion keys in priority order.
-    weights : dict
-        ``{criterion_key: float}`` from ``fi.compute_weights()``.
-    all_results : list
-        Full ranked result list for the category (reserved for future use).
-    rank : int, optional
-        1-based rank within the category (default 1).
-    badge : str, optional
-        Emoji + label shown in the expander header (default ``"📚 dataset"``).
-    lang : str, optional
-        Language code ``"en"`` or ``"fr"`` (default ``"en"``).
-
-    Returns
-    -------
-    None
-        Renders directly into the current Streamlit context.
+    Renders a full route card in a Streamlit expander: status banner, metrics,
+    score table, why-ranked box, PDF download, reaction scheme, substances list.
+    Expanded by default only for rank 1.
     """
     T          = LANG[lang]
     route_name = route.get("matched_route_name", "?")
@@ -1020,7 +769,6 @@ def display_route_card(
         f"{medal}  [{badge}]  {route_name}  ·  {tgt}  ·  Score: **{score_total:.3f}**",
         expanded=(rank == 1),
     ):
-        # Status banner
         if status == "validated":
             st.success("✅ Fully validated — all steps found in generic dataset (real conditions).")
         elif status == "partial" and v > 0:
@@ -1034,7 +782,6 @@ def display_route_card(
                 "Le rendement est exclu du score."
             )
 
-        # Metrics
         m1, m2, m3, m4 = st.columns(4)
         m1.metric(T["metric_score"],     f"{score_total:.3f}", help=T["metric_score_help"])
         m2.metric(T["metric_steps"],     n_steps)
@@ -1042,15 +789,12 @@ def display_route_card(
                   f"{bn:.1f}%" if bn is not None else "—", help=T["metric_bn_help"])
         m4.metric(T["metric_avg"],       f"{av:.1f}%" if av is not None else "—")
 
-        # Score table
         st.markdown(f"**{T['contrib_title']}**")
         st.html(build_score_table_html(details, criteria, weights, lang))
 
-        # Why ranked
         st.markdown(f"**{T['why_best_title'].format(r=rank)}**")
         st.html(build_why_ranked_html(rank, score_total, details, criteria, weights, steps_data, lang))
 
-        # PDF download
         dl_name = "".join(c for c in route_name if c.isalnum() or c in " _-")[:40].strip()
         dl_col, _ = st.columns([1, 3])
         with dl_col:
@@ -1096,42 +840,10 @@ def display_route_card(
 
 @st.cache_data(show_spinner=False)
 def load_dataset_cached(path: str) -> dict:
-    """
-    Streamlit-cached wrapper around ``rt.load_reaction_dataset()``.
-
-    Prevents reloading the JSON dataset on every widget interaction during the
-    same session.  The cache is keyed by *path* so changing the sidebar input
-    automatically triggers a fresh load.
-
-    Parameters
-    ----------
-    path : str
-        Filesystem path to ``reaction_dataset.json``.
-
-    Returns
-    -------
-    dict
-        As returned by ``rt.load_reaction_dataset()`` — keys ``all``,
-        ``by_product``, ``by_reactant``, ``by_route``, ``metadata``.
-    """
+    """Cached wrapper around rt.load_reaction_dataset() — avoids reloading on every widget interaction."""
     return rt.load_reaction_dataset(path)
 
 @st.cache_data(show_spinner=False)
 def get_targets_cached(path: str) -> dict:
-    """
-    Streamlit-cached wrapper returning the ``{target_name: SMILES}`` mapping.
-
-    Used to populate the predefined molecule selector in the Route Search tab.
-    Caching avoids iterating over all route steps on every widget interaction.
-
-    Parameters
-    ----------
-    path : str
-        Filesystem path to ``reaction_dataset.json``.
-
-    Returns
-    -------
-    dict
-        ``{target_name: canonical_SMILES}`` for all targets in the dataset.
-    """
+    """Cached {target_name: SMILES} mapping for the molecule selector in the Route Search tab."""
     return rt.get_targets_from_dataset(load_dataset_cached(path))

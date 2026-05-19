@@ -1,4 +1,5 @@
-# report_builder.py — PDF generation
+# report_builder.py
+# Generates the A4 PDF report for a single synthesis route.
 
 try:
     from rdkit import Chem
@@ -13,40 +14,16 @@ import route_engine as rt
 def build_route_report_pdf(score_total: float, details: dict, route: dict,
                             criteria: list) -> bytes:
     """
-    Generate a multi-page A4 PDF report for a single synthesis route using PIL.
-
-    Page 1 contains a summary header, metric cards, score breakdown table,
-    and starting-material structure images with full SMILES labels.
-    Pages 2 onwards contain up to 3 reaction steps per page, each showing
-    a coloured header band, a conditions bar, and molecule images arranged
-    as reactants → arrow → product, centred horizontally.
-
-    Molecule rendering uses Cairo at 3× display size with ``bondLineWidth=6``,
-    then Lanczos-downsampled to display size for thick, crisp bonds.
-    Nothing is ever truncated — SMILES and reaction types are word-wrapped
-    across multiple lines so the full string is always visible.
-
-    Parameters
-    ----------
-    score_total : float
-        Total weighted score of the route.
-    details : dict
-        Per-criterion detail dicts from ``rank_weighted()``, with keys
-        ``raw``, ``weight``, ``weighted``, and optionally ``excluded``.
-    route : dict
-        Enriched route dict; must contain a ``dataset_steps`` key.
-    criteria : list of str
-        Three criterion keys in descending priority order.
-
-    Returns
-    -------
-    bytes
-        Raw PDF content ready to pass to ``st.download_button()``.
+    Generates a multi-page A4 PDF for one synthesis route.
+    Page 1: summary header, metric cards, score table, starting material structures.
+    Pages 2+: up to 3 reaction steps per page with conditions and molecule images.
+    Returns raw PDF bytes ready for st.download_button().
     """
     from PIL import Image as _PI, ImageDraw as _PID, ImageFont as _PIF
     import io as _io
 
-    #  Page geometry (A4 at 200 DPI) ─
+    # A4 at 200 DPI — sharp bond lines without PIL grinding.
+    # 0.55" margins match standard lab report formatting.
     DPI = 200
     PW  = int(8.27  * DPI)   # 1654 px
     PH  = int(11.69 * DPI)   # 2338 px

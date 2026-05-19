@@ -1,22 +1,11 @@
 # app.py
-# Path Finder — Streamlit application entry point.
-# This file contains only Streamlit layout and UI logic.
-# All functions (rendering, chart creation, HTML builders, cached loaders)
-# are imported from app_utensils.py.
-# Companion modules (same directory):
-#   app_utensils.py      — all 14 UI helper functions
-#   localization.py      — LANG dict, CRITERIA_LABELS, PALETTE, FIG_BG
-#   molecule_rendering.py — mol_png, mol_b64_or_text_svg, …
-#   report_builder.py    — build_route_report_pdf
-# Backend module (project root or PYTHONPATH):
-#   route_engine.py      — dataset loading, AiZynthFinder, scoring
-# Run:
-#   streamlit run app.py
+# Streamlit UI for Path Finder. Layout and event handling only — all rendering logic lives in app_utensils.py.
+# Run: streamlit run app.py
 
 import os
 import sys
 
-# Ensure sibling modules are importable regardless of launch directory
+# needed when launched from a different working directory
 sys.path.insert(0, os.path.dirname(__file__))
 
 import streamlit as st
@@ -25,7 +14,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Local modules
 from localization import LANG, CRITERIA_LABELS, PALETTE, FIG_BG
 from molecule_rendering import mol_png, MODULE_OK
 from app_utensils import (
@@ -45,7 +33,6 @@ from app_utensils import (
     get_targets_cached,
 )
 
-# Backend imports
 try:
     import route_engine as rt
     from rdkit import Chem
@@ -61,7 +48,7 @@ try:
 except ImportError:
     RXNINSIGHT_OK = False
 
-# Page configuration — must be the very first Streamlit call
+# must be the first Streamlit call
 st.set_page_config(
     page_title="Retrosynthesis — Chemistry by Design",
     page_icon="⚗️",
@@ -69,7 +56,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Global CSS — typography, metric cards, expanders, buttons
+# typography, metric cards, expanders, buttons
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
@@ -93,14 +80,8 @@ div[data-testid="stExpander"] { border: 1px solid #dce3ec; border-radius: 12px; 
 </style>
 """, unsafe_allow_html=True)
 
-# Main application
 def main() -> None:
-    """
-    Main function for the Path Finder Streamlit app.
-    Builds the UI across four tabs: Route Search, Analysis, Dataset Explorer, Help.
-    Helper functions are all in app_utensils.py.
-    """
-    # Optional banner image
+    """Four-tab UI: Route Search, Analysis, Dataset Explorer, Help."""
     banner_uri = load_banner("../../assets/banner.png")
     if banner_uri:
         st.markdown(
@@ -110,7 +91,6 @@ def main() -> None:
             unsafe_allow_html=True,
         )
 
-    # Language selector (sidebar)
     with st.sidebar:
         lang_choice = st.radio(
             "🌐 Language / Langue",
@@ -122,7 +102,6 @@ def main() -> None:
     T    = LANG[lang]
     CL   = CRITERIA_LABELS[lang]
 
-    # Sidebar — file paths and search parameters
     with st.sidebar:
         st.title(T["sidebar_title"])
         if not MODULE_OK:
@@ -173,7 +152,6 @@ def main() -> None:
         T["tab_search"], T["tab_analysis"], T["tab_dataset"], T["tab_help"],
     ])
 
-    # ROUTE SEARCH    
     with tab_search:
         top_left, top_right = st.columns([3, 2])
 
@@ -240,7 +218,6 @@ def main() -> None:
 
         st.divider()
 
-        # Run search
         if run_search and target_smiles:
             errs = []
             if not os.path.exists(dataset_path): errs.append(f"`{dataset_path}`")
@@ -285,7 +262,6 @@ def main() -> None:
                     except Exception as e:
                         status.update(label=T["err_other"], state="error"); st.exception(e)
 
-        # Display cached results
         results_raw = st.session_state.get("results",   None)
         weights     = st.session_state.get("weights",   {})
         criteria    = st.session_state.get("criteria",  criteria)
@@ -306,7 +282,6 @@ def main() -> None:
 
                 tgt_name = st.session_state.get("target_name", target_name)
 
-                # Dataset section
                 st.markdown(T["sec_dataset"])
                 st.caption(T["cap_dataset"])
                 if not scored_dataset:
@@ -321,7 +296,6 @@ def main() -> None:
                         display_route_card(score_total, details, route, criteria, weights,
                                            scored_dataset, rank, T["badge_dataset"], lang)
 
-                # Validated section
                 if scored_validated:
                     st.markdown("---")
                     st.markdown(T["sec_validated"])
@@ -333,7 +307,6 @@ def main() -> None:
                         display_route_card(score_total, details, route, criteria, weights,
                                            scored_validated, rank, T["badge_validated"], lang)
 
-                # Predicted section
                 if include_predicted and RXNINSIGHT_OK and scored_predicted:
                     st.markdown("---")
                     st.markdown(T["sec_predicted"])
@@ -388,7 +361,7 @@ def main() -> None:
                         display_route_card(score_total, details, route, criteria, weights,
                                            filtered, rank, T["badge_predicted"], lang)
 
-    # ANALYSIS    
+    # ANALYSIS tab
     with tab_analysis:
         results_raw = st.session_state.get("results",   None)
         criteria    = st.session_state.get("criteria",  list(CL.keys())[:3])
@@ -741,6 +714,6 @@ et un badge "Purification", même si aucune liaison n'est formée.
     st.markdown("---")
     st.caption(T["footer"])
 
-# Entry point
+
 if __name__ == "__main__":
     main()

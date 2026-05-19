@@ -237,11 +237,7 @@ LANG = {
 }
 
 
-# Per-criterion display labels
-
-# Each criterion key maps to its emoji-prefixed display label.
-# These labels appear in: sidebar weight bars, score tables, chart axes,
-# the Analysis tab comparison dataframe, and the criteria selectboxes.
+# display labels for criteria — used in charts, tables, selectboxes
 CRITERIA_LABELS = {
     "en": {
         "steps": "Steps",
@@ -259,10 +255,8 @@ CRITERIA_LABELS = {
     },
 }
 
-# Chart and figure constants
-# bar chart colors — starts dark, goes lighter
+# bar chart palette — dark to light
 PALETTE = ["#1a2e44", "#2d5986", "#4a86c8", "#6aabd2", "#9fc8e0"]
 
-# Background colour applied to all matplotlib figures and PIL fallback images.
-# Matches the Streamlit page background to avoid jarring white boxes in charts.
+# matches the Streamlit page background so charts don't have a white box
 FIG_BG = "#f9fbfd"

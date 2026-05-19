@@ -1,12 +1,10 @@
 # molecule_rendering.py
-# RDKit rendering helpers — PNG and base64 for the app
+# RDKit → PNG/base64 for the app. If RDKit is missing every function
+# returns None or a placeholder so the app can still start.
 
 import io
 import base64
 
-# RDKit imports with graceful degradation
-# If RDKit is unavailable all functions return None / a tiny placeholder URI
-# so the app can still start and show error messages rather than crashing.
 try:
     from rdkit import Chem
     from rdkit.Chem import Draw, rdDepictor
@@ -17,16 +15,14 @@ except Exception:
 
 # Public rendering functions
 def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
-    """
-    Return a PNG image of the molecule for display in the route scheme.
-    """
+    """PNG bytes of the molecule, or None if the SMILES is invalid."""
     if not MODULE_OK or not smiles:
         return None
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         return None
     try:
-        # 8x upscale — crisp on HiDPI
+        # 8× so it stays sharp on HiDPI screens; CSS handles the display size
         drawer = rdMolDraw2D.MolDraw2DCairo(w * 8, h * 8)
         opts = drawer.drawOptions()
         opts.addStereoAnnotation = True
@@ -44,9 +40,7 @@ def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
 
 
 def mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
-    """
-    Return a data URI of the molecule image for display in the route scheme.
-    """
+    """Data URI (PNG base64) of the molecule, or a text placeholder if invalid."""
     if not smiles or not MODULE_OK:
         return fallback_data_uri(smiles or "?", w, h)
     mol = Chem.MolFromSmiles(smiles)
@@ -55,7 +49,7 @@ def mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
     try:
         from PIL import Image as _PI
         import io as _io
-        # skip 2D coords for single atoms, they cause rdkit errors
+        # single atoms crash rdDepictor, skip them
         if mol.GetNumAtoms() > 1:
             rdDepictor.Compute2DCoords(mol)
         # 8x upscale — crisp on HiDPI
@@ -66,9 +60,7 @@ def mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
         drawer.DrawMolecule(mol)
         drawer.FinishDrawing()
         data = drawer.GetDrawingText()
-        # keep 8x resolution, CSS width handles display size
-        # so the browser displays at the correct size while retaining full
-        # resolution for popup zoom.
+        # full 8× resolution in the file; CSS width controls display size
         buf = _io.BytesIO(data)
         b64 = base64.b64encode(buf.getvalue()).decode()
         return "data:image/png;base64," + b64
@@ -77,9 +69,7 @@ def mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
 
 
 def fallback_data_uri(text: str, w: int, h: int) -> str:
-    """
-    Return a data URI of a placeholder image with the given text.
-    """
+    """PNG placeholder with the given text. Falls back to a 1×1 transparent PNG if PIL is also missing."""
     try:
         from PIL import Image as _PI, ImageDraw as _PID
         import io as _io
@@ -106,20 +96,7 @@ def fallback_data_uri(text: str, w: int, h: int) -> str:
 
 
 def is_trivial_smiles(smiles: str) -> bool:
-    """
-    Return True if the SMILES is too small to render as a structure image
-    (single atoms, ions, salts with ≤2 heavy atoms per fragment).
-
-    Parameters
-    ----------
-    smiles : str
-        SMILES to check.
-
-    Returns
-    -------
-    bool
-        True if every fragment has 2 or fewer heavy atoms.
-    """
+    """True if every fragment has <=2 heavy atoms (single atoms, ions, diatomics)."""
     if not smiles or not MODULE_OK:
         return True
     mol = Chem.MolFromSmiles(smiles)
