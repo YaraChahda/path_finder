@@ -256,4 +256,8 @@ dependencies:
       - wrapt-timeout-decorator==1.5.1
       - xxhash==3.6.0
       - zipp==3.23.1
+      - furo
+      - myst-parser
+      - sphinx-copybutton
+      - genbadge[coverage]
 prefix: /opt/anaconda3/envs/aizynth-env

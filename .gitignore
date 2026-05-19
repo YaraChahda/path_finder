@@ -255,4 +255,4 @@ echo "*.pyc" >> .gitignore
 
 echo "dist/" >> .gitignore
 
-echo "*.egg-info/" >> .gitignore
+echo "*.egg-info/" >> .gitignoredocs/docs_out/

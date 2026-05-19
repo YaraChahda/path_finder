@@ -172,23 +172,22 @@ def hires_fig(*args, dpi: int = 180, **kwargs):
     """
     Create a high-resolution matplotlib figure with the app background colour.
 
-    Drop-in replacement for ``plt.subplots()``.  Sets the figure and all axes
+    Drop-in replacement for ``plt.subplots()``. Sets the figure and all axes
     facecolour to ``FIG_BG`` so charts blend with the page without a white box.
 
     Parameters
     ----------
-    *args : positional
+    args : positional
         Forwarded to ``plt.subplots()``.
     dpi : int, optional
         Dots per inch for the figure (default 180).
-    **kwargs : keyword
+    kwargs : keyword
         Forwarded to ``plt.subplots()``.
 
     Returns
     -------
     fig : matplotlib.figure.Figure
-    ax  : matplotlib.axes.Axes or ndarray of Axes
-        Same return signature as ``plt.subplots()``.
+    ax : matplotlib.axes.Axes or ndarray of Axes
     """
     fig, ax = plt.subplots(*args, dpi=dpi, **kwargs)
     fig.patch.set_facecolor(FIG_BG)
