@@ -1,11 +1,7 @@
 # app_utensils.py
-# =============================================================================
-# Helper functions for the Path Finder Streamlit application.
-#
-# All rendering, HTML-building, chart creation, and cached data-loading
-# functions are defined here so that app.py stays thin and readable.
-# The functions in this file are imported and used by app.py to build the UI.
-# =============================================================================
+# UI helper functions for the Path Finder app.
+# All rendering, chart creation, HTML builders, and cached loaders live here
+# so that app.py stays readable. Imported directly by app.py.
 
 import re
 import json
@@ -37,10 +33,10 @@ except Exception:
     Chem = None
 
 
-# =============================================================================
+
 # CSS injected inside isolated st.html() / components.html() frames.
 # Scoped to avoid leaking into the Streamlit global stylesheet.
-# =============================================================================
+
 COMPONENT_STYLE = """
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
@@ -152,9 +148,9 @@ _EMOJI_RE = re.compile(
 )
 
 
-# =============================================================================
+
 # 1. load_banner
-# =============================================================================
+
 def load_banner(path: str) -> str:
     """
     Load a local image file and return a base-64 data URI for HTML embedding.
@@ -179,9 +175,9 @@ def load_banner(path: str) -> str:
     return f"data:{mime};base64,{data}"
 
 
-# =============================================================================
+
 # 2. hires_fig
-# =============================================================================
+
 def hires_fig(*args, dpi: int = 180, **kwargs):
     """
     Create a high-resolution matplotlib figure with the app background colour.
@@ -214,16 +210,14 @@ def hires_fig(*args, dpi: int = 180, **kwargs):
     return fig, ax
 
 
-# =============================================================================
+
 # 3. strip_emoji
-# =============================================================================
+
 def strip_emoji(text: str) -> str:
     """
     Remove all Unicode emoji characters from a string.
 
-    matplotlib cannot render emoji glyphs (raises a UserWarning) so any label
-    string that may contain emoji — criterion labels, axis titles, legend
-    entries — must be cleaned before being passed to a matplotlib method.
+    Matplotlib can't render emoji so we strip them before any chart call.
 
     Parameters
     ----------
@@ -238,36 +232,11 @@ def strip_emoji(text: str) -> str:
     return _EMOJI_RE.sub("", text).strip()
 
 
-# =============================================================================
+
 # 4. is_purification_step
-# =============================================================================
+
 def is_purification_step(step: dict) -> bool:
-    """
-    Determine whether a reaction step is a purification or isolation step.
-
-    A step is classified as a purification step when **any** of the following
-    conditions holds:
-
-    - ``reaction_type`` contains one of the keywords ``purif``, ``recryst``,
-      ``chroma``, ``isolation``, or ``workup`` (case-insensitive).
-    - The product SMILES is canonically identical to one of the reactant SMILES
-      (identity transform — no bond-forming chemistry, i.e. a workup or
-      recrystallisation step recorded as a separate entry in the dataset).
-
-    Purification steps are always displayed in the reaction scheme with a brown
-    dashed arrow and a "Purification" badge, even when product == reactant,
-    so that the full recorded sequence of operations is preserved.
-
-    Parameters
-    ----------
-    step : dict
-        A step dict from ``route["dataset_steps"]``.
-
-    Returns
-    -------
-    bool
-        ``True`` if the step should be treated as a purification step.
-    """
+    """True if step is a purification/isolation (keyword or identity transform)."""
     rtype = (step.get("reaction_type") or "").lower()
     if any(kw in rtype for kw in ("purif", "recryst", "chroma", "isolation", "workup")):
         return True
@@ -285,14 +254,14 @@ def is_purification_step(step: dict) -> bool:
     return False
 
 
-# =============================================================================
+
 # 5. build_clickable_scheme_html
-# =============================================================================
+
 def build_clickable_scheme_html(
     steps_data: list,
     route_id: str,
     is_predicted: bool = False,
-) -> str:
+) -> str: # layout sizes — tweak these to resize without touching the HTML / MOL_W, MOL_H = 158, 112
     """
     Build the interactive HTML reaction scheme used in Route Search and Analysis.
 
@@ -314,17 +283,6 @@ def build_clickable_scheme_html(
     Reactants that are not the substrate are rendered as small structure images
     above the arrow.  Trivial species (single atoms, ions) are shown as text
     labels below the arrow instead.
-
-    Layout constants
-    ----------------
-    Edit the named constants at the top of the function body to resize the
-    scheme without touching any HTML strings:
-
-    - ``MOL_W``, ``MOL_H``   : main molecule image (CSS pixels; rendered at 2×)
-    - ``CO_W``,  ``CO_H``    : co-reactant image size
-    - ``SCHEME_H``            : height of the molecule band
-    - ``ARROW_SHAFT_W``       : pixel length of the horizontal arrow shaft
-    - ``ARROW_CELL_W``        : total min-width of the arrow cell
 
     Parameters
     ----------
@@ -350,7 +308,7 @@ def build_clickable_scheme_html(
     panel_bg    = "#FFF8F0" if is_predicted else "#F0F7FF"
     rid_js      = "".join(c for c in route_id if c.isalnum())
 
-    # ── Layout constants ────────────────────────────────────────────────────
+    #  Layout constants 
     MOL_W, MOL_H = 158, 112
     CO_W,  CO_H  = 96,  70
     CELL_W       = MOL_W + 20
@@ -380,7 +338,7 @@ def build_clickable_scheme_html(
     PAD_TOP      = display_rows * (CO_H + 2) + 50
     PAD_BOTTOM   = display_rows * (CO_H + 2) // 3 + 10
 
-    # ── Build molecule sequence and per-arrow metadata ───────────────────────
+    #  Build molecule sequence and per-arrow metadata 
     mol_sequence = []
     arrow_data   = []
 
@@ -459,7 +417,7 @@ def build_clickable_scheme_html(
             "is_purif": is_purif,
         })
 
-    # ── Pre-render molecule images ───────────────────────────────────────────
+    #  Pre-render molecule images 
     mol_imgs   = {s: _mol_b64_or_text_svg(s, MOL_W, MOL_H) for s in mol_sequence if s}
     co_imgs    = {}
     step_imgs  = {}
@@ -476,7 +434,7 @@ def build_clickable_scheme_html(
         }
     step_imgs_json = json.dumps(step_imgs)
 
-    # ── Assemble HTML items ──────────────────────────────────────────────────
+    #  Assemble HTML items 
     n_mols = len(mol_sequence)
     items  = []
     for idx, smi in enumerate(mol_sequence):
@@ -538,7 +496,7 @@ def build_clickable_scheme_html(
                 + below_html + '</div>'
             )
 
-    # ── CSS ──────────────────────────────────────────────────────────────────
+    # inline CSS for the reaction scheme iframe
     css = (
         "html,body{margin:0;padding:0;background:#fff;font-family:'DM Sans',Arial,sans-serif;}"
         "*{box-sizing:border-box}"
@@ -594,7 +552,7 @@ def build_clickable_scheme_html(
         ".copy-btn:hover{opacity:0.8}"
     )
 
-    # ── JavaScript ────────────────────────────────────────────────────────────
+    #  JavaScript 
     js = (
         "var __si=JSON.parse(document.getElementById('__si_" + route_id + "').textContent);"
         "function notifyResize(){"
@@ -668,9 +626,9 @@ def build_clickable_scheme_html(
     )
 
 
-# =============================================================================
+
 # 6. build_score_table_html
-# =============================================================================
+
 def build_score_table_html(
     details: dict,
     criteria: list,
@@ -742,9 +700,9 @@ def build_score_table_html(
     )
 
 
-# =============================================================================
+
 # 7. make_ranking_chart
-# =============================================================================
+
 def make_ranking_chart(results: list, target_name: str, lang: str = "en"):
     """
     Render a horizontal bar chart ranking routes by total score.
@@ -792,9 +750,9 @@ def make_ranking_chart(results: list, target_name: str, lang: str = "en"):
     return fig
 
 
-# =============================================================================
+
 # 8. make_yield_chart
-# =============================================================================
+
 def make_yield_chart(steps_route: list, lang: str = "en"):
     """
     Render a bar chart of reported step yields for a single route.
@@ -848,9 +806,9 @@ def make_yield_chart(steps_route: list, lang: str = "en"):
     return fig
 
 
-# =============================================================================
+
 # 9. make_comparison_chart
-# =============================================================================
+
 def make_comparison_chart(sel_results: list, criteria: list, lang: str = "en"):
     """
     Render a grouped horizontal bar chart comparing raw criterion scores.
@@ -909,9 +867,9 @@ def make_comparison_chart(sel_results: list, criteria: list, lang: str = "en"):
     return fig
 
 
-# =============================================================================
+
 # 10. build_why_ranked_html
-# =============================================================================
+
 def build_why_ranked_html(
     rank: int,
     score_total: float,
@@ -990,9 +948,9 @@ def build_why_ranked_html(
     )
 
 
-# =============================================================================
+
 # 11. smiles_copy_widget
-# =============================================================================
+
 def smiles_copy_widget(smiles: str, label: str = "") -> None:
     """
     Render a compact SMILES display widget with a clipboard Copy button.
@@ -1038,9 +996,9 @@ def smiles_copy_widget(smiles: str, label: str = "") -> None:
     components.html(html_snip, height=36, scrolling=False)
 
 
-# =============================================================================
+
 # 12. display_route_card
-# =============================================================================
+
 def display_route_card(
     score_total: float,
     details: dict,
@@ -1188,9 +1146,9 @@ def display_route_card(
                 st.write("  ·  ".join(sub["reagents"][:10]))
 
 
-# =============================================================================
+
 # 13. load_dataset_cached
-# =============================================================================
+
 @st.cache_data(show_spinner=False)
 def load_dataset_cached(path: str) -> dict:
     """
@@ -1214,9 +1172,9 @@ def load_dataset_cached(path: str) -> dict:
     return rt.load_reaction_dataset(path)
 
 
-# =============================================================================
+
 # 14. get_targets_cached
-# =============================================================================
+
 @st.cache_data(show_spinner=False)
 def get_targets_cached(path: str) -> dict:
     """
