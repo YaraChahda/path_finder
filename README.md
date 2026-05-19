@@ -1,5 +1,5 @@
 ![Project Logo](assets/banner.png)
-![Coverage Status](assets/coverage-badge.svg)
+![Coverage Status](assets/coverage-badge.svg?v=2)
 
 <h1 align="center">
 path_finder
