@@ -4,7 +4,7 @@
 import io
 import base64
 
-# -- RDKit imports with graceful degradation ----------------------------------
+# RDKit imports with graceful degradation
 # If RDKit is unavailable all functions return None / a tiny placeholder URI
 # so the app can still start and show error messages rather than crashing.
 try:
@@ -15,11 +15,7 @@ try:
 except Exception:
     MODULE_OK = False
 
-
-
 # Public rendering functions
-
-
 def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
     """
     Return a PNG image of the molecule for display in the route scheme.

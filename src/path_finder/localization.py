@@ -242,7 +242,6 @@ LANG = {
 # Each criterion key maps to its emoji-prefixed display label.
 # These labels appear in: sidebar weight bars, score tables, chart axes,
 # the Analysis tab comparison dataframe, and the criteria selectboxes.
-
 CRITERIA_LABELS = {
     "en": {
         "steps": "Steps",
@@ -260,10 +259,7 @@ CRITERIA_LABELS = {
     },
 }
 
-
 # Chart and figure constants
-
-
 # bar chart colors — starts dark, goes lighter
 PALETTE = ["#1a2e44", "#2d5986", "#4a86c8", "#6aabd2", "#9fc8e0"]
 

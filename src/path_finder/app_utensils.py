@@ -132,9 +132,7 @@ CRITERIA_SCORE_DESC = {
     },
 }
 
-# ---------------------------------------------------------------------------
 # Emoji regex — compiled once at module level
-# ---------------------------------------------------------------------------
 _EMOJI_RE = re.compile(
     "["
     "\U0001F300-\U0001F9FF"
@@ -146,10 +144,6 @@ _EMOJI_RE = re.compile(
     "]+",
     flags=re.UNICODE,
 )
-
-
-
-# 1. load_banner
 
 def load_banner(path: str) -> str:
     """
@@ -173,10 +167,6 @@ def load_banner(path: str) -> str:
     ext  = p.suffix.lstrip(".").lower()
     mime = "image/png" if ext == "png" else f"image/{ext}"
     return f"data:{mime};base64,{data}"
-
-
-
-# 2. hires_fig
 
 def hires_fig(*args, dpi: int = 180, **kwargs):
     """
@@ -209,10 +199,6 @@ def hires_fig(*args, dpi: int = 180, **kwargs):
         ax.set_facecolor(FIG_BG)
     return fig, ax
 
-
-
-# 3. strip_emoji
-
 def strip_emoji(text: str) -> str:
     """
     Remove all Unicode emoji characters from a string.
@@ -231,10 +217,6 @@ def strip_emoji(text: str) -> str:
     """
     return _EMOJI_RE.sub("", text).strip()
 
-
-
-# 4. is_purification_step
-
 def is_purification_step(step: dict) -> bool:
     """True if step is a purification/isolation (keyword or identity transform)."""
     rtype = (step.get("reaction_type") or "").lower()
@@ -252,10 +234,6 @@ def is_purification_step(step: dict) -> bool:
             if mol_r and Chem.MolToSmiles(mol_r) == canon_prod:
                 return True
     return False
-
-
-
-# 5. build_clickable_scheme_html
 
 def build_clickable_scheme_html(
     steps_data: list,
@@ -625,10 +603,6 @@ def build_clickable_scheme_html(
         '</body></html>'
     )
 
-
-
-# 6. build_score_table_html
-
 def build_score_table_html(
     details: dict,
     criteria: list,
@@ -699,10 +673,6 @@ def build_score_table_html(
         f"</table>"
     )
 
-
-
-# 7. make_ranking_chart
-
 def make_ranking_chart(results: list, target_name: str, lang: str = "en"):
     """
     Render a horizontal bar chart ranking routes by total score.
@@ -748,10 +718,6 @@ def make_ranking_chart(results: list, target_name: str, lang: str = "en"):
     ax.set_axisbelow(True)
     fig.tight_layout(pad=1.6)
     return fig
-
-
-
-# 8. make_yield_chart
 
 def make_yield_chart(steps_route: list, lang: str = "en"):
     """
@@ -804,10 +770,6 @@ def make_yield_chart(steps_route: list, lang: str = "en"):
     ax.tick_params(colors="#6b7a8d", length=0)
     fig.tight_layout(pad=1.2)
     return fig
-
-
-
-# 9. make_comparison_chart
 
 def make_comparison_chart(sel_results: list, criteria: list, lang: str = "en"):
     """
@@ -865,10 +827,6 @@ def make_comparison_chart(sel_results: list, criteria: list, lang: str = "en"):
     ax.set_axisbelow(True)
     fig.tight_layout(pad=1.4)
     return fig
-
-
-
-# 10. build_why_ranked_html
 
 def build_why_ranked_html(
     rank: int,
@@ -947,10 +905,6 @@ def build_why_ranked_html(
         "</div>"
     )
 
-
-
-# 11. smiles_copy_widget
-
 def smiles_copy_widget(smiles: str, label: str = "") -> None:
     """
     Render a compact SMILES display widget with a clipboard Copy button.
@@ -994,10 +948,6 @@ def smiles_copy_widget(smiles: str, label: str = "") -> None:
         "</div>"
     )
     components.html(html_snip, height=36, scrolling=False)
-
-
-
-# 12. display_route_card
 
 def display_route_card(
     score_total: float,
@@ -1145,10 +1095,6 @@ def display_route_card(
                 st.markdown("**🔬 Reagents**")
                 st.write("  ·  ".join(sub["reagents"][:10]))
 
-
-
-# 13. load_dataset_cached
-
 @st.cache_data(show_spinner=False)
 def load_dataset_cached(path: str) -> dict:
     """
@@ -1170,10 +1116,6 @@ def load_dataset_cached(path: str) -> dict:
         ``by_product``, ``by_reactant``, ``by_route``, ``metadata``.
     """
     return rt.load_reaction_dataset(path)
-
-
-
-# 14. get_targets_cached
 
 @st.cache_data(show_spinner=False)
 def get_targets_cached(path: str) -> dict:

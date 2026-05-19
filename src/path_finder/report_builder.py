@@ -10,7 +10,6 @@ except Exception:
 
 import route_engine as rt
 
-
 def build_route_report_pdf(score_total: float, details: dict, route: dict,
                             criteria: list) -> bytes:
     """
@@ -221,9 +220,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     pages = []
 
-    
-    # PAGE 1 — Summary
-    
+    # PAGE 1 — Summary    
     p1 = _PI.new("RGB", (PW, PH), BG)
     d1 = _PID.Draw(p1)
 
@@ -330,9 +327,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     pages.append(p1)
 
-    
     # PAGES 2+ — Step-by-step
-    
     def _render_step_at(draw, page, step, x0, y0, avail_w, avail_h):
         # Render a single reaction step within the given bounding box, with word-wrapped text and molecule images scaled to fit. Nothing is truncated — if text is too long, the header band and conditions bar grow vertically to accommodate it. The step header shows the step number and reaction type on the left, and yield (if available) on the right. The conditions bar lists temperature, solvent, and reagents if available. The molecule row shows up to 3 reactants (with "+" between them) → product, all centred horizontally, with full SMILES labels below.
         L = x0 + 6

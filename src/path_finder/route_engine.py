@@ -1,10 +1,8 @@
 # route_engine.py
 # Backend for the Path Finder retrosynthesis interface.
-#
 # Handles: dataset loading, SMILES canonicalisation, AiZynthFinder search,
 # Rxn-INSIGHT condition prediction, step validation against the generic dataset,
 # per-criterion scoring and weighted route ranking.
-#
 # Main entry point: find_best_routes()
 
 import json
@@ -23,11 +21,7 @@ try:
 except ImportError:
     RXNINSIGHT_AVAILABLE = False
 
-
-
 # Data loading
-
-
 def load_reaction_dataset(path: str) -> dict:
     """
     Load and index the main curated reaction dataset from a JSON file.
@@ -295,10 +289,7 @@ def load_generic_reaction_dataset(path: str) -> dict:
     }
 
 
-
 # SMILES utilities
-
-
 def to_canonical(smiles) -> str:
     """
     Convert a SMILES string to its canonical form using RDKit. Returns an empty
@@ -690,10 +681,7 @@ def is_route_covered_by_dataset(aiz_route: dict, dataset_smiles_index: set,
     return sum(1 for p in products if p in dataset_smiles_index) / len(products) >= threshold
 
 
-
 # Generic dataset step matching
-
-
 def match_step_in_generic_dataset(reactants: list, product: str, generic_ds: dict):
     """
     Search for a reaction step in the generic reactions dataset.
