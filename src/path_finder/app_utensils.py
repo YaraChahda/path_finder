@@ -236,32 +236,7 @@ def strip_emoji(text: str) -> str:
 # 4. is_purification_step
 
 def is_purification_step(step: dict) -> bool:
-    """
-    Determine whether a reaction step is a purification or isolation step.
-
-    A step is classified as a purification step when **any** of the following
-    conditions holds:
-
-    - ``reaction_type`` contains one of the keywords ``purif``, ``recryst``,
-      ``chroma``, ``isolation``, or ``workup`` (case-insensitive).
-    - The product SMILES is canonically identical to one of the reactant SMILES
-      (identity transform — no bond-forming chemistry, i.e. a workup or
-      recrystallisation step recorded as a separate entry in the dataset).
-
-    Purification steps are always displayed in the reaction scheme with a brown
-    dashed arrow and a "Purification" badge, even when product == reactant,
-    so that the full recorded sequence of operations is preserved.
-
-    Parameters
-    ----------
-    step : dict
-        A step dict from ``route["dataset_steps"]``.
-
-    Returns
-    -------
-    bool
-        ``True`` if the step should be treated as a purification step.
-    """
+    """True if step is a purification/isolation (keyword or identity transform)."""
     rtype = (step.get("reaction_type") or "").lower()
     if any(kw in rtype for kw in ("purif", "recryst", "chroma", "isolation", "workup")):
         return True
@@ -286,7 +261,7 @@ def build_clickable_scheme_html(
     steps_data: list,
     route_id: str,
     is_predicted: bool = False,
-) -> str:
+) -> str: # layout sizes — tweak these to resize without touching the HTML / MOL_W, MOL_H = 158, 112
     """
     Build the interactive HTML reaction scheme used in Route Search and Analysis.
 
@@ -308,17 +283,6 @@ def build_clickable_scheme_html(
     Reactants that are not the substrate are rendered as small structure images
     above the arrow.  Trivial species (single atoms, ions) are shown as text
     labels below the arrow instead.
-
-    Layout constants
-    ----------------
-    Edit the named constants at the top of the function body to resize the
-    scheme without touching any HTML strings:
-
-    - ``MOL_W``, ``MOL_H``   : main molecule image (CSS pixels; rendered at 2×)
-    - ``CO_W``,  ``CO_H``    : co-reactant image size
-    - ``SCHEME_H``            : height of the molecule band
-    - ``ARROW_SHAFT_W``       : pixel length of the horizontal arrow shaft
-    - ``ARROW_CELL_W``        : total min-width of the arrow cell
 
     Parameters
     ----------
@@ -344,7 +308,7 @@ def build_clickable_scheme_html(
     panel_bg    = "#FFF8F0" if is_predicted else "#F0F7FF"
     rid_js      = "".join(c for c in route_id if c.isalnum())
 
-    # ── Layout constants ────────────────────────────────────────────────────
+    #  Layout constants 
     MOL_W, MOL_H = 158, 112
     CO_W,  CO_H  = 96,  70
     CELL_W       = MOL_W + 20
@@ -374,7 +338,7 @@ def build_clickable_scheme_html(
     PAD_TOP      = display_rows * (CO_H + 2) + 50
     PAD_BOTTOM   = display_rows * (CO_H + 2) // 3 + 10
 
-    # ── Build molecule sequence and per-arrow metadata ───────────────────────
+    #  Build molecule sequence and per-arrow metadata 
     mol_sequence = []
     arrow_data   = []
 
@@ -453,7 +417,7 @@ def build_clickable_scheme_html(
             "is_purif": is_purif,
         })
 
-    # ── Pre-render molecule images ───────────────────────────────────────────
+    #  Pre-render molecule images 
     mol_imgs   = {s: _mol_b64_or_text_svg(s, MOL_W, MOL_H) for s in mol_sequence if s}
     co_imgs    = {}
     step_imgs  = {}
@@ -470,7 +434,7 @@ def build_clickable_scheme_html(
         }
     step_imgs_json = json.dumps(step_imgs)
 
-    # ── Assemble HTML items ──────────────────────────────────────────────────
+    #  Assemble HTML items 
     n_mols = len(mol_sequence)
     items  = []
     for idx, smi in enumerate(mol_sequence):
@@ -532,7 +496,7 @@ def build_clickable_scheme_html(
                 + below_html + '</div>'
             )
 
-    # ── CSS ──────────────────────────────────────────────────────────────────
+    # inline CSS for the reaction scheme iframe
     css = (
         "html,body{margin:0;padding:0;background:#fff;font-family:'DM Sans',Arial,sans-serif;}"
         "*{box-sizing:border-box}"
@@ -588,7 +552,7 @@ def build_clickable_scheme_html(
         ".copy-btn:hover{opacity:0.8}"
     )
 
-    # ── JavaScript ────────────────────────────────────────────────────────────
+    #  JavaScript 
     js = (
         "var __si=JSON.parse(document.getElementById('__si_" + route_id + "').textContent);"
         "function notifyResize(){"

@@ -41,10 +41,7 @@ def main():
 
 
 def setup():
-    """
-    First-time setup wizard (called by path-finder-setup).
-    Checks dependencies, copies bundled data, downloads AiZ models, creates config.yml.
-    """
+    """Run once after install to download models and create config.yml."""
     print("\n" + "=" * 62)
     print("  Path Finder - Setup Wizard  v1.0.1")
     print("  Yara Chahda - Corentin Portmann - Ines Ouchen - EPFL 2025")
@@ -56,7 +53,7 @@ def setup():
     print(f"Working directory: {data.resolve()}\n")
 
     # Step 1: Check dependencies
-    print("Step 1/5 - Checking dependencies...")
+    print("Step 1/5 — checking dependencies...")
 
     try:
         from rdkit import Chem  # noqa: F401
@@ -83,7 +80,7 @@ def setup():
         print("    -> pip install path-finder-retrosynthesis[predicted]")
 
     # Step 2: Copy bundled datasets
-    print("\nStep 2/5 - Copying bundled datasets...")
+    print("\nStep 2/5 - copying data files...")
     for fname in [
         "reaction_dataset.json",
         "toxicity_dataset.json",
@@ -100,7 +97,7 @@ def setup():
             print(f"  MISSING {fname} - try reinstalling the package")
 
     # Step 3: Download AiZynthFinder models
-    print("\nStep 3/5 - Downloading AiZynthFinder model files...")
+    print("\nStep 3/5 - downloading AiZynthFinder models (~500 MB)...")
     aiz_dir = data / "aizynthfinder"
     aiz_dir.mkdir(exist_ok=True)
     config_from_aiz = False
@@ -152,7 +149,7 @@ def setup():
                 print(f"  -> Place the files in: {aiz_dir.resolve()}")
 
     # Step 4: Create config.yml
-    print("\nStep 4/5 - Creating config.yml...")
+    print("\nStep 4/5 - config.yml...")
     config_out = data / "config.yml"
 
     if config_out.exists():
@@ -168,7 +165,7 @@ def setup():
         print(f"  {aiz_dir.resolve()}/")
 
     # Step 5: Validate
-    print("\nStep 5/5 - Validation...")
+    print("\nStep 5/5 - validation...")
     checks = [
         (data / "reaction_dataset.json",  "Main reaction dataset"),
         (data / "toxicity_dataset.json",  "Toxicity dataset"),

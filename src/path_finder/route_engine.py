@@ -301,18 +301,7 @@ def load_generic_reaction_dataset(path: str) -> dict:
 
 def to_canonical(smiles) -> str:
     """
-    Convert a SMILES string (or list of fragments) to RDKit canonical form.
-    Returns the original string if RDKit can't parse it.
-
-    Parameters
-    ----------
-    smiles : str or list
-        SMILES string or list of SMILES fragments.
-
-    Returns
-    -------
-    str
-        Canonical SMILES, or original string on failure.
+    Convert a SMILES string to its canonical form using RDKit. Returns an empty
     """
     if isinstance(smiles, list):
         smiles = '.'.join(str(s) for s in smiles if s)
@@ -326,15 +315,7 @@ def to_canonical(smiles) -> str:
 
 def safe_mol(smiles: str):
     """
-    Parse a SMILES and return an RDKit Mol, or None if it fails.
-
-    Parameters
-    ----------
-    smiles : str
-
-    Returns
-    -------
-    rdkit.Chem.Mol or None
+    Convert a SMILES string to an RDKit Mol object. Returns None if parsing fails.
     """
     if not smiles:
         return None
@@ -397,10 +378,6 @@ def build_dataset_smiles_index(dataset: dict) -> set:
             if c:
                 index.add(c)
     return index
-
-
-
-# AiZynthFinder integration
 
 
 def _walk_reaction_tree(node: dict, steps: list) -> None:
@@ -519,10 +496,6 @@ def run_aizynthfinder(target_smiles: str, config_path: str = "config.yml",
     routes_raw = list(finder.routes)[:n_routes]
     print(f"[AiZynthFinder] {len(routes_raw)} routes found")
     return [adapt_route(r) for r in routes_raw]
-
-
-
-# Rxn-INSIGHT integration
 
 
 def _best_condition(df_cond) -> str:
@@ -976,10 +949,6 @@ def get_novel_routes_from_aizynthfinder(aiz_routes, dataset, target_name, rxni_d
     return novel
 
 
-
-# Dataset route filtering
-
-
 def get_all_dataset_routes_for_target(dataset: dict, target_name: str,
                                        target_smiles: str = "") -> list:
     """
@@ -1107,26 +1076,9 @@ def filter_routes_by_starting_materials(aiz_routes, dataset, target_smiles,
     print(f"  {len(result)} dataset routes retained")
     return result
 
-
-
-# Per-step yield / metric helpers
-
-
 def bottleneck_yield(steps: list) -> float | None:
     """
-    Return the minimum step yield in a route (the rate-limiting step).
-
-    Steps without a reported yield are excluded from the minimum.
-
-    Parameters
-    ----------
-    steps : list of dict
-        Step dicts from ``route["dataset_steps"]``.
-
-    Returns
-    -------
-    float or None
-        Minimum yield in percent, or ``None`` if no yield data is available.
+    Return the bottleneck step yield (lowest reported yield) in percent.
     """
     ys = [s.get("yield_percent") for s in steps if s.get("yield_percent") is not None]
     return min(ys) if ys else None
@@ -1134,19 +1086,7 @@ def bottleneck_yield(steps: list) -> float | None:
 
 def average_yield(steps: list) -> float | None:
     """
-    Return the mean step yield across all steps that report a yield.
-
-    Steps without a reported yield are excluded from the average.
-
-    Parameters
-    ----------
-    steps : list of dict
-        Step dicts from ``route["dataset_steps"]``.
-
-    Returns
-    -------
-    float or None
-        Average yield in percent, or ``None`` if no yield data is available.
+    Return the average step yield in percent, ignoring steps with missing
     """
     ys = [s.get("yield_percent") for s in steps if s.get("yield_percent") is not None]
     return sum(ys) / len(ys) if ys else None
@@ -1243,10 +1183,6 @@ def fmt_conditions(cond: dict) -> str:
         parts.append(", ".join(reag))
     if cond.get("apparatus"):       parts.append(f"({cond['apparatus']})")
     return "  ·  ".join(parts)
-
-
-
-# Scoring metrics
 
 
 def calc_atom_economy(reactants_smiles, product_smiles) -> float:
@@ -1361,32 +1297,38 @@ def build_solvent_map(tox_index: dict) -> dict:
         ``{abbreviation_or_name (str): SMILES (str)}``.
     """
     abbrev = {
-        "PhMe": "Cc1ccccc1", "toluene": "Cc1ccccc1",
-        "DCM": "ClCCl", "CH2Cl2": "ClCCl",
+        "PhMe": "Cc1ccccc1", 
+        "toluene": "Cc1ccccc1", # same as PhMe
+        "DCM": "ClCCl", 
+        "CH2Cl2": "ClCCl",
         "THF": "C1CCOC1",
-        "MeOH": "CO", "EtOH": "CCO",
-        "DMF": "CN(C)C=O", "MeCN": "CC#N",
-        "AcOH": "CC(=O)O", "Et2O": "CCOCC",
-        "CHCl3": "ClC(Cl)Cl", "CCl4": "ClC(Cl)(Cl)Cl",
-        "PhH": "c1ccccc1", "benzene": "c1ccccc1",
-        "TFE": "OCC(F)(F)F", "t-BuOH": "CC(C)(C)O",
+        "MeOH": "CO", 
+        "EtOH": "CCO",
+        "DMF": "CN(C)C=O", 
+        "MeCN": "CC#N",
+        "AcOH": "CC(=O)O", 
+        "Et2O": "CCOCC",
+        "CHCl3": "ClC(Cl)Cl", 
+        "CCl4": "ClC(Cl)(Cl)Cl",
+        "PhH": "c1ccccc1", 
+        "benzene": "c1ccccc1",
+        "TFE": "OCC(F)(F)F", 
+        "t-BuOH": "CC(C)(C)O",
         "MeNO2": "C[N+](=O)[O-]",
         "H2O": "O",
-        "dioxane": "C1COCCO1", "1,4-dioxane": "C1COCCO1",
-        "hexane": "CCCCCC", "acetone": "CC(C)=O",
+        "dioxane": "C1COCCO1", 
+        "1,4-dioxane": "C1COCCO1",
+        "hexane": "CCCCCC", 
+        "acetone": "CC(C)=O",
         "pyridine": "c1ccncc1",
-        "i-PrOH": "CC(C)O", "DMSO": "CS(C)=O",
+        "i-PrOH": "CC(C)O", 
+        "DMSO": "CS(C)=O",
     }
     result = dict(abbrev)
     # Add all tox_index keys so known SMILES are always self-mapping
     for canon in tox_index:
         result[canon] = canon
     return result
-
-
-
-# Scoring functions (one per criterion)
-
 
 def compute_steps(route_data: dict, tox_index: dict) -> float:
     """
@@ -1532,9 +1474,7 @@ def compute_toxicity(route_data: dict, tox_index: dict) -> float:
     return sum(scores) / len(scores) if scores else 0.5
 
 
-# Registry of all available scoring criteria.
-# Each entry maps a criterion key to its display metadata and scoring function.
-# This dict is iterated by rank_weighted() and compute_all_scores().
+# scoring functions, one per criterion
 CRITERIA_REGISTRY = {
     "steps":        {"fn": compute_steps,        "description": "number of steps"},
     "yield":        {"fn": compute_yield,        "description": "cumulative yield"},
@@ -1544,27 +1484,8 @@ CRITERIA_REGISTRY = {
 }
 
 
-
-# Weighted ranking
-
-
 def compute_weights(criteria: list) -> dict:
-    """
-    Compute criterion weights using an inverse-square priority scheme.
-
-    Weight for rank i (1-based) = 1 / i², then normalised to sum to 1.
-    Approximate weights for 3 criteria: #1 ≈ 73 %, #2 ≈ 18 %, #3 ≈ 9 %.
-
-    Parameters
-    ----------
-    criteria : list of str
-        Criterion keys in priority order (highest priority first).
-
-    Returns
-    -------
-    dict
-        ``{criterion_key (str): normalised_weight (float)}``.
-    """
+    """Inverse-square weights (1/i²), normalised to sum 1."""
     raw   = {c: 1.0 / (i + 1) ** 2 for i, c in enumerate(criteria)}
     total = sum(raw.values())
     return {c: w / total for c, w in raw.items()}
@@ -1658,10 +1579,6 @@ def rank_weighted(routes: list, criteria: list, tox_index: dict) -> list:
 
     scored.sort(reverse=True, key=lambda x: x[0])
     return scored
-
-
-
-# Main entry point
 
 
 def find_best_routes(

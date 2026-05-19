@@ -1,14 +1,5 @@
 # molecule_rendering.py
-# RDKit molecule rendering for the Path Finder app.
-# No Streamlit dependency — can be imported and tested independently.
-#
-# mol_png()               -> bytes  : high-res PNG for st.image()
-# mol_b64_or_text_svg()   -> str    : base64 PNG for embedded HTML schemes
-# fallback_data_uri()     -> str    : grey placeholder when SMILES is invalid
-# is_trivial_smiles()     -> bool   : True for single atoms / tiny ions
-# Dependencies:
-#   - RDKit  (rdkit-pypi or rdkit conda package)
-#   - Pillow (PIL) — only for _mol_b64_or_text_svg and _fallback_data_uri
+# RDKit rendering helpers — PNG and base64 for the app
 
 import io
 import base64
@@ -25,25 +16,13 @@ except Exception:
     MODULE_OK = False
 
 
-# =============================================================================
+
 # Public rendering functions
-# =============================================================================
+
 
 def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
     """
-    Render a molecule as PNG using RDKit Cairo at 8x the display size.
-
-    Parameters
-    ----------
-    smiles : str
-        SMILES of the molecule to render.
-    w, h : int
-        Display size in pixels — Cairo renders at 8x for HiDPI sharpness.
-
-    Returns
-    -------
-    bytes or None
-        Raw PNG bytes, or None if the SMILES is invalid.
+    Return a PNG image of the molecule for display in the route scheme.
     """
     if not MODULE_OK or not smiles:
         return None
@@ -70,19 +49,7 @@ def mol_png(smiles: str, w: int = 800, h: int = 540) -> bytes | None:
 
 def mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
     """
-    Return a base64 PNG data-URI for embedding in the reaction scheme HTML.
-
-    Parameters
-    ----------
-    smiles : str
-        SMILES of the molecule.
-    w, h : int
-        Target display size in CSS pixels (renders at 8x internally).
-
-    Returns
-    -------
-    str
-        data:image/png;base64,... URI, or fallback_data_uri() if parsing fails.
+    Return a data URI of the molecule image for display in the route scheme.
     """
     if not smiles or not MODULE_OK:
         return fallback_data_uri(smiles or "?", w, h)
@@ -97,8 +64,8 @@ def mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
             rdDepictor.Compute2DCoords(mol)
         # 8x upscale — crisp on HiDPI
         drawer = rdMolDraw2D.MolDraw2DCairo(w * 8, h * 8)
-        drawer.drawOptions().bondLineWidth       = 1.0
-        drawer.drawOptions().padding             = 0.15
+        drawer.drawOptions().bondLineWidth = 1.0
+        drawer.drawOptions().padding = 0.15
         drawer.drawOptions().addStereoAnnotation = True
         drawer.DrawMolecule(mol)
         drawer.FinishDrawing()
@@ -115,19 +82,7 @@ def mol_b64_or_text_svg(smiles: str, w: int, h: int) -> str:
 
 def fallback_data_uri(text: str, w: int, h: int) -> str:
     """
-    Grey placeholder PNG with a text label, for when SMILES can't be parsed.
-
-    Parameters
-    ----------
-    text : str
-        Label to show (truncated to 18 chars).
-    w, h : int
-        Image dimensions in pixels.
-
-    Returns
-    -------
-    str
-        data:image/png;base64,... URI (falls back to 1x1 if Pillow unavailable).
+    Return a data URI of a placeholder image with the given text.
     """
     try:
         from PIL import Image as _PI, ImageDraw as _PID
