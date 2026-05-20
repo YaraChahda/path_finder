@@ -44,7 +44,7 @@ def setup():
     """First-time setup: checks dependencies, copies data files, downloads AiZ models, writes config.yml."""
     print("\n" + "=" * 62)
     print("  Path Finder - Setup Wizard  v1.0.1")
-    print("  Yara Chahda - Corentin Portmann - Ines Ouchen - EPFL 2025")
+    print("  Yara Chahda - Corentin Portmann - Ines Ouchen - EPFL 2026")
     print("=" * 62 + "\n")
 
     pkg  = _pkg_root()
