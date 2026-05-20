@@ -42,6 +42,7 @@ def load_reaction_dataset(path: str) -> dict:
     # build the three indexes
     by_product = {}; by_reactant = {}; by_route = {}
     for rxn in reactions:
+        prod = rxn.get("product_smiles", "")
         
         if isinstance(prod, list):
             rxn["product_smiles"] = '.'.join(str(s) for s in prod if s)
@@ -70,6 +71,7 @@ def load_reaction_dataset(path: str) -> dict:
         by_route.setdefault(rxn.get("route_id", "unknown"), []).append(rxn)
 
     # keep steps in forward synthetic order
+    for rid in by_route:
         by_route[rid].sort(key=lambda x: x.get("step_number", 0))
 
     print(f"[dataset] {len(by_route)} distinct routes indexed")
