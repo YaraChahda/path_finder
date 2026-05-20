@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from localization import LANG, CRITERIA_LABELS, PALETTE, FIG_BG
+from app_layout import LANG, CRITERIA_LABELS, PALETTE, FIG_BG
 from molecule_rendering import mol_png, MODULE_OK
 from app_utensils import (
     load_banner,
