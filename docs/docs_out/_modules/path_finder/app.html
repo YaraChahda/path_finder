@@ -236,7 +236,7 @@
 <span class="c1"># are imported from app_utensils.py.</span>
 <span class="c1"># Companion modules (same directory):</span>
 <span class="c1">#   app_utensils.py      — all 14 UI helper functions</span>
-<span class="c1">#   localization.py      — LANG dict, CRITERIA_LABELS, PALETTE, FIG_BG</span>
+<span class="c1">#   app_layout.py      — LANG dict, CRITERIA_LABELS, PALETTE, FIG_BG</span>
 <span class="c1">#   molecule_rendering.py — mol_png, mol_b64_or_text_svg, …</span>
 <span class="c1">#   report_builder.py    — build_route_report_pdf</span>
 <span class="c1"># Backend module (project root or PYTHONPATH):</span>
@@ -257,7 +257,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="c1"># Local modules</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">localization</span><span class="w"> </span><span class="kn">import</span> <span class="n">LANG</span><span class="p">,</span> <span class="n">CRITERIA_LABELS</span><span class="p">,</span> <span class="n">PALETTE</span><span class="p">,</span> <span class="n">FIG_BG</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app_layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">LANG</span><span class="p">,</span> <span class="n">CRITERIA_LABELS</span><span class="p">,</span> <span class="n">PALETTE</span><span class="p">,</span> <span class="n">FIG_BG</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">molecule_rendering</span><span class="w"> </span><span class="kn">import</span> <span class="n">mol_png</span><span class="p">,</span> <span class="n">MODULE_OK</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">app_utensils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">load_banner</span><span class="p">,</span>

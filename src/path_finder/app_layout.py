@@ -1,6 +1,6 @@
-# localization.py
+# app_layout.py
 # UI strings (EN/FR), colour palette, and matplotlib background colour.
-# Import: from localization import LANG, CRITERIA_LABELS, PALETTE, FIG_BG
+# Import: from app_layout import LANG, CRITERIA_LABELS, PALETTE, FIG_BG
 
 LANG = {
     "en": {

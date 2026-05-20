@@ -28,10 +28,10 @@ path\_finder.launch module
    :undoc-members:
    :show-inheritance:
 
-path\_finder.localization module
+path\_finder.app_layout module
 --------------------------------
 
-.. automodule:: path_finder.localization
+.. automodule:: path_finder.app_layout
    :members:
    :undoc-members:
    :show-inheritance:

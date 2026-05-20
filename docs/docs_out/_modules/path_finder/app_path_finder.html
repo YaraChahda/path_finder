@@ -234,7 +234,7 @@
 <span class="c1"># Retrosynthesis Interface — Streamlit front-end.</span>
 <span class="c1">#</span>
 <span class="c1"># Companion modules (same directory):</span>
-<span class="c1">#   localization.py      — LANG dict, CRITERIA_LABELS, PALETTE, FIG_BG</span>
+<span class="c1">#   app_layout.py      — LANG dict, CRITERIA_LABELS, PALETTE, FIG_BG</span>
 <span class="c1">#   molecule_rendering.py — mol_png, mol_b64_or_text_svg, fallback_data_uri,</span>
 <span class="c1">#                           is_trivial_smiles</span>
 <span class="c1">#   report_builder.py    — build_route_report_pdf</span>
@@ -270,7 +270,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpatches</span>
 
 <span class="c1"># -- Local modules -------------------------------------------------------------</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">localization</span><span class="w"> </span><span class="kn">import</span> <span class="n">LANG</span><span class="p">,</span> <span class="n">CRITERIA_LABELS</span><span class="p">,</span> <span class="n">PALETTE</span><span class="p">,</span> <span class="n">FIG_BG</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app_layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">LANG</span><span class="p">,</span> <span class="n">CRITERIA_LABELS</span><span class="p">,</span> <span class="n">PALETTE</span><span class="p">,</span> <span class="n">FIG_BG</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">molecule_rendering</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">mol_png</span><span class="p">,</span>
     <span class="n">mol_b64_or_text_svg</span> <span class="k">as</span> <span class="n">_mol_b64_or_text_svg</span><span class="p">,</span>

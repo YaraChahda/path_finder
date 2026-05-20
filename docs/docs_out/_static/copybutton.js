@@ -1,4 +1,4 @@
-// Localization support
+// app_layout support
 const messages = {
   'en': {
     'copy': 'Copy',
