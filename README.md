@@ -102,18 +102,6 @@ steps, yield, atom economy, E-factor, or safety.
 
 ---
 
-## Troubleshooting
-
-| Problem | Solution |
-|---------|----------|
-| `config.yml not found` | Run `path-finder-setup` |
-| AiZynthFinder crash | Check that all paths in `data/config.yml` are absolute |
-| No routes found | Try Galanthamine (`OC1C=C[C@@]23c4cc(OC)ccc4CN(C)C[C@@H]2[C@@H]1O3`) |
-| Predicted routes disabled | Add `data/uspto_rxn_insight.gzip` (see step 4 above) |
-| Slow search (~2 min) | Normal — AiZynthFinder MCTS is computationally intensive |
-
----
-
 ## Developer setup
  
 ```bash
