@@ -32,7 +32,7 @@ def main():
 
     print("\nPath Finder — Retrosynthesis Interface")
     print("AiZynthFinder · Rxn-INSIGHT · Chemistry by Design")
-    print("Yara Chahda · Corentin Postmann · Inès Ouchen Laksiri — EPFL 2026")
+    print("Yara Chahda · Corentin Portmann · Inès Ouchen Laksiri — EPFL 2026")
     print("\nOpen http://localhost:8501 in your browser.\n")
     subprocess.run(
         [sys.executable, "-m", "streamlit", "run", str(app)],
