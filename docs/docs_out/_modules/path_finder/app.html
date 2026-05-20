@@ -1,0 +1,1020 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
+        <title>path_finder.app - path-finder-retrosynthesis 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">path-finder-retrosynthesis 1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <span class="sidebar-brand-text">path-finder-retrosynthesis 1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/modules.html">path_finder</a><input aria-label="Toggle navigation of path_finder" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/path_finder.html">path_finder package</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for path_finder.app</h1><div class="highlight"><pre>
+<span></span><span class="c1"># app.py</span>
+<span class="c1"># Path Finder — Streamlit application entry point.</span>
+<span class="c1"># This file contains only Streamlit layout and UI logic.</span>
+<span class="c1"># All functions (rendering, chart creation, HTML builders, cached loaders)</span>
+<span class="c1"># are imported from app_utensils.py.</span>
+<span class="c1"># Companion modules (same directory):</span>
+<span class="c1">#   app_utensils.py      — all 14 UI helper functions</span>
+<span class="c1">#   localization.py      — LANG dict, CRITERIA_LABELS, PALETTE, FIG_BG</span>
+<span class="c1">#   molecule_rendering.py — mol_png, mol_b64_or_text_svg, …</span>
+<span class="c1">#   report_builder.py    — build_route_report_pdf</span>
+<span class="c1"># Backend module (project root or PYTHONPATH):</span>
+<span class="c1">#   route_engine.py      — dataset loading, AiZynthFinder, scoring</span>
+<span class="c1"># Run:</span>
+<span class="c1">#   streamlit run app.py</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="c1"># Ensure sibling modules are importable regardless of launch directory</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">streamlit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">st</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">streamlit.components.v1</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">components</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Local modules</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">localization</span><span class="w"> </span><span class="kn">import</span> <span class="n">LANG</span><span class="p">,</span> <span class="n">CRITERIA_LABELS</span><span class="p">,</span> <span class="n">PALETTE</span><span class="p">,</span> <span class="n">FIG_BG</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">molecule_rendering</span><span class="w"> </span><span class="kn">import</span> <span class="n">mol_png</span><span class="p">,</span> <span class="n">MODULE_OK</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app_utensils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">load_banner</span><span class="p">,</span>
+    <span class="n">hires_fig</span><span class="p">,</span>
+    <span class="n">strip_emoji</span><span class="p">,</span>
+    <span class="n">is_purification_step</span><span class="p">,</span>
+    <span class="n">build_clickable_scheme_html</span><span class="p">,</span>
+    <span class="n">build_score_table_html</span><span class="p">,</span>
+    <span class="n">make_ranking_chart</span><span class="p">,</span>
+    <span class="n">make_yield_chart</span><span class="p">,</span>
+    <span class="n">make_comparison_chart</span><span class="p">,</span>
+    <span class="n">build_why_ranked_html</span><span class="p">,</span>
+    <span class="n">smiles_copy_widget</span><span class="p">,</span>
+    <span class="n">display_route_card</span><span class="p">,</span>
+    <span class="n">load_dataset_cached</span><span class="p">,</span>
+    <span class="n">get_targets_cached</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Backend imports</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">route_engine</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rt</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+    <span class="n">MODULE_ERR</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">rt</span>         <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">Chem</span>       <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">MODULE_ERR</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rxn_insight.reaction</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reaction</span> <span class="k">as</span> <span class="n">RxnInsightReaction</span>
+    <span class="n">RXNINSIGHT_OK</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">RXNINSIGHT_OK</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1"># Page configuration — must be the very first Streamlit call</span>
+<span class="n">st</span><span class="o">.</span><span class="n">set_page_config</span><span class="p">(</span>
+    <span class="n">page_title</span><span class="o">=</span><span class="s2">&quot;Retrosynthesis — Chemistry by Design&quot;</span><span class="p">,</span>
+    <span class="n">page_icon</span><span class="o">=</span><span class="s2">&quot;⚗️&quot;</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;wide&quot;</span><span class="p">,</span>
+    <span class="n">initial_sidebar_state</span><span class="o">=</span><span class="s2">&quot;expanded&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Global CSS — typography, metric cards, expanders, buttons</span>
+<span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;style&gt;</span>
+<span class="s2">@import url(&#39;https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&amp;display=swap&#39;);</span>
+<span class="s2">html, body, [class*=&quot;css&quot;] { font-family: &#39;DM Sans&#39;, sans-serif; }</span>
+<span class="s2">h1, h2, h3 { font-family: &#39;DM Serif Display&#39;, serif; color: #1a2e44; }</span>
+<span class="s2">[data-testid=&quot;stMetricValue&quot;] {</span>
+<span class="s2">    font-family: &#39;DM Serif Display&#39;, serif; font-size: 1.45rem !important; color: #1a2e44;</span>
+<span class="s2">}</span>
+<span class="s2">[data-testid=&quot;stMetricLabel&quot;] {</span>
+<span class="s2">    font-size: 0.76rem !important; color: #6b7a8d;</span>
+<span class="s2">    text-transform: uppercase; letter-spacing: 0.06em;</span>
+<span class="s2">}</span>
+<span class="s2">div[data-testid=&quot;stExpander&quot;] { border: 1px solid #dce3ec; border-radius: 12px; background: #f9fbfd; }</span>
+<span class="s2">.stButton &gt; button {</span>
+<span class="s2">    background: linear-gradient(135deg, #1a2e44 0%, #2d5986 100%);</span>
+<span class="s2">    color: white !important; border: none; border-radius: 8px;</span>
+<span class="s2">    font-family: &#39;DM Sans&#39;, sans-serif; font-weight: 600; letter-spacing: 0.04em; transition: opacity 0.2s;</span>
+<span class="s2">}</span>
+<span class="s2">.stButton &gt; button:hover { opacity: 0.85; }</span>
+<span class="s2">.stTabs [data-baseweb=&quot;tab&quot;] { font-family: &#39;DM Sans&#39;, sans-serif; font-weight: 500; }</span>
+<span class="s2">&lt;/style&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span> <span class="n">unsafe_allow_html</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Main application</span>
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main function for the Path Finder Streamlit app.</span>
+<span class="sd">    Builds the UI across four tabs: Route Search, Analysis, Dataset Explorer, Help.</span>
+<span class="sd">    Helper functions are all in app_utensils.py.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Optional banner image</span>
+    <span class="n">banner_uri</span> <span class="o">=</span> <span class="n">load_banner</span><span class="p">(</span><span class="s2">&quot;../../assets/banner.png&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">banner_uri</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;&lt;div style=&quot;text-align:center;padding:18px 0 8px 0;&quot;&gt;&#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;&lt;img src=&quot;</span><span class="si">{</span><span class="n">banner_uri</span><span class="si">}</span><span class="s1">&quot; style=&quot;width:420px;max-width:90%;&#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;margin:0 auto;display:block;&quot;/&gt;&lt;/div&gt;&#39;</span><span class="p">,</span>
+            <span class="n">unsafe_allow_html</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Language selector (sidebar)</span>
+    <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="p">:</span>
+        <span class="n">lang_choice</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">radio</span><span class="p">(</span>
+            <span class="s2">&quot;🌐 Language / Langue&quot;</span><span class="p">,</span>
+            <span class="p">[</span><span class="s2">&quot;🇬🇧 English&quot;</span><span class="p">,</span> <span class="s2">&quot;🇫🇷 Français&quot;</span><span class="p">],</span>
+            <span class="n">horizontal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">lang</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span> <span class="k">if</span> <span class="s2">&quot;English&quot;</span> <span class="ow">in</span> <span class="n">lang_choice</span> <span class="k">else</span> <span class="s2">&quot;fr&quot;</span>
+    <span class="n">T</span>    <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">CL</span>   <span class="o">=</span> <span class="n">CRITERIA_LABELS</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+
+    <span class="c1"># Sidebar — file paths and search parameters</span>
+    <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;sidebar_title&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">MODULE_OK</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;mod_err&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">`</span><span class="si">{</span><span class="n">MODULE_ERR</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">subheader</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;files_section&quot;</span><span class="p">])</span>
+
+        <span class="n">dataset_path</span>         <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">text_input</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;ds_label&quot;</span><span class="p">],</span>      <span class="n">value</span><span class="o">=</span><span class="s2">&quot;data/reaction_dataset.json&quot;</span><span class="p">,</span>      <span class="n">help</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;help_ds&quot;</span><span class="p">])</span>
+        <span class="n">toxicity_path</span>        <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">text_input</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;tox_label&quot;</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot; *&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;data/toxicity_dataset.json&quot;</span><span class="p">,</span>    <span class="n">help</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;help_tox&quot;</span><span class="p">])</span>
+        <span class="n">config_path</span>          <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">text_input</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;cfg_label&quot;</span><span class="p">],</span>      <span class="n">value</span><span class="o">=</span><span class="s2">&quot;data/config.yml&quot;</span><span class="p">,</span>                <span class="n">help</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;help_cfg&quot;</span><span class="p">])</span>
+        <span class="n">rxninsight_db_path</span>   <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">text_input</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;rxni_label&quot;</span><span class="p">],</span>     <span class="n">value</span><span class="o">=</span><span class="s2">&quot;data/uspto_rxn_insight.gzip&quot;</span><span class="p">,</span>    <span class="n">help</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;help_rxni&quot;</span><span class="p">])</span>
+        <span class="n">generic_dataset_path</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">text_input</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;generic_label&quot;</span><span class="p">],</span>  <span class="n">value</span><span class="o">=</span><span class="s2">&quot;data/generic_reactions.json&quot;</span><span class="p">,</span>   <span class="n">help</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;help_generic&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">toxicity_path</span><span class="p">):</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ `</span><span class="si">{</span><span class="n">toxicity_path</span><span class="si">}</span><span class="s2">` not found — Safety scores will default to 0.5&quot;</span><span class="p">)</span>
+
+        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
+        <span class="n">top_n</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;topn_label&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;help_topn&quot;</span><span class="p">])</span>
+        <span class="n">n_aiz</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;naiz_label&quot;</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;help_naiz&quot;</span><span class="p">])</span>
+
+        <span class="n">include_predicted</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">RXNINSIGHT_OK</span><span class="p">:</span>
+            <span class="n">include_predicted</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">toggle</span><span class="p">(</span>
+                <span class="s2">&quot;Include predicted routes (Rxn-INSIGHT)&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;AiZynthFinder routes with no match in the generic dataset are &quot;</span>
+                    <span class="s2">&quot;classified as predicted and annotated by Rxn-INSIGHT. &quot;</span>
+                    <span class="s2">&quot;Yield is excluded from their score.&quot;</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;🤖 Predicted routes disabled — add `data/uspto_rxn_insight.gzip` to enable (see README)&quot;</span><span class="p">)</span>
+
+        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;criteria&quot;</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">expander</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;weights_exp&quot;</span><span class="p">]):</span>
+                <span class="n">crit_w</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">compute_weights</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;criteria&quot;</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;criteria&quot;</span><span class="p">]:</span>
+                    <span class="n">w</span> <span class="o">=</span> <span class="n">crit_w</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">strip_emoji</span><span class="p">(</span><span class="n">CL</span><span class="p">[</span><span class="n">c</span><span class="p">])</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">w</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+    <span class="c1"># Page header</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;page_title&quot;</span><span class="p">])</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;page_caption&quot;</span><span class="p">])</span>
+
+    <span class="n">tab_search</span><span class="p">,</span> <span class="n">tab_analysis</span><span class="p">,</span> <span class="n">tab_dataset</span><span class="p">,</span> <span class="n">tab_help</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">tabs</span><span class="p">([</span>
+        <span class="n">T</span><span class="p">[</span><span class="s2">&quot;tab_search&quot;</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;tab_analysis&quot;</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;tab_dataset&quot;</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;tab_help&quot;</span><span class="p">],</span>
+    <span class="p">])</span>
+
+    <span class="c1"># ROUTE SEARCH    </span>
+    <span class="k">with</span> <span class="n">tab_search</span><span class="p">:</span>
+        <span class="n">top_left</span><span class="p">,</span> <span class="n">top_right</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+
+        <span class="k">with</span> <span class="n">top_left</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">subheader</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;target_section&quot;</span><span class="p">])</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">radio</span><span class="p">(</span><span class="s2">&quot;Mode&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;mode_pre&quot;</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;mode_custom&quot;</span><span class="p">]],</span>
+                            <span class="n">horizontal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">label_visibility</span><span class="o">=</span><span class="s2">&quot;collapsed&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;mode_pre&quot;</span><span class="p">]:</span>
+                <span class="n">targets_ds</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">targets_ds</span> <span class="o">=</span> <span class="n">get_targets_cached</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                <span class="k">if</span> <span class="n">targets_ds</span><span class="p">:</span>
+                    <span class="n">target_name</span>   <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;mol_label&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">(</span><span class="n">targets_ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+                                                 <span class="n">format_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+                    <span class="n">target_smiles</span> <span class="o">=</span> <span class="n">targets_ds</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">target_name</span>   <span class="o">=</span> <span class="s2">&quot;Galanthamine&quot;</span>
+                    <span class="n">target_smiles</span> <span class="o">=</span> <span class="s2">&quot;OC1C=C[C@@]23c4cc(OC)ccc4CN(C)C[C@@H]2[C@@H]1O3&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">target_smiles</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">text_input</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;smiles_label&quot;</span><span class="p">],</span> <span class="n">placeholder</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;smiles_ph&quot;</span><span class="p">])</span>
+                <span class="n">target_name</span>   <span class="o">=</span> <span class="s2">&quot;Custom&quot;</span>
+                <span class="k">if</span> <span class="n">target_smiles</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">target_smiles</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;smiles_invalid&quot;</span><span class="p">])</span>
+                        <span class="n">target_smiles</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;smiles_valid&quot;</span><span class="p">])</span>
+
+            <span class="n">st</span><span class="o">.</span><span class="n">subheader</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;criteria_section&quot;</span><span class="p">])</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;criteria_caption&quot;</span><span class="p">])</span>
+            <span class="n">all_crit</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">CL</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">c1</span>   <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;c1_label&quot;</span><span class="p">],</span> <span class="n">all_crit</span><span class="p">,</span> <span class="n">format_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">CL</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+            <span class="n">rem2</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">all_crit</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="n">c1</span><span class="p">]</span>
+            <span class="n">c2</span>   <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;c2_label&quot;</span><span class="p">],</span> <span class="n">rem2</span><span class="p">,</span> <span class="n">format_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">CL</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+            <span class="n">rem3</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">rem2</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="n">c2</span><span class="p">]</span>
+            <span class="n">c3</span>   <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;c3_label&quot;</span><span class="p">],</span> <span class="n">rem3</span><span class="p">,</span> <span class="n">format_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">CL</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+            <span class="n">criteria</span> <span class="o">=</span> <span class="p">[</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c3</span><span class="p">]</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;criteria&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">criteria</span>
+
+            <span class="n">run_search</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;run_btn&quot;</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;primary&quot;</span><span class="p">,</span> <span class="n">disabled</span><span class="o">=</span><span class="ow">not</span> <span class="n">target_smiles</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">top_right</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">target_smiles</span><span class="p">:</span>
+                <span class="n">png</span> <span class="o">=</span> <span class="n">mol_png</span><span class="p">(</span><span class="n">target_smiles</span><span class="p">,</span> <span class="mi">640</span><span class="p">,</span> <span class="mi">440</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">png</span><span class="p">:</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">png</span><span class="p">,</span> <span class="n">caption</span><span class="o">=</span><span class="n">target_name</span><span class="p">,</span> <span class="n">use_container_width</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;welcome&quot;</span><span class="p">])</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;avail_mols&quot;</span><span class="p">])</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">prev</span> <span class="o">=</span> <span class="n">get_targets_cached</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">)</span>
+                    <span class="n">cols</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">smi</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">prev</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                        <span class="k">with</span> <span class="n">cols</span><span class="p">[</span><span class="n">idx</span> <span class="o">%</span> <span class="mi">3</span><span class="p">]:</span>
+                            <span class="n">png</span> <span class="o">=</span> <span class="n">mol_png</span><span class="p">(</span><span class="n">smi</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">270</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">png</span><span class="p">:</span>
+                                <span class="n">st</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">png</span><span class="p">,</span> <span class="n">caption</span><span class="o">=</span><span class="n">name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">(),</span> <span class="n">use_container_width</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
+
+        <span class="c1"># Run search</span>
+        <span class="k">if</span> <span class="n">run_search</span> <span class="ow">and</span> <span class="n">target_smiles</span><span class="p">:</span>
+            <span class="n">errs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">):</span> <span class="n">errs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">dataset_path</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config_path</span><span class="p">):</span>  <span class="n">errs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">errs</span><span class="p">:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;err_file&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">errs</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;searching&quot;</span><span class="p">],</span> <span class="n">expanded</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;loading_ds&quot;</span><span class="p">])</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;loading_aiz&quot;</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="n">include_predicted</span> <span class="ow">and</span> <span class="n">RXNINSIGHT_OK</span><span class="p">:</span>
+                            <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;loading_rxni&quot;</span><span class="p">])</span>
+                        <span class="n">results_raw</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">find_best_routes</span><span class="p">(</span>
+                            <span class="n">target_smiles</span>        <span class="o">=</span> <span class="n">target_smiles</span><span class="p">,</span>
+                            <span class="n">criteria_priority</span>    <span class="o">=</span> <span class="n">criteria</span><span class="p">,</span>
+                            <span class="n">dataset_path</span>         <span class="o">=</span> <span class="n">dataset_path</span><span class="p">,</span>
+                            <span class="n">toxicity_path</span>        <span class="o">=</span> <span class="n">toxicity_path</span><span class="p">,</span>
+                            <span class="n">config_path</span>          <span class="o">=</span> <span class="n">config_path</span><span class="p">,</span>
+                            <span class="n">top_n</span>                <span class="o">=</span> <span class="n">top_n</span><span class="p">,</span>
+                            <span class="n">target_name</span>          <span class="o">=</span> <span class="n">target_name</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;mode_pre&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                            <span class="n">include_predicted</span>    <span class="o">=</span> <span class="n">include_predicted</span><span class="p">,</span>
+                            <span class="n">rxninsight_db_path</span>   <span class="o">=</span> <span class="n">rxninsight_db_path</span><span class="p">,</span>
+                            <span class="n">generic_dataset_path</span> <span class="o">=</span> <span class="n">generic_dataset_path</span><span class="p">,</span>
+                            <span class="n">n_aiz_routes</span>         <span class="o">=</span> <span class="n">n_aiz</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">tox_index</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">load_toxicity_dataset</span><span class="p">(</span><span class="n">toxicity_path</span><span class="p">)</span>
+                        <span class="n">weights</span>   <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">compute_weights</span><span class="p">(</span><span class="n">criteria</span><span class="p">)</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                            <span class="s2">&quot;results&quot;</span><span class="p">:</span>       <span class="n">results_raw</span><span class="p">,</span>
+                            <span class="s2">&quot;weights&quot;</span><span class="p">:</span>       <span class="n">weights</span><span class="p">,</span>
+                            <span class="s2">&quot;tox_index&quot;</span><span class="p">:</span>     <span class="n">tox_index</span><span class="p">,</span>
+                            <span class="s2">&quot;target_name&quot;</span><span class="p">:</span>   <span class="n">target_name</span><span class="p">,</span>
+                            <span class="s2">&quot;target_smiles&quot;</span><span class="p">:</span> <span class="n">target_smiles</span><span class="p">,</span>
+                            <span class="s2">&quot;criteria&quot;</span><span class="p">:</span>      <span class="n">criteria</span><span class="p">,</span>
+                        <span class="p">})</span>
+                        <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;search_ok&quot;</span><span class="p">],</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;complete&quot;</span><span class="p">,</span> <span class="n">expanded</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;err_file&quot;</span><span class="p">],</span>  <span class="n">state</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">);</span> <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;err_param&quot;</span><span class="p">],</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">);</span> <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;err_other&quot;</span><span class="p">],</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">);</span> <span class="n">st</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Display cached results</span>
+        <span class="n">results_raw</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">,</span>   <span class="kc">None</span><span class="p">)</span>
+        <span class="n">weights</span>     <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;weights&quot;</span><span class="p">,</span>   <span class="p">{})</span>
+        <span class="n">criteria</span>    <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;criteria&quot;</span><span class="p">,</span>  <span class="n">criteria</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">results_raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results_raw</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">scored_dataset</span>   <span class="o">=</span> <span class="n">results_raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset&quot;</span><span class="p">,</span>   <span class="p">[])</span>
+            <span class="n">scored_validated</span> <span class="o">=</span> <span class="n">results_raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validated&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">scored_predicted</span> <span class="o">=</span> <span class="n">results_raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;predicted&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">scored_dataset</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">scored_validated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">scored_predicted</span><span class="p">:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;no_routes&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">c1_</span><span class="p">,</span> <span class="n">c2_</span><span class="p">,</span> <span class="n">c3_</span><span class="p">,</span> <span class="n">c4_</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+                <span class="n">c1_</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s2">&quot;📚 Dataset&quot;</span><span class="p">,</span>   <span class="nb">len</span><span class="p">(</span><span class="n">scored_dataset</span><span class="p">))</span>
+                <span class="n">c2_</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s2">&quot;✅ Validated&quot;</span><span class="p">,</span>  <span class="nb">len</span><span class="p">(</span><span class="n">scored_validated</span><span class="p">))</span>
+                <span class="n">c3_</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s2">&quot;🤖 Predicted&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">scored_predicted</span><span class="p">))</span>
+                <span class="n">c4_</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s2">&quot;Total&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">scored_dataset</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">scored_validated</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">scored_predicted</span><span class="p">))</span>
+
+                <span class="n">tgt_name</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_name&quot;</span><span class="p">,</span> <span class="n">target_name</span><span class="p">)</span>
+
+                <span class="c1"># Dataset section</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;sec_dataset&quot;</span><span class="p">])</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;cap_dataset&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">scored_dataset</span><span class="p">:</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No dataset routes for this target.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scored_dataset</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">fig</span> <span class="o">=</span> <span class="n">make_ranking_chart</span><span class="p">(</span><span class="n">scored_dataset</span><span class="p">,</span> <span class="n">tgt_name</span><span class="p">,</span> <span class="n">lang</span><span class="p">)</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">pyplot</span><span class="p">(</span><span class="n">fig</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;n_found&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">scored_dataset</span><span class="p">)))</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">rank</span><span class="p">,</span> <span class="p">(</span><span class="n">score_total</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">route</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scored_dataset</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="n">display_route_card</span><span class="p">(</span><span class="n">score_total</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">route</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span>
+                                           <span class="n">scored_dataset</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;badge_dataset&quot;</span><span class="p">],</span> <span class="n">lang</span><span class="p">)</span>
+
+                <span class="c1"># Validated section</span>
+                <span class="k">if</span> <span class="n">scored_validated</span><span class="p">:</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;sec_validated&quot;</span><span class="p">])</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;cap_validated&quot;</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scored_validated</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">fig</span> <span class="o">=</span> <span class="n">make_ranking_chart</span><span class="p">(</span><span class="n">scored_validated</span><span class="p">,</span> <span class="n">tgt_name</span><span class="p">,</span> <span class="n">lang</span><span class="p">)</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">pyplot</span><span class="p">(</span><span class="n">fig</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">rank</span><span class="p">,</span> <span class="p">(</span><span class="n">score_total</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">route</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scored_validated</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="n">display_route_card</span><span class="p">(</span><span class="n">score_total</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">route</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span>
+                                           <span class="n">scored_validated</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;badge_validated&quot;</span><span class="p">],</span> <span class="n">lang</span><span class="p">)</span>
+
+                <span class="c1"># Predicted section</span>
+                <span class="k">if</span> <span class="n">include_predicted</span> <span class="ow">and</span> <span class="n">RXNINSIGHT_OK</span> <span class="ow">and</span> <span class="n">scored_predicted</span><span class="p">:</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;sec_predicted&quot;</span><span class="p">])</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;cap_predicted&quot;</span><span class="p">])</span>
+
+                    <span class="n">search_sm</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">text_input</span><span class="p">(</span>
+                        <span class="s2">&quot;Search by starting material SMILES&quot;</span><span class="p">,</span>
+                        <span class="n">placeholder</span><span class="o">=</span><span class="s2">&quot;e.g. c1ccc2[nH]ccc2c1&quot;</span><span class="p">,</span>
+                        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;sm_search&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">all_sm_map</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">route</span> <span class="ow">in</span> <span class="n">scored_predicted</span><span class="p">:</span>
+                        <span class="n">steps</span>    <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_steps&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                        <span class="n">all_prod</span> <span class="o">=</span> <span class="p">{</span><span class="n">rt</span><span class="o">.</span><span class="n">to_canonical</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">}</span>
+                        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">rsmi</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+                                <span class="n">canon</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">to_canonical</span><span class="p">(</span><span class="n">rsmi</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">canon</span> <span class="ow">and</span> <span class="n">canon</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_prod</span><span class="p">:</span>
+                                    <span class="n">all_sm_map</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">canon</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                        <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_name&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">))</span>
+
+                    <span class="n">filtered</span> <span class="o">=</span> <span class="n">scored_predicted</span>
+                    <span class="k">if</span> <span class="n">search_sm</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                        <span class="n">sc</span>       <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">to_canonical</span><span class="p">(</span><span class="n">search_sm</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                        <span class="n">filtered</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">scored_predicted</span>
+                            <span class="k">if</span> <span class="n">sc</span> <span class="ow">in</span> <span class="p">{</span><span class="n">rt</span><span class="o">.</span><span class="n">to_canonical</span><span class="p">(</span><span class="n">rsmi</span><span class="p">)</span>
+                                      <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_steps&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                                      <span class="k">for</span> <span class="n">rsmi</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])}</span>
+                            <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span>
+                                <span class="n">search_sm</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">rsmi</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                                <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_steps&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                                <span class="k">for</span> <span class="n">rsmi</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                            <span class="p">)</span>
+                        <span class="p">]</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span><span class="si">}</span><span class="s2"> route(s) found&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">filtered</span> <span class="k">else</span> \
+                            <span class="n">st</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No routes with this starting material&quot;</span><span class="p">)</span>
+
+                    <span class="n">top30</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_sm_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())[:</span><span class="mi">30</span><span class="p">]</span>
+                    <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">expander</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🗂️ Browse starting materials (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">top30</span><span class="p">)</span><span class="si">}</span><span class="s2"> unique)&quot;</span><span class="p">,</span> <span class="n">expanded</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                        <span class="n">cols_sm</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">smi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">top30</span><span class="p">):</span>
+                            <span class="n">col</span> <span class="o">=</span> <span class="n">cols_sm</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="mi">3</span><span class="p">]</span>
+                            <span class="n">png</span> <span class="o">=</span> <span class="n">mol_png</span><span class="p">(</span><span class="n">smi</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">270</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">png</span><span class="p">:</span>
+                                <span class="n">col</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">png</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">140</span><span class="p">)</span>
+                            <span class="n">col</span><span class="o">.</span><span class="n">code</span><span class="p">(</span><span class="n">smi</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                            <span class="n">col</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;In: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_sm_map</span><span class="p">[</span><span class="n">smi</span><span class="p">]))[:</span><span class="mi">50</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                    <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">rank</span><span class="p">,</span> <span class="p">(</span><span class="n">score_total</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">route</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filtered</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="n">display_route_card</span><span class="p">(</span><span class="n">score_total</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">route</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span>
+                                           <span class="n">filtered</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;badge_predicted&quot;</span><span class="p">],</span> <span class="n">lang</span><span class="p">)</span>
+
+    <span class="c1"># ANALYSIS    </span>
+    <span class="k">with</span> <span class="n">tab_analysis</span><span class="p">:</span>
+        <span class="n">results_raw</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">,</span>   <span class="kc">None</span><span class="p">)</span>
+        <span class="n">criteria</span>    <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;criteria&quot;</span><span class="p">,</span>  <span class="nb">list</span><span class="p">(</span><span class="n">CL</span><span class="o">.</span><span class="n">keys</span><span class="p">())[:</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">weights</span>     <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;weights&quot;</span><span class="p">,</span>   <span class="p">{})</span>
+        <span class="n">tox_index</span>   <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tox_index&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+        <span class="k">if</span> <span class="n">results_raw</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results_raw</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;no_analysis&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sc_ds</span>  <span class="o">=</span> <span class="n">results_raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset&quot;</span><span class="p">,</span>   <span class="p">[])</span>
+            <span class="n">sc_val</span> <span class="o">=</span> <span class="n">results_raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validated&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">sc_pr</span>  <span class="o">=</span> <span class="n">results_raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;predicted&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">all_sc</span> <span class="o">=</span> <span class="n">sc_ds</span> <span class="o">+</span> <span class="n">sc_val</span> <span class="o">+</span> <span class="n">sc_pr</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">all_sc</span><span class="p">:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;no_analysis&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">subheader</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;compare_title&quot;</span><span class="p">])</span>
+
+                <span class="k">def</span><span class="w"> </span><span class="nf">_badge_label</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validation_status&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;validated&quot;</span><span class="p">:</span><span class="s2">&quot;✅&quot;</span><span class="p">,</span><span class="s2">&quot;partial&quot;</span><span class="p">:</span><span class="s2">&quot;🔬&quot;</span><span class="p">,</span><span class="s2">&quot;predicted&quot;</span><span class="p">:</span><span class="s2">&quot;🤖&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="s2">&quot;📚&quot;</span><span class="p">)</span>
+
+                <span class="n">route_opts</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_badge_label</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;matched_route_name&#39;</span><span class="p">,</span><span class="s1">&#39;?&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;(score </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">:</span> <span class="n">i</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_sc</span><span class="p">)</span>
+                <span class="p">}</span>
+                <span class="n">labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">route_opts</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="n">sel</span>    <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">multiselect</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;sel_routes&quot;</span><span class="p">],</span> <span class="n">labels</span><span class="p">,</span>
+                                        <span class="n">default</span><span class="o">=</span><span class="n">labels</span><span class="p">[:</span><span class="nb">min</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">))])</span>
+
+                <span class="k">if</span> <span class="n">sel</span><span class="p">:</span>
+                    <span class="n">sel_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_sc</span><span class="p">[</span><span class="n">route_opts</span><span class="p">[</span><span class="n">s</span><span class="p">]]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sel</span><span class="p">]</span>
+                    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">score</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">route</span> <span class="ow">in</span> <span class="n">sel_results</span><span class="p">:</span>
+                        <span class="n">sd</span>  <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_steps&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                        <span class="n">bn_</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">bottleneck_yield</span><span class="p">(</span><span class="n">sd</span><span class="p">)</span>
+                        <span class="n">av_</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">average_yield</span><span class="p">(</span><span class="n">sd</span><span class="p">)</span>
+                        <span class="n">yc</span>  <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">cumulative_yield</span><span class="p">(</span><span class="n">sd</span><span class="p">)</span>
+                        <span class="n">row</span> <span class="o">=</span> <span class="p">{</span>
+                            <span class="s2">&quot;Route&quot;</span><span class="p">:</span>               <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_name&quot;</span><span class="p">,</span><span class="s2">&quot;?&quot;</span><span class="p">)[:</span><span class="mi">26</span><span class="p">],</span>
+                            <span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_score&quot;</span><span class="p">]:</span>     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_steps&quot;</span><span class="p">]:</span>     <span class="nb">len</span><span class="p">(</span><span class="n">sd</span><span class="p">),</span>
+                            <span class="s2">&quot;Cumul. yield&quot;</span><span class="p">:</span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">yc</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+                            <span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_bottleneck&quot;</span><span class="p">]:</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bn_</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">bn_</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">,</span>
+                            <span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_avg&quot;</span><span class="p">]:</span>       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">av_</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">av_</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">,</span>
+                        <span class="p">}</span>
+                        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">criteria</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="s2">&quot;yield&quot;</span><span class="p">):</span>
+                                <span class="k">continue</span>
+                            <span class="n">raw</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span>
+                            <span class="n">row</span><span class="p">[</span><span class="n">CL</span><span class="p">[</span><span class="n">c</span><span class="p">]]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">raw</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span>
+                        <span class="n">all_s</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">compute_all_scores</span><span class="p">(</span><span class="n">route</span><span class="p">,</span> <span class="n">tox_index</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">rt</span><span class="o">.</span><span class="n">CRITERIA_REGISTRY</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">criteria</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span><span class="s2">&quot;yield&quot;</span><span class="p">):</span>
+                                <span class="n">row</span><span class="p">[</span><span class="n">CL</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot; ✗&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">all_s</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Route&quot;</span><span class="p">)</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">dataframe</span><span class="p">(</span>
+                        <span class="n">df</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;stretch&quot;</span><span class="p">,</span>
+                        <span class="n">column_config</span><span class="o">=</span><span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">st</span><span class="o">.</span><span class="n">column_config</span><span class="o">.</span><span class="n">TextColumn</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">},</span>
+                    <span class="p">)</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;✓ = selected criteria  ✗ = additional criteria (not used in ranking)&quot;</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sel_results</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**</span><span class="si">{</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;radar_title&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">**&quot;</span><span class="p">)</span>
+                        <span class="n">fig_cmp</span> <span class="o">=</span> <span class="n">make_comparison_chart</span><span class="p">(</span><span class="n">sel_results</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">lang</span><span class="p">)</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">pyplot</span><span class="p">(</span><span class="n">fig_cmp</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_cmp</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sel_results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;### Reaction schemes&quot;</span><span class="p">)</span>
+                        <span class="n">cA</span><span class="p">,</span> <span class="n">cB</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">route</span><span class="p">),</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                                <span class="p">[</span><span class="n">cA</span><span class="p">,</span> <span class="n">cB</span><span class="p">],</span> <span class="n">sel_results</span><span class="p">,</span> <span class="n">sel</span><span class="p">[:</span><span class="mi">2</span><span class="p">]):</span>
+                            <span class="k">with</span> <span class="n">col</span><span class="p">:</span>
+                                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**</span><span class="si">{</span><span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;matched_route_name&#39;</span><span class="p">,</span><span class="s1">&#39;?&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">**&quot;</span><span class="p">)</span>
+                                <span class="n">rk</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                    <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_id&quot;</span><span class="p">,</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+                                    <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span>
+                                <span class="p">)</span>
+                                <span class="n">components</span><span class="o">.</span><span class="n">html</span><span class="p">(</span>
+                                    <span class="n">build_clickable_scheme_html</span><span class="p">(</span>
+                                        <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_steps&quot;</span><span class="p">,[]),</span>
+                                        <span class="n">rk</span><span class="p">,</span>
+                                        <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_predicted&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                                    <span class="p">),</span>
+                                    <span class="n">height</span><span class="o">=</span><span class="mi">480</span><span class="p">,</span> <span class="n">scrolling</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="p">)</span>
+
+    <span class="c1"># DATASET EXPLORER    </span>
+    <span class="k">with</span> <span class="n">tab_dataset</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">):</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;ds_not_found&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">dataset_path</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">spinner</span><span class="p">(</span><span class="s2">&quot;Loading…&quot;</span><span class="p">):</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset_cached</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">)</span>
+            <span class="n">reactions_all</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]</span>
+            <span class="n">by_route</span>      <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;by_route&quot;</span><span class="p">]</span>
+            <span class="n">targets_uniq</span>  <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span><span class="s2">&quot;?&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reactions_all</span><span class="p">))</span>
+
+            <span class="n">c1d</span><span class="p">,</span> <span class="n">c2d</span><span class="p">,</span> <span class="n">c3d</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">c1d</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;total_rxn&quot;</span><span class="p">],</span>   <span class="nb">len</span><span class="p">(</span><span class="n">reactions_all</span><span class="p">))</span>
+            <span class="n">c2d</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;dist_routes&quot;</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">by_route</span><span class="p">))</span>
+            <span class="n">c3d</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;tgt_mols&quot;</span><span class="p">],</span>    <span class="nb">len</span><span class="p">(</span><span class="n">targets_uniq</span><span class="p">))</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+
+            <span class="n">filter_tgt</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;filter_lbl&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;filter_all&quot;</span><span class="p">]]</span> <span class="o">+</span> <span class="n">targets_uniq</span><span class="p">)</span>
+
+            <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">rid</span><span class="p">,</span> <span class="n">steps</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">by_route</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="n">tgt</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">filter_tgt</span> <span class="o">!=</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;filter_all&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">tgt</span> <span class="o">!=</span> <span class="n">filter_tgt</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">nm</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;route_name&quot;</span><span class="p">,</span> <span class="n">rid</span><span class="p">)</span>
+                <span class="n">n</span>  <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span>
+                <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;yield_percent&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">]</span>
+                <span class="n">yo</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ys</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+                <span class="n">yc</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">cumulative_yield</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span>
+                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_route&quot;</span><span class="p">]:</span>    <span class="n">nm</span><span class="p">,</span>
+                    <span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_target&quot;</span><span class="p">]:</span>   <span class="n">tgt</span><span class="p">,</span>
+                    <span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_steps&quot;</span><span class="p">]:</span>    <span class="n">n</span><span class="p">,</span>
+                    <span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_cumyield&quot;</span><span class="p">]:</span> <span class="nb">round</span><span class="p">(</span><span class="n">yc</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+                    <span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_missing&quot;</span><span class="p">]:</span>  <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ys</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span>
+                    <span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_avg&quot;</span><span class="p">]:</span>      <span class="nb">round</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">yo</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">yo</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">yo</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">})</span>
+
+            <span class="k">if</span> <span class="n">rows</span><span class="p">:</span>
+                <span class="n">df_routes</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_cumyield&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">dataframe</span><span class="p">(</span>
+                    <span class="n">df_routes</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;stretch&quot;</span><span class="p">,</span> <span class="n">hide_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">column_config</span><span class="o">=</span><span class="p">{</span>
+                        <span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_route&quot;</span><span class="p">]:</span>    <span class="n">st</span><span class="o">.</span><span class="n">column_config</span><span class="o">.</span><span class="n">TextColumn</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_route&quot;</span><span class="p">]),</span>
+                        <span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_target&quot;</span><span class="p">]:</span>   <span class="n">st</span><span class="o">.</span><span class="n">column_config</span><span class="o">.</span><span class="n">TextColumn</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_target&quot;</span><span class="p">]),</span>
+                        <span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_steps&quot;</span><span class="p">]:</span>    <span class="n">st</span><span class="o">.</span><span class="n">column_config</span><span class="o">.</span><span class="n">NumberColumn</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_steps&quot;</span><span class="p">],</span>    <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+                        <span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_cumyield&quot;</span><span class="p">]:</span> <span class="n">st</span><span class="o">.</span><span class="n">column_config</span><span class="o">.</span><span class="n">NumberColumn</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_cumyield&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%.2f</span><span class="s2"> </span><span class="si">%%</span><span class="s2">&quot;</span><span class="p">),</span>
+                        <span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_missing&quot;</span><span class="p">]:</span>  <span class="n">st</span><span class="o">.</span><span class="n">column_config</span><span class="o">.</span><span class="n">NumberColumn</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_missing&quot;</span><span class="p">],</span>  <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+                        <span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_avg&quot;</span><span class="p">]:</span>      <span class="n">st</span><span class="o">.</span><span class="n">column_config</span><span class="o">.</span><span class="n">NumberColumn</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_avg&quot;</span><span class="p">],</span>      <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%.1f</span><span class="s2"> </span><span class="si">%%</span><span class="s2">&quot;</span><span class="p">),</span>
+                    <span class="p">},</span>
+                <span class="p">)</span>
+
+            <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+            <span class="n">routes_avail</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">rid</span> <span class="k">for</span> <span class="n">rid</span><span class="p">,</span> <span class="n">steps</span> <span class="ow">in</span> <span class="n">by_route</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">filter_tgt</span> <span class="o">==</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;filter_all&quot;</span><span class="p">]</span>
+                <span class="ow">or</span> <span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span><span class="s2">&quot;?&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">filter_tgt</span>
+            <span class="p">]</span>
+            <span class="n">rc</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
+                <span class="n">T</span><span class="p">[</span><span class="s2">&quot;detail_sel&quot;</span><span class="p">],</span> <span class="n">routes_avail</span><span class="p">,</span>
+                <span class="n">format_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">by_route</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;route_name&#39;</span><span class="p">,</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">by_route</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">,</span><span class="s1">&#39;?&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">rc</span><span class="p">:</span>
+                <span class="n">sr</span>   <span class="o">=</span> <span class="n">by_route</span><span class="p">[</span><span class="n">rc</span><span class="p">]</span>
+                <span class="n">n_sr</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sr</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;**</span><span class="si">{</span><span class="n">sr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;route_name&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">** — </span><span class="si">{</span><span class="n">n_sr</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">strip_emoji</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;col_steps&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">fig3</span> <span class="o">=</span> <span class="n">make_yield_chart</span><span class="p">(</span><span class="n">sr</span><span class="p">,</span> <span class="n">lang</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">pyplot</span><span class="p">(</span><span class="n">fig3</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig3</span><span class="p">)</span>
+
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;### Step-by-step details&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">sr</span><span class="p">:</span>
+                    <span class="n">snum</span>     <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step_number&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
+                    <span class="n">rtype</span>    <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reaction_type&quot;</span><span class="p">,</span> <span class="s2">&quot;—&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;—&quot;</span>
+                    <span class="n">yld</span>      <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;yield_percent&quot;</span><span class="p">)</span>
+                    <span class="n">cond</span>     <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditions&quot;</span><span class="p">,</span> <span class="p">{})</span>
+                    <span class="n">prod</span>     <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="n">reac</span>     <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                    <span class="n">cond_str</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">fmt_conditions</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
+                    <span class="n">is_purif</span> <span class="o">=</span> <span class="n">is_purification_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">is_purif</span> <span class="ow">and</span> <span class="p">(</span><span class="n">rtype</span> <span class="o">==</span> <span class="s2">&quot;—&quot;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">rtype</span><span class="p">):</span>
+                        <span class="n">rtype</span> <span class="o">=</span> <span class="s2">&quot;Purification / Isolation&quot;</span>
+
+                    <span class="n">header_style</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;background:#6B3E26;&quot;</span> <span class="k">if</span> <span class="n">is_purif</span> <span class="k">else</span>
+                        <span class="s2">&quot;background:linear-gradient(135deg,#1a2e44 0%,#2d5986 100%);&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;&lt;div style=&quot;</span><span class="si">{</span><span class="n">header_style</span><span class="si">}</span><span class="s1">color:white;padding:10px 18px;&#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;border-radius:10px 10px 0 0;font-family:</span><span class="se">\&#39;</span><span class="s1">DM Sans</span><span class="se">\&#39;</span><span class="s1">,sans-serif;&#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;font-weight:700;font-size:0.95rem;letter-spacing:0.04em;margin-top:18px;&quot;&gt;&#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;Step </span><span class="si">{</span><span class="n">snum</span><span class="si">}</span><span class="s1">&amp;nbsp;·&amp;nbsp;</span><span class="si">{</span><span class="n">rtype</span><span class="si">}</span><span class="s1">&#39;</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&amp;nbsp;&lt;span style=&quot;font-size:0.75rem;background:rgba(255,255,255,0.2);&#39;</span>
+                           <span class="sa">f</span><span class="s1">&#39;border-radius:8px;padding:1px 8px;&quot;&gt;Purification&lt;/span&gt;&#39;</span>
+                           <span class="k">if</span> <span class="n">is_purif</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span>
+                        <span class="sa">f</span><span class="s1">&#39;&lt;/div&gt;&#39;</span><span class="p">,</span>
+                        <span class="n">unsafe_allow_html</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                    <span class="n">n_reac</span>   <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">reac</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">cols_rxn</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_reac</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rsmi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reac</span><span class="p">):</span>
+                        <span class="k">with</span> <span class="n">cols_rxn</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                            <span class="n">png_r</span> <span class="o">=</span> <span class="n">mol_png</span><span class="p">(</span><span class="n">rsmi</span><span class="p">,</span> <span class="mi">480</span><span class="p">,</span> <span class="mi">330</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">png_r</span><span class="p">:</span>
+                                <span class="n">st</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">png_r</span><span class="p">,</span> <span class="n">use_container_width</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">st</span><span class="o">.</span><span class="n">code</span><span class="p">(</span><span class="n">rsmi</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                            <span class="n">smiles_copy_widget</span><span class="p">(</span><span class="n">rsmi</span><span class="p">)</span>
+
+                    <span class="k">with</span> <span class="n">cols_rxn</span><span class="p">[</span><span class="n">n_reac</span><span class="p">]:</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span>
+                            <span class="s1">&#39;&lt;div style=&quot;display:flex;align-items:center;justify-content:center;&#39;</span>
+                            <span class="s1">&#39;height:330px;&quot;&gt;&lt;div style=&quot;display:flex;align-items:center;gap:0;&quot;&gt;&#39;</span>
+                            <span class="s1">&#39;&lt;div style=&quot;width:2.5em;height:3px;background:#2d5986;&#39;</span>
+                            <span class="s1">&#39;border-radius:2px 0 0 2px;&quot;&gt;&lt;/div&gt;&#39;</span>
+                            <span class="s1">&#39;&lt;div style=&quot;width:0;height:0;border-top:9px solid transparent;&#39;</span>
+                            <span class="s1">&#39;border-bottom:9px solid transparent;&#39;</span>
+                            <span class="s1">&#39;border-left:16px solid #2d5986;&quot;&gt;&lt;/div&gt;&#39;</span>
+                            <span class="s1">&#39;&lt;/div&gt;&lt;/div&gt;&#39;</span><span class="p">,</span>
+                            <span class="n">unsafe_allow_html</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="p">)</span>
+
+                    <span class="k">with</span> <span class="n">cols_rxn</span><span class="p">[</span><span class="n">n_reac</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">png_p</span> <span class="o">=</span> <span class="n">mol_png</span><span class="p">(</span><span class="n">prod</span><span class="p">,</span> <span class="mi">480</span><span class="p">,</span> <span class="mi">330</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">png_p</span><span class="p">:</span>
+                            <span class="n">st</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">png_p</span><span class="p">,</span> <span class="n">use_container_width</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">st</span><span class="o">.</span><span class="n">code</span><span class="p">(</span><span class="n">prod</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                        <span class="n">smiles_copy_widget</span><span class="p">(</span><span class="n">prod</span><span class="p">)</span>
+
+                    <span class="n">info_parts</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">yld</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">info_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**Yield:** </span><span class="si">{</span><span class="n">yld</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">info_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;**Yield:** *not reported*&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">cond_str</span><span class="p">:</span>
+                        <span class="n">info_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**Conditions:** </span><span class="si">{</span><span class="n">cond_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                    <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span>
+                        <span class="s1">&#39;&lt;div style=&quot;background:#f0f4f8;border:1px solid #dce3ec;border-top:none;&#39;</span>
+                        <span class="s1">&#39;border-radius:0 0 10px 10px;padding:10px 18px;&#39;</span>
+                        <span class="s1">&#39;font-family:</span><span class="se">\&#39;</span><span class="s1">DM Sans</span><span class="se">\&#39;</span><span class="s1">,sans-serif;font-size:0.86rem;color:#1a2e44;&#39;</span>
+                        <span class="s1">&#39;display:flex;gap:32px;flex-wrap:wrap;margin-bottom:4px;&quot;&gt;&#39;</span> <span class="o">+</span>
+                        <span class="s2">&quot;&amp;nbsp;&amp;nbsp;·&amp;nbsp;&amp;nbsp;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="n">p</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;**&quot;</span><span class="p">,</span><span class="s2">&quot;&lt;strong&gt;&quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;**&quot;</span><span class="p">,</span><span class="s2">&quot;&lt;/strong&gt;&quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+                             <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="s2">&quot;&lt;em&gt;&quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="s2">&quot;&lt;/em&gt;&quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">info_parts</span>
+                        <span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&lt;/div&gt;&#39;</span><span class="p">,</span>
+                        <span class="n">unsafe_allow_html</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;**Full reaction scheme** *(click an arrow for extra details)*&quot;</span><span class="p">)</span>
+                <span class="n">route_ds_key</span>     <span class="o">=</span> <span class="s2">&quot;ds_&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">rc</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">())</span>
+                <span class="n">steps_for_scheme</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;step_number&quot;</span><span class="p">:</span>      <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step_number&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;reaction_type&quot;</span><span class="p">:</span>    <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reaction_type&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;yield_percent&quot;</span><span class="p">:</span>    <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;yield_percent&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;reactants_smiles&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,[]),</span>
+                        <span class="s2">&quot;product_smiles&quot;</span><span class="p">:</span>   <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;conditions&quot;</span><span class="p">:</span>       <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditions&quot;</span><span class="p">,{}),</span>
+                        <span class="s2">&quot;source&quot;</span><span class="p">:</span>           <span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
+                    <span class="p">}</span>
+                    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sr</span>
+                <span class="p">]</span>
+                <span class="n">scheme_h</span> <span class="o">=</span> <span class="mi">320</span> <span class="k">if</span> <span class="n">n_sr</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="k">else</span> <span class="p">(</span><span class="mi">400</span> <span class="k">if</span> <span class="n">n_sr</span> <span class="o">&lt;=</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">480</span><span class="p">)</span>
+                <span class="n">components</span><span class="o">.</span><span class="n">html</span><span class="p">(</span>
+                    <span class="n">build_clickable_scheme_html</span><span class="p">(</span><span class="n">steps_for_scheme</span><span class="p">,</span> <span class="n">route_ds_key</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                    <span class="n">height</span><span class="o">=</span><span class="n">scheme_h</span><span class="p">,</span> <span class="n">scrolling</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+
+    <span class="c1"># HELP    </span>
+    <span class="k">with</span> <span class="n">tab_help</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">subheader</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;help_title&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">lang</span> <span class="o">==</span> <span class="s2">&quot;en&quot;</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">**How routes are found and ranked:**</span>
+
+<span class="s2">1. `reaction_dataset.json` is loaded (main dataset — full synthesis routes)</span>
+<span class="s2">2. AiZynthFinder runs MCTS on the target (up to N routes, configurable)</span>
+<span class="s2">3. Main dataset routes for the target are returned (all of them, unfiltered)</span>
+<span class="s2">4. Novel AiZ routes are checked against `generic_reactions.json` step by step:</span>
+<span class="s2">   - **Validated** (all steps found): real conditions, yield included in scoring</span>
+<span class="s2">   - **Predicted** (no steps found): Rxn-INSIGHT conditions only, yield excluded</span>
+<span class="s2">5. Weighted 1/i² scoring across criteria</span>
+
+<span class="s2">**Purification / isolation steps:**</span>
+<span class="s2">Steps where the reactant and product SMILES are identical (or where `reaction_type`</span>
+<span class="s2">contains &quot;purif&quot;, &quot;recryst&quot;, &quot;chroma&quot;, &quot;isolation&quot;, or &quot;workup&quot;) are treated as</span>
+<span class="s2">purification steps. They are always shown in the scheme with a **brown dashed arrow**</span>
+<span class="s2">and a &quot;Purification&quot; badge, even though no bond-forming chemistry occurs. This</span>
+<span class="s2">preserves the full sequence of operations as recorded in the dataset.</span>
+
+<span class="s2">**Three result sections:**</span>
+<span class="s2">| Section | Source | Conditions | Yield in scoring |</span>
+<span class="s2">|---------|--------|-----------|-----------------|</span>
+<span class="s2">| 📚 Dataset | Chemistry by Design | Real | Yes |</span>
+<span class="s2">| ✅ Validated | AiZ + generic dataset | Real (validated steps) | Yes |</span>
+<span class="s2">| 🤖 Predicted | AiZ + Rxn-INSIGHT | Predicted | No |</span>
+
+<span class="s2">**Required files:**</span>
+
+<span class="s2">| File | Required | Role |</span>
+<span class="s2">|------|----------|------|</span>
+<span class="s2">| `reaction_dataset.json` | ✅ | Main curated routes |</span>
+<span class="s2">| `config.yml` | ✅ | AiZynthFinder model config |</span>
+<span class="s2">| `toxicity_dataset.json` | ✅ | Safety scores — required for Safety criterion |</span>
+<span class="s2">| `data/uspto_rxn_insight.gzip` | ❌ | Rxn-INSIGHT USPTO database |</span>
+<span class="s2">| `generic_reactions.json` | ❌ | Individual reactions for step validation |</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">**Comment les routes sont trouvées et classées :**</span>
+
+<span class="s2">1. `reaction_dataset.json` est chargé (dataset principal — routes de synthèse complètes)</span>
+<span class="s2">2. AiZynthFinder effectue une recherche MCTS sur la cible (jusqu&#39;à N routes, configurable)</span>
+<span class="s2">3. Les routes du dataset principal pour la cible sont retournées (toutes, sans filtre)</span>
+<span class="s2">4. Les routes AiZ nouvelles sont validées étape par étape contre `generic_reactions.json` :</span>
+<span class="s2">   - **Validées** (toutes les étapes trouvées) : conditions réelles, yield inclus dans le score</span>
+<span class="s2">   - **Prédites** (aucune étape) : conditions Rxn-INSIGHT uniquement, yield exclu</span>
+<span class="s2">5. Score pondéré 1/i² sur les critères</span>
+
+<span class="s2">**Étapes de purification / isolation :**</span>
+<span class="s2">Les étapes dont le SMILES du réactif est identique au SMILES du produit sont traitées</span>
+<span class="s2">comme des étapes de purification. Elles s&#39;affichent avec une **flèche pointillée marron**</span>
+<span class="s2">et un badge &quot;Purification&quot;, même si aucune liaison n&#39;est formée.</span>
+
+<span class="s2">**Trois sections de résultats :**</span>
+<span class="s2">| Section | Source | Conditions | Yield dans le score |</span>
+<span class="s2">|---------|--------|-----------|---------------------|</span>
+<span class="s2">| 📚 Dataset | Chemistry by Design | Réelles | Oui |</span>
+<span class="s2">| ✅ Validées | AiZ + dataset générique | Réelles (étapes validées) | Oui |</span>
+<span class="s2">| 🤖 Prédites | AiZ + Rxn-INSIGHT | Prédites | Non |</span>
+
+<span class="s2">**Fichiers nécessaires :**</span>
+
+<span class="s2">| Fichier | Obligatoire | Rôle |</span>
+<span class="s2">|---------|-------------|------|</span>
+<span class="s2">| `reaction_dataset.json` | ✅ | Routes de synthèse principales |</span>
+<span class="s2">| `config.yml` | ✅ | Configuration du modèle AiZynthFinder |</span>
+<span class="s2">| `toxicity_dataset.json` | ✅ | Scores de sécurité |</span>
+<span class="s2">| `data/uspto_rxn_insight.gzip` | ❌ | Base USPTO pour Rxn-INSIGHT |</span>
+<span class="s2">| `generic_reactions.json` | ❌ | Réactions individuelles pour validation |</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;footer&quot;</span><span class="p">])</span></div>
+
+
+<span class="c1"># Entry point</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Yara Chahda, Corentin Portmann, Ines Ouchen
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>

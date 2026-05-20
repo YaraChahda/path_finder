@@ -1,0 +1,785 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
+        <title>path_finder.report_builder - path-finder-retrosynthesis 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">path-finder-retrosynthesis 1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <span class="sidebar-brand-text">path-finder-retrosynthesis 1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/modules.html">path_finder</a><input aria-label="Toggle navigation of path_finder" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/path_finder.html">path_finder package</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for path_finder.report_builder</h1><div class="highlight"><pre>
+<span></span><span class="c1"># report_builder.py — PDF generation</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem</span><span class="w"> </span><span class="kn">import</span> <span class="n">rdDepictor</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem.Draw</span><span class="w"> </span><span class="kn">import</span> <span class="n">rdMolDraw2D</span>
+    <span class="n">MODULE_OK</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="n">MODULE_OK</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">route_engine</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rt</span>
+
+<div class="viewcode-block" id="build_route_report_pdf">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.report_builder.build_route_report_pdf">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_route_report_pdf</span><span class="p">(</span><span class="n">score_total</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">route</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+                            <span class="n">criteria</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a multi-page A4 PDF report for a single synthesis route using PIL.</span>
+
+<span class="sd">    Page 1 contains a summary header, metric cards, score breakdown table,</span>
+<span class="sd">    and starting-material structure images with full SMILES labels.</span>
+<span class="sd">    Pages 2 onwards contain up to 3 reaction steps per page, each showing</span>
+<span class="sd">    a coloured header band, a conditions bar, and molecule images arranged</span>
+<span class="sd">    as reactants → arrow → product, centred horizontally.</span>
+
+<span class="sd">    Molecule rendering uses Cairo at 3× display size with ``bondLineWidth=6``,</span>
+<span class="sd">    then Lanczos-downsampled to display size for thick, crisp bonds.</span>
+<span class="sd">    Nothing is ever truncated — SMILES and reaction types are word-wrapped</span>
+<span class="sd">    across multiple lines so the full string is always visible.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    score_total : float</span>
+<span class="sd">        Total weighted score of the route.</span>
+<span class="sd">    details : dict</span>
+<span class="sd">        Per-criterion detail dicts from ``rank_weighted()``, with keys</span>
+<span class="sd">        ``raw``, ``weight``, ``weighted``, and optionally ``excluded``.</span>
+<span class="sd">    route : dict</span>
+<span class="sd">        Enriched route dict; must contain a ``dataset_steps`` key.</span>
+<span class="sd">    criteria : list of str</span>
+<span class="sd">        Three criterion keys in descending priority order.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bytes</span>
+<span class="sd">        Raw PDF content ready to pass to ``st.download_button()``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">_PI</span><span class="p">,</span> <span class="n">ImageDraw</span> <span class="k">as</span> <span class="n">_PID</span><span class="p">,</span> <span class="n">ImageFont</span> <span class="k">as</span> <span class="n">_PIF</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_io</span>
+
+    <span class="c1">#  Page geometry (A4 at 200 DPI) ─</span>
+    <span class="n">DPI</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="n">PW</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">8.27</span>  <span class="o">*</span> <span class="n">DPI</span><span class="p">)</span>   <span class="c1"># 1654 px</span>
+    <span class="n">PH</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">11.69</span> <span class="o">*</span> <span class="n">DPI</span><span class="p">)</span>   <span class="c1"># 2338 px</span>
+    <span class="n">MG</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.55</span>  <span class="o">*</span> <span class="n">DPI</span><span class="p">)</span>   <span class="c1"># 110 px  (left/right margin)</span>
+    <span class="n">CW</span>  <span class="o">=</span> <span class="n">PW</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">MG</span>        <span class="c1"># usable width</span>
+
+    <span class="c1">#  Colours </span>
+    <span class="n">NAVY</span>   <span class="o">=</span> <span class="p">(</span><span class="mi">26</span><span class="p">,</span>  <span class="mi">46</span><span class="p">,</span>  <span class="mi">68</span><span class="p">)</span>
+    <span class="n">WHITE</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+    <span class="n">LIGHT</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">235</span><span class="p">,</span> <span class="mi">242</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+    <span class="n">LGREY</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">245</span><span class="p">,</span> <span class="mi">248</span><span class="p">,</span> <span class="mi">252</span><span class="p">)</span>
+    <span class="n">GREY</span>   <span class="o">=</span> <span class="p">(</span><span class="mi">107</span><span class="p">,</span> <span class="mi">122</span><span class="p">,</span> <span class="mi">141</span><span class="p">)</span>
+    <span class="n">ORANGE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">230</span><span class="p">,</span>  <span class="mi">81</span><span class="p">,</span>   <span class="mi">0</span><span class="p">)</span>
+    <span class="n">GREEN</span>  <span class="o">=</span> <span class="p">(</span> <span class="mi">21</span><span class="p">,</span>  <span class="mi">87</span><span class="p">,</span>  <span class="mi">36</span><span class="p">)</span>
+    <span class="n">SEP</span>    <span class="o">=</span> <span class="p">(</span><span class="mi">220</span><span class="p">,</span> <span class="mi">227</span><span class="p">,</span> <span class="mi">236</span><span class="p">)</span>
+    <span class="n">BG</span>     <span class="o">=</span> <span class="p">(</span><span class="mi">249</span><span class="p">,</span> <span class="mi">251</span><span class="p">,</span> <span class="mi">253</span><span class="p">)</span>
+
+    <span class="c1">#  Fonts </span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fnt</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">bold</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># tries system fonts, falls back to PIL default</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;/System/Library/Fonts/Supplemental/Arial Bold.ttf&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">bold</span> <span class="k">else</span>
+            <span class="p">[</span><span class="s2">&quot;/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;/System/Library/Fonts/Supplemental/Arial.ttf&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_PIF</span><span class="o">.</span><span class="n">truetype</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">_PIF</span><span class="o">.</span><span class="n">load_default</span><span class="p">()</span>
+
+    <span class="c1"># Font size constants — adjust here to rescale all text uniformly</span>
+    <span class="n">F_TITLE</span><span class="p">,</span> <span class="n">F_SUBTITLE</span><span class="p">,</span> <span class="n">F_SECTION</span> <span class="o">=</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">28</span> <span class="c1"># route name in page-1 header, target / status / score line, section headings</span>
+    <span class="n">F_CARD_LBL</span><span class="p">,</span> <span class="n">F_CARD_VAL</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">34</span> <span class="c1"># metric card label, value</span>
+    <span class="n">F_TH</span> <span class="o">=</span> <span class="n">F_TD</span> <span class="o">=</span> <span class="mi">20</span> <span class="c1"># table header and cell text</span>
+    <span class="n">F_ROW_H</span> <span class="o">=</span> <span class="mi">32</span> <span class="c1"># pixel height of each table row (must comfortably fit F_TD)</span>
+    <span class="n">F_COND</span><span class="p">,</span> <span class="n">F_STEP_HDR</span><span class="p">,</span> <span class="n">F_YIELD</span><span class="p">,</span> <span class="n">F_SMILES</span> <span class="o">=</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">19</span> <span class="c1"># conditions text in step pages, step header (&quot;Step N · reaction type&quot;), yield text in step header (right-aligned), SMILES label under molecule images</span>
+    
+    <span class="c1">#  Molecule renderer </span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mol_pil</span><span class="p">(</span><span class="n">smi</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+        <span class="c1"># Render a SMILES string to a PIL image of given width and height</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">smi</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">MODULE_OK</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smi</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">rdDepictor</span><span class="o">.</span><span class="n">Compute2DCoords</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="n">drw</span> <span class="o">=</span> <span class="n">rdMolDraw2D</span><span class="o">.</span><span class="n">MolDraw2DCairo</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="n">h</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span>
+            <span class="n">opts</span> <span class="o">=</span> <span class="n">drw</span><span class="o">.</span><span class="n">drawOptions</span><span class="p">()</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">bondLineWidth</span>       <span class="o">=</span> <span class="mf">6.0</span>   <span class="c1"># thick bonds</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">padding</span>             <span class="o">=</span> <span class="mf">0.15</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">addStereoAnnotation</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">atomLabelFontSize</span>   <span class="o">=</span> <span class="mf">0.55</span>  <span class="c1"># readable atom labels</span>
+            <span class="n">drw</span><span class="o">.</span><span class="n">DrawMolecule</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+            <span class="n">drw</span><span class="o">.</span><span class="n">FinishDrawing</span><span class="p">()</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">_PI</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">_io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">drw</span><span class="o">.</span><span class="n">GetDrawingText</span><span class="p">()))</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGBA&quot;</span><span class="p">)</span>
+            <span class="n">bg</span>  <span class="o">=</span> <span class="n">_PI</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;RGBA&quot;</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+            <span class="n">bg</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">bg</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">),</span> <span class="n">_PI</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1">#  Text helpers </span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_text_w</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">font</span><span class="p">):</span>
+        <span class="c1"># Measure text width in pixels, with a fallback to character countif the font doesn&#39;t support measurement</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">draw</span><span class="o">.</span><span class="n">textlength</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">font</span><span class="o">.</span><span class="n">size</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wrap_words</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">max_px</span><span class="p">,</span> <span class="n">font</span><span class="p">):</span>
+        <span class="c1"># Wrap text across lines by word boundary</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="n">txt</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">line</span>  <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+            <span class="n">test</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">w</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">_text_w</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">font</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_px</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">test</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lines</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wrap_smiles</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">max_px</span><span class="p">,</span> <span class="n">font</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wrap a SMILES string across lines by character boundary.</span>
+
+<span class="sd">        SMILES strings contain no spaces, so word-wrapping is not applicable.</span>
+<span class="sd">        This function splits at the longest character prefix that fits within</span>
+<span class="sd">        ``max_px`` and continues until the full string is emitted. Nothing is</span>
+<span class="sd">        ever truncated.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        draw : PIL.ImageDraw.Draw</span>
+<span class="sd">            Drawing context used for width measurement.</span>
+<span class="sd">        txt : str</span>
+<span class="sd">            SMILES string to wrap.</span>
+<span class="sd">        max_px : int</span>
+<span class="sd">            Maximum line width in pixels.</span>
+<span class="sd">        font : PIL.ImageFont</span>
+<span class="sd">            Font used for width measurement.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            Substrings of ``txt`` that each fit within ``max_px``, whose</span>
+<span class="sd">            concatenation equals the original string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">txt</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">txt</span><span class="p">:</span>
+            <span class="c1"># Binary-search for the longest prefix that fits</span>
+            <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">lo</span> <span class="o">&lt;</span> <span class="n">hi</span><span class="p">:</span>
+                <span class="n">mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">lo</span> <span class="o">+</span> <span class="n">hi</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+                <span class="k">if</span> <span class="n">_text_w</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">txt</span><span class="p">[:</span><span class="n">mid</span><span class="p">],</span> <span class="n">font</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_px</span><span class="p">:</span>
+                    <span class="n">lo</span> <span class="o">=</span> <span class="n">mid</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">hi</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">txt</span><span class="p">[:</span><span class="n">lo</span><span class="p">])</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">txt</span><span class="p">[</span><span class="n">lo</span><span class="p">:]</span>
+        <span class="k">return</span> <span class="n">lines</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_draw_text_lines</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">fill</span><span class="p">,</span> <span class="n">line_gap</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="c1"># Draw multiple lines of text with fixed vertical spicing</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">lh</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="n">line_gap</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">lh</span> <span class="o">=</span> <span class="mi">14</span> <span class="o">+</span> <span class="n">line_gap</span>
+        <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">ln</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">fill</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">+=</span> <span class="n">lh</span>
+        <span class="k">return</span> <span class="n">y</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wrap</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">max_px</span><span class="p">,</span> <span class="n">font</span><span class="p">):</span>
+        <span class="c1"># General wrapper that tries word-wrapping first, then falls back to character-wrapping if the text contains no spaces</span>
+        <span class="k">return</span> <span class="n">_wrap_words</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">max_px</span><span class="p">,</span> <span class="n">font</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_draw_band</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">NAVY</span><span class="p">):</span>
+        <span class="c1"># Draw a full-width horizontal band of given height and colour at vertical position y</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">rectangle</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">PW</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">],</span> <span class="n">fill</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_draw_rounded</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">fill</span><span class="p">,</span> <span class="n">outline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="c1"># Draw a rounded rectangle with given position, size, fill colour, optional outline colour, and corner radius</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">rounded_rectangle</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">],</span> <span class="n">radius</span><span class="o">=</span><span class="n">r</span><span class="p">,</span>
+                                <span class="n">fill</span><span class="o">=</span><span class="n">fill</span><span class="p">,</span> <span class="n">outline</span><span class="o">=</span><span class="n">outline</span> <span class="ow">or</span> <span class="n">fill</span><span class="p">)</span>
+
+    <span class="c1">#  Route metadata </span>
+    <span class="n">steps_data</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_steps&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">rname</span>      <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown route&quot;</span><span class="p">)</span>
+    <span class="n">target</span>     <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_target&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
+    <span class="n">status</span>     <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validation_status&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+    <span class="n">status_lbl</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dataset&quot;</span><span class="p">:</span> <span class="s2">&quot;Dataset&quot;</span><span class="p">,</span> <span class="s2">&quot;validated&quot;</span><span class="p">:</span> <span class="s2">&quot;Validated&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;partial&quot;</span><span class="p">:</span> <span class="s2">&quot;Partial&quot;</span><span class="p">,</span> <span class="s2">&quot;predicted&quot;</span><span class="p">:</span> <span class="s2">&quot;Predicted&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+    <span class="n">sub</span>   <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">get_substances_list</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">bn_</span>   <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">bottleneck_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">av_</span>   <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">average_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">cumyl</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">cumulative_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+
+    <span class="n">pages</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># PAGE 1 — Summary    </span>
+    <span class="n">p1</span> <span class="o">=</span> <span class="n">_PI</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">PW</span><span class="p">,</span> <span class="n">PH</span><span class="p">),</span> <span class="n">BG</span><span class="p">)</span>
+    <span class="n">d1</span> <span class="o">=</span> <span class="n">_PID</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+
+    <span class="c1"># Header band — wraps route name if very long</span>
+    <span class="n">rname_lines</span> <span class="o">=</span> <span class="n">_wrap_words</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">rname</span><span class="p">,</span> <span class="n">CW</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_TITLE</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+    <span class="n">n_title_lines</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rname_lines</span><span class="p">)</span>
+    <span class="n">BH</span> <span class="o">=</span> <span class="n">n_title_lines</span> <span class="o">*</span> <span class="p">(</span><span class="n">F_TITLE</span> <span class="o">+</span> <span class="mi">6</span><span class="p">)</span> <span class="o">+</span> <span class="n">F_SUBTITLE</span> <span class="o">+</span> <span class="mi">48</span>
+    <span class="n">_draw_band</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">BH</span><span class="p">)</span>
+
+    <span class="n">ty</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">rname_lines</span><span class="p">:</span>
+        <span class="n">d1</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">MG</span><span class="p">,</span> <span class="n">ty</span><span class="p">),</span> <span class="n">ln</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">WHITE</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_TITLE</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">ty</span> <span class="o">+=</span> <span class="n">F_TITLE</span> <span class="o">+</span> <span class="mi">6</span>
+    <span class="n">subtitle</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Target: </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">   ·   </span><span class="si">{</span><span class="n">status_lbl</span><span class="si">}</span><span class="s2">   ·   &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Score: </span><span class="si">{</span><span class="n">score_total</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">d1</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">MG</span><span class="p">,</span> <span class="n">ty</span> <span class="o">+</span> <span class="mi">4</span><span class="p">),</span> <span class="n">subtitle</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">180</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">220</span><span class="p">),</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_SUBTITLE</span><span class="p">))</span>
+
+    <span class="n">y1</span> <span class="o">=</span> <span class="n">BH</span> <span class="o">+</span> <span class="mi">24</span>
+
+    <span class="c1"># Metric cards</span>
+    <span class="n">CARD_H</span> <span class="o">=</span> <span class="n">F_CARD_LBL</span> <span class="o">+</span> <span class="n">F_CARD_VAL</span> <span class="o">+</span> <span class="mi">24</span>
+    <span class="n">mets</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;Steps&quot;</span><span class="p">,</span>        <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">steps_data</span><span class="p">))),</span>
+        <span class="p">(</span><span class="s2">&quot;Cumul. yield&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cumyl</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Bottleneck&quot;</span><span class="p">,</span>   <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bn_</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">bn_</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Avg yield&quot;</span><span class="p">,</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">av_</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">av_</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">mc</span> <span class="o">=</span> <span class="n">CW</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">mets</span><span class="p">)</span>
+    <span class="n">mx</span> <span class="o">=</span> <span class="n">MG</span>
+    <span class="k">for</span> <span class="n">lbl</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">mets</span><span class="p">:</span>
+        <span class="n">_draw_rounded</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">mx</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">mc</span> <span class="o">-</span> <span class="mi">10</span><span class="p">,</span> <span class="n">CARD_H</span><span class="p">,</span> <span class="n">LIGHT</span><span class="p">,</span> <span class="n">SEP</span><span class="p">)</span>
+        <span class="n">d1</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">mx</span> <span class="o">+</span> <span class="mi">12</span><span class="p">,</span> <span class="n">y1</span> <span class="o">+</span> <span class="mi">8</span><span class="p">),</span> <span class="n">lbl</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">GREY</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_CARD_LBL</span><span class="p">))</span>
+        <span class="n">d1</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">mx</span> <span class="o">+</span> <span class="mi">12</span><span class="p">,</span> <span class="n">y1</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">+</span> <span class="n">F_CARD_LBL</span> <span class="o">+</span> <span class="mi">6</span><span class="p">),</span> <span class="n">val</span><span class="p">,</span>
+                <span class="n">fill</span><span class="o">=</span><span class="n">NAVY</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_CARD_VAL</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">mx</span> <span class="o">+=</span> <span class="n">mc</span>
+    <span class="n">y1</span> <span class="o">+=</span> <span class="n">CARD_H</span> <span class="o">+</span> <span class="mi">20</span>
+
+    <span class="n">d1</span><span class="o">.</span><span class="n">line</span><span class="p">([(</span><span class="n">MG</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="p">(</span><span class="n">PW</span> <span class="o">-</span> <span class="n">MG</span><span class="p">,</span> <span class="n">y1</span><span class="p">)],</span> <span class="n">fill</span><span class="o">=</span><span class="n">SEP</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">y1</span> <span class="o">+=</span> <span class="mi">16</span>
+
+    <span class="c1"># Score breakdown table</span>
+    <span class="n">d1</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">MG</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="s2">&quot;Score breakdown&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">NAVY</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_SECTION</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+    <span class="n">y1</span> <span class="o">+=</span> <span class="n">F_SECTION</span> <span class="o">+</span> <span class="mi">12</span>
+
+    <span class="n">col_ws</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">CW</span> <span class="o">*</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.36</span><span class="p">,</span> <span class="mf">0.21</span><span class="p">,</span> <span class="mf">0.17</span><span class="p">,</span> <span class="mf">0.26</span><span class="p">]]</span>
+    <span class="n">hdrs</span>   <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Criterion&quot;</span><span class="p">,</span> <span class="s2">&quot;Raw (0–1)&quot;</span><span class="p">,</span> <span class="s2">&quot;Weight&quot;</span><span class="p">,</span> <span class="s2">&quot;Contribution&quot;</span><span class="p">]</span>
+    <span class="n">hx</span> <span class="o">=</span> <span class="n">MG</span>
+    <span class="k">for</span> <span class="n">txt</span><span class="p">,</span> <span class="n">cw</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">hdrs</span><span class="p">,</span> <span class="n">col_ws</span><span class="p">):</span>
+        <span class="n">_draw_rounded</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">hx</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">cw</span> <span class="o">-</span> <span class="mi">4</span><span class="p">,</span> <span class="n">F_ROW_H</span><span class="p">,</span> <span class="n">NAVY</span><span class="p">,</span> <span class="n">NAVY</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">d1</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">hx</span> <span class="o">+</span> <span class="mi">8</span><span class="p">,</span> <span class="n">y1</span> <span class="o">+</span> <span class="p">(</span><span class="n">F_ROW_H</span> <span class="o">-</span> <span class="n">F_TH</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">txt</span><span class="p">,</span>
+                <span class="n">fill</span><span class="o">=</span><span class="n">WHITE</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_TH</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">hx</span> <span class="o">+=</span> <span class="n">cw</span>
+    <span class="n">y1</span> <span class="o">+=</span> <span class="n">F_ROW_H</span> <span class="o">+</span> <span class="mi">2</span>
+
+    <span class="k">for</span> <span class="n">ci</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">criteria</span><span class="p">):</span>
+        <span class="n">dtl</span>  <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">raw</span>  <span class="o">=</span> <span class="n">dtl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span>
+        <span class="n">excl</span> <span class="o">=</span> <span class="n">dtl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;excluded&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">row</span>  <span class="o">=</span> <span class="p">[</span>
+            <span class="n">c</span><span class="p">,</span>
+            <span class="s2">&quot;excluded&quot;</span> <span class="k">if</span> <span class="n">excl</span> <span class="k">else</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">raw</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;0%&quot;</span>       <span class="k">if</span> <span class="n">excl</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">(</span><span class="n">dtl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;—&quot;</span>        <span class="k">if</span> <span class="n">excl</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dtl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;weighted&#39;</span><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">0</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">bg_c</span> <span class="o">=</span> <span class="n">LIGHT</span> <span class="k">if</span> <span class="n">ci</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">LGREY</span>
+        <span class="n">hx</span> <span class="o">=</span> <span class="n">MG</span>
+        <span class="k">for</span> <span class="n">txt</span><span class="p">,</span> <span class="n">cw</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col_ws</span><span class="p">):</span>
+            <span class="n">_draw_rounded</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">hx</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">cw</span> <span class="o">-</span> <span class="mi">4</span><span class="p">,</span> <span class="n">F_ROW_H</span><span class="p">,</span> <span class="n">bg_c</span><span class="p">,</span> <span class="n">SEP</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">d1</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">hx</span> <span class="o">+</span> <span class="mi">8</span><span class="p">,</span> <span class="n">y1</span> <span class="o">+</span> <span class="p">(</span><span class="n">F_ROW_H</span> <span class="o">-</span> <span class="n">F_TD</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">txt</span><span class="p">,</span>
+                    <span class="n">fill</span><span class="o">=</span><span class="n">NAVY</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_TD</span><span class="p">))</span>
+            <span class="n">hx</span> <span class="o">+=</span> <span class="n">cw</span>
+        <span class="n">y1</span> <span class="o">+=</span> <span class="n">F_ROW_H</span> <span class="o">+</span> <span class="mi">2</span>
+    <span class="n">y1</span> <span class="o">+=</span> <span class="mi">18</span>
+
+    <span class="n">d1</span><span class="o">.</span><span class="n">line</span><span class="p">([(</span><span class="n">MG</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="p">(</span><span class="n">PW</span> <span class="o">-</span> <span class="n">MG</span><span class="p">,</span> <span class="n">y1</span><span class="p">)],</span> <span class="n">fill</span><span class="o">=</span><span class="n">SEP</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">y1</span> <span class="o">+=</span> <span class="mi">16</span>
+
+    <span class="c1"># Starting materials grid (up to 5)</span>
+    <span class="n">sm_list</span> <span class="o">=</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;to_buy&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">sm_list</span><span class="p">:</span>
+        <span class="n">d1</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">MG</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="s2">&quot;Starting materials&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">NAVY</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_SECTION</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">y1</span> <span class="o">+=</span> <span class="n">F_SECTION</span> <span class="o">+</span> <span class="mi">12</span>
+        <span class="n">n_sm</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sm_list</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">sm_w</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">CW</span> <span class="o">/</span> <span class="n">n_sm</span><span class="p">)</span> <span class="o">-</span> <span class="mi">12</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1.2</span> <span class="o">*</span> <span class="n">DPI</span><span class="p">))</span>
+        <span class="n">sm_h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sm_w</span> <span class="o">*</span> <span class="mf">0.70</span><span class="p">)</span>
+        <span class="c1"># SMILES labels may wrap — measure max lines to reserve space</span>
+        <span class="n">max_smi_lines</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">smi</span> <span class="ow">in</span> <span class="n">sm_list</span><span class="p">[:</span><span class="n">n_sm</span><span class="p">]:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">_wrap_smiles</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">smi</span><span class="p">,</span> <span class="n">sm_w</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_SMILES</span><span class="p">))</span>
+            <span class="n">max_smi_lines</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_smi_lines</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+        <span class="n">smi_block_h</span> <span class="o">=</span> <span class="n">max_smi_lines</span> <span class="o">*</span> <span class="p">(</span><span class="n">F_SMILES</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">sx</span> <span class="o">=</span> <span class="n">MG</span>
+        <span class="k">for</span> <span class="n">smi</span> <span class="ow">in</span> <span class="n">sm_list</span><span class="p">[:</span><span class="n">n_sm</span><span class="p">]:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">_mol_pil</span><span class="p">(</span><span class="n">smi</span><span class="p">,</span> <span class="n">sm_w</span><span class="p">,</span> <span class="n">sm_h</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">img</span><span class="p">:</span>
+                <span class="n">p1</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">sx</span><span class="p">,</span> <span class="n">y1</span><span class="p">))</span>
+            <span class="c1"># Full SMILES, wrapped to fit within molecule column width</span>
+            <span class="n">smi_lines</span> <span class="o">=</span> <span class="n">_wrap_smiles</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">smi</span><span class="p">,</span> <span class="n">sm_w</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_SMILES</span><span class="p">))</span>
+            <span class="n">_draw_text_lines</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">smi_lines</span><span class="p">,</span> <span class="n">sx</span><span class="p">,</span> <span class="n">y1</span> <span class="o">+</span> <span class="n">sm_h</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span>
+                             <span class="n">_fnt</span><span class="p">(</span><span class="n">F_SMILES</span><span class="p">),</span> <span class="n">GREY</span><span class="p">)</span>
+            <span class="n">sx</span> <span class="o">+=</span> <span class="n">sm_w</span> <span class="o">+</span> <span class="mi">12</span>
+        <span class="n">y1</span> <span class="o">+=</span> <span class="n">sm_h</span> <span class="o">+</span> <span class="n">smi_block_h</span> <span class="o">+</span> <span class="mi">12</span>
+
+    <span class="n">pages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+
+    <span class="c1"># PAGES 2+ — Step-by-step</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_render_step_at</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">avail_w</span><span class="p">,</span> <span class="n">avail_h</span><span class="p">):</span>
+        <span class="c1"># Render a single reaction step within the given bounding box, with word-wrapped text and molecule images scaled to fit. Nothing is truncated — if text is too long, the header band and conditions bar grow vertically to accommodate it. The step header shows the step number and reaction type on the left, and yield (if available) on the right. The conditions bar lists temperature, solvent, and reagents if available. The molecule row shows up to 3 reactants (with &quot;+&quot; between them) → product, all centred horizontally, with full SMILES labels below.</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="mi">6</span>
+        <span class="n">W</span> <span class="o">=</span> <span class="n">avail_w</span> <span class="o">-</span> <span class="mi">12</span>
+
+        <span class="n">snum</span>  <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step_number&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
+        <span class="n">rtype</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reaction_type&quot;</span><span class="p">,</span> <span class="s2">&quot;—&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;—&quot;</span>
+        <span class="n">yld</span>   <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;yield_percent&quot;</span><span class="p">)</span>
+        <span class="n">src_s</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+        <span class="n">cond</span>  <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditions&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">reac</span>  <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">prod</span>  <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">hdr_c</span> <span class="o">=</span> <span class="n">ORANGE</span> <span class="k">if</span> <span class="n">src_s</span> <span class="o">==</span> <span class="s2">&quot;rxn-insight&quot;</span> <span class="k">else</span> <span class="n">NAVY</span>
+        <span class="n">yld_s</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">yld</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">yld</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span>
+                 <span class="s2">&quot;not shown&quot;</span> <span class="k">if</span> <span class="n">src_s</span> <span class="o">==</span> <span class="s2">&quot;rxn-insight&quot;</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Conditions string (full, no truncation)</span>
+        <span class="n">cond_parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temperature_C&quot;</span><span class="p">):</span>
+            <span class="n">cond_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cond</span><span class="p">[</span><span class="s1">&#39;temperature_C&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">°C&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;solvent&quot;</span><span class="p">):</span>
+            <span class="n">cond_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cond</span><span class="p">[</span><span class="s2">&quot;solvent&quot;</span><span class="p">])</span>
+        <span class="n">rr</span> <span class="o">=</span> <span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reagents&quot;</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">rr</span><span class="p">:</span>
+            <span class="n">cond_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rr</span><span class="p">))</span>
+        <span class="n">cond_s</span> <span class="o">=</span> <span class="s2">&quot;  ·  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cond_parts</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;—&quot;</span>
+
+        <span class="c1">#  Measure how many lines the reaction type needs in the header ─</span>
+        <span class="c1"># Reserve right side for yield text</span>
+        <span class="n">yld_txt</span>  <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Yield: </span><span class="si">{</span><span class="n">yld_s</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">yld_w</span>    <span class="o">=</span> <span class="n">_text_w</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">yld_txt</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_YIELD</span><span class="p">))</span>
+        <span class="n">hdr_text_w</span> <span class="o">=</span> <span class="n">W</span> <span class="o">-</span> <span class="n">yld_w</span> <span class="o">-</span> <span class="mi">20</span>   <span class="c1"># width available for &quot;Step N · rtype&quot;</span>
+        <span class="n">step_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Step </span><span class="si">{</span><span class="n">snum</span><span class="si">}</span><span class="s2">  ·  &quot;</span>
+        <span class="n">prefix_w</span>    <span class="o">=</span> <span class="n">_text_w</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">step_prefix</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_STEP_HDR</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">rtype_w</span>     <span class="o">=</span> <span class="n">hdr_text_w</span> <span class="o">-</span> <span class="n">prefix_w</span>
+
+        <span class="k">if</span> <span class="n">rtype_w</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>
+            <span class="n">rtype_lines</span> <span class="o">=</span> <span class="n">_wrap_words</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">rtype_w</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_STEP_HDR</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Not enough room beside yield — wrap full width below prefix</span>
+            <span class="n">rtype_lines</span> <span class="o">=</span> <span class="n">_wrap_words</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_STEP_HDR</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+
+        <span class="n">n_hdr_lines</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rtype_lines</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">HDR_H</span>  <span class="o">=</span> <span class="n">n_hdr_lines</span> <span class="o">*</span> <span class="p">(</span><span class="n">F_STEP_HDR</span> <span class="o">+</span> <span class="mi">6</span><span class="p">)</span> <span class="o">+</span> <span class="mi">20</span>
+        <span class="n">HDR_H</span>  <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">HDR_H</span><span class="p">,</span> <span class="n">F_STEP_HDR</span> <span class="o">+</span> <span class="n">F_YIELD</span> <span class="o">+</span> <span class="mi">28</span><span class="p">)</span>
+
+        <span class="c1">#  Measure conditions lines </span>
+        <span class="n">cond_lines</span> <span class="o">=</span> <span class="n">_wrap_words</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="s2">&quot;Conditions: &quot;</span> <span class="o">+</span> <span class="n">cond_s</span><span class="p">,</span> <span class="n">W</span> <span class="o">-</span> <span class="mi">16</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_COND</span><span class="p">))</span>
+        <span class="n">n_cond</span>     <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_lines</span><span class="p">)</span>
+        <span class="n">COND_H</span>     <span class="o">=</span> <span class="n">n_cond</span> <span class="o">*</span> <span class="p">(</span><span class="n">F_COND</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="mi">16</span>
+        <span class="n">COND_H</span>     <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">COND_H</span><span class="p">,</span> <span class="n">F_COND</span> <span class="o">+</span> <span class="mi">24</span><span class="p">)</span>
+
+        <span class="c1">#  Draw header band </span>
+        <span class="n">_draw_band</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">HDR_H</span><span class="p">,</span> <span class="n">hdr_c</span><span class="p">)</span>
+
+        <span class="c1"># Step + reaction type (left side)</span>
+        <span class="n">hx_txt</span> <span class="o">=</span> <span class="n">L</span>
+        <span class="n">hy_txt</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">+</span> <span class="mi">10</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">hx_txt</span><span class="p">,</span> <span class="n">hy_txt</span><span class="p">),</span> <span class="n">step_prefix</span><span class="p">,</span>
+                  <span class="n">fill</span><span class="o">=</span><span class="n">WHITE</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_STEP_HDR</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">hx_rtype</span> <span class="o">=</span> <span class="n">hx_txt</span> <span class="o">+</span> <span class="n">prefix_w</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ln</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rtype_lines</span><span class="p">):</span>
+            <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">hx_rtype</span><span class="p">,</span> <span class="n">hy_txt</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">F_STEP_HDR</span> <span class="o">+</span> <span class="mi">6</span><span class="p">)),</span>
+                      <span class="n">ln</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">WHITE</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_STEP_HDR</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+
+        <span class="c1"># Yield (right side, top line)</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">x0</span> <span class="o">+</span> <span class="n">avail_w</span> <span class="o">-</span> <span class="n">yld_w</span> <span class="o">-</span> <span class="mi">12</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="mi">12</span><span class="p">),</span>
+                  <span class="n">yld_txt</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">215</span><span class="p">,</span> <span class="mi">230</span><span class="p">),</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_YIELD</span><span class="p">))</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">HDR_H</span>
+
+        <span class="c1">#  Draw conditions bar </span>
+        <span class="n">_draw_rounded</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">COND_H</span> <span class="o">-</span> <span class="mi">4</span><span class="p">,</span> <span class="n">LIGHT</span><span class="p">,</span> <span class="n">SEP</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">cy</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">8</span>
+        <span class="k">for</span> <span class="n">cl</span> <span class="ow">in</span> <span class="n">cond_lines</span><span class="p">:</span>
+            <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">L</span> <span class="o">+</span> <span class="mi">8</span><span class="p">,</span> <span class="n">cy</span><span class="p">),</span> <span class="n">cl</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">NAVY</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_COND</span><span class="p">))</span>
+            <span class="n">cy</span> <span class="o">+=</span> <span class="n">F_COND</span> <span class="o">+</span> <span class="mi">4</span>
+        <span class="n">y</span> <span class="o">+=</span> <span class="n">COND_H</span>
+
+        <span class="c1">#  Molecule row ─</span>
+        <span class="c1"># How many SMILES lines does each molecule label need?</span>
+        <span class="c1"># We use the same max_px = mol_w for all labels.</span>
+        <span class="c1"># First pass: compute mol dimensions.</span>
+        <span class="n">mol_zone</span> <span class="o">=</span> <span class="n">avail_h</span> <span class="o">-</span> <span class="n">HDR_H</span> <span class="o">-</span> <span class="n">COND_H</span> <span class="o">-</span> <span class="mi">16</span>
+
+        <span class="n">n_reac_shown</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">reac</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">PLUS_W</span> <span class="o">=</span> <span class="mi">32</span>   <span class="c1"># gap for &quot;+&quot; between reactants</span>
+        <span class="n">ARW_W</span>  <span class="o">=</span> <span class="mi">64</span>   <span class="c1"># gap for → arrow</span>
+
+        <span class="n">n_mols_total</span> <span class="o">=</span> <span class="n">n_reac_shown</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">total_gap</span>    <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_reac_shown</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">PLUS_W</span> <span class="o">+</span> <span class="n">ARW_W</span>
+        <span class="n">mol_w</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="p">(</span><span class="n">W</span> <span class="o">-</span> <span class="n">total_gap</span><span class="p">)</span> <span class="o">//</span> <span class="n">n_mols_total</span><span class="p">)</span>
+        <span class="n">mol_w</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">mol_w</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">mol_zone</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">))</span>
+
+        <span class="c1"># Reserve space for SMILES lines — measure worst case</span>
+        <span class="n">all_smiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">rsmi</span> <span class="k">for</span> <span class="n">rsmi</span> <span class="ow">in</span> <span class="n">reac</span><span class="p">[:</span><span class="n">n_reac_shown</span><span class="p">]]</span> <span class="o">+</span> <span class="p">[</span><span class="n">prod</span><span class="p">]</span>
+        <span class="n">max_smi_lines</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">all_smiles</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">s</span><span class="p">:</span>
+                <span class="n">lns</span> <span class="o">=</span> <span class="n">_wrap_smiles</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">mol_w</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_SMILES</span><span class="p">))</span>
+                <span class="n">max_smi_lines</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_smi_lines</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lns</span><span class="p">))</span>
+        <span class="n">smi_block_h</span> <span class="o">=</span> <span class="n">max_smi_lines</span> <span class="o">*</span> <span class="p">(</span><span class="n">F_SMILES</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">mol_h</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">mol_zone</span> <span class="o">-</span> <span class="n">smi_block_h</span> <span class="o">-</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="n">mol_h</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">mol_h</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">mol_w</span> <span class="o">*</span> <span class="mf">0.72</span><span class="p">))</span>
+        <span class="n">mol_w</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">mol_w</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">mol_h</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">))</span>
+
+        <span class="c1"># Recompute row width with final mol_w and centre</span>
+        <span class="n">row_w</span> <span class="o">=</span> <span class="n">n_reac_shown</span> <span class="o">*</span> <span class="n">mol_w</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_reac_shown</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">PLUS_W</span> <span class="o">+</span> <span class="n">ARW_W</span> <span class="o">+</span> <span class="n">mol_w</span>
+        <span class="n">mx</span>    <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="p">(</span><span class="n">avail_w</span> <span class="o">-</span> <span class="n">row_w</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">my</span>    <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">6</span>
+
+        <span class="c1"># Draw each reactant</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rsmi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reac</span><span class="p">[:</span><span class="n">n_reac_shown</span><span class="p">]):</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">_mol_pil</span><span class="p">(</span><span class="n">rsmi</span><span class="p">,</span> <span class="n">mol_w</span><span class="p">,</span> <span class="n">mol_h</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">img</span><span class="p">:</span>
+                <span class="n">page</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">mx</span><span class="p">,</span> <span class="n">my</span><span class="p">))</span>
+
+            <span class="c1"># Full SMILES, character-wrapped to mol_w</span>
+            <span class="n">smi_lines</span> <span class="o">=</span> <span class="n">_wrap_smiles</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">rsmi</span><span class="p">,</span> <span class="n">mol_w</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_SMILES</span><span class="p">))</span>
+            <span class="n">_draw_text_lines</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">smi_lines</span><span class="p">,</span> <span class="n">mx</span><span class="p">,</span> <span class="n">my</span> <span class="o">+</span> <span class="n">mol_h</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span>
+                             <span class="n">_fnt</span><span class="p">(</span><span class="n">F_SMILES</span><span class="p">),</span> <span class="n">GREY</span><span class="p">)</span>
+
+            <span class="n">mx</span> <span class="o">+=</span> <span class="n">mol_w</span>
+
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n_reac_shown</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">plus_lbl</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span>
+                <span class="n">pw</span> <span class="o">=</span> <span class="n">_text_w</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">plus_lbl</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_STEP_HDR</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+                <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">mx</span> <span class="o">+</span> <span class="p">(</span><span class="n">PLUS_W</span> <span class="o">-</span> <span class="n">pw</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+                     <span class="n">my</span> <span class="o">+</span> <span class="n">mol_h</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">F_STEP_HDR</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+                    <span class="n">plus_lbl</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">NAVY</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">_fnt</span><span class="p">(</span><span class="n">F_STEP_HDR</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+                <span class="n">mx</span> <span class="o">+=</span> <span class="n">PLUS_W</span>
+
+        <span class="c1"># Arrow →</span>
+        <span class="n">ay</span>  <span class="o">=</span> <span class="n">my</span> <span class="o">+</span> <span class="n">mol_h</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">ax0</span> <span class="o">=</span> <span class="n">mx</span> <span class="o">+</span> <span class="mi">4</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">mx</span> <span class="o">+</span> <span class="n">ARW_W</span> <span class="o">-</span> <span class="mi">12</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">line</span><span class="p">([(</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ay</span><span class="p">),</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ay</span><span class="p">)],</span> <span class="n">fill</span><span class="o">=</span><span class="n">NAVY</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">polygon</span><span class="p">([(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ay</span> <span class="o">-</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="n">ax1</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="n">ay</span><span class="p">),</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ay</span> <span class="o">+</span> <span class="mi">8</span><span class="p">)],</span> <span class="n">fill</span><span class="o">=</span><span class="n">NAVY</span><span class="p">)</span>
+        <span class="n">mx</span> <span class="o">+=</span> <span class="n">ARW_W</span>
+
+        <span class="c1"># Product — identical label style as reactants</span>
+        <span class="n">p_img</span> <span class="o">=</span> <span class="n">_mol_pil</span><span class="p">(</span><span class="n">prod</span><span class="p">,</span> <span class="n">mol_w</span><span class="p">,</span> <span class="n">mol_h</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p_img</span><span class="p">:</span>
+            <span class="n">page</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">p_img</span><span class="p">,</span> <span class="p">(</span><span class="n">mx</span><span class="p">,</span> <span class="n">my</span><span class="p">))</span>
+
+        <span class="n">prod_lines</span> <span class="o">=</span> <span class="n">_wrap_smiles</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">prod</span><span class="p">,</span> <span class="n">mol_w</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_SMILES</span><span class="p">))</span>
+        <span class="n">_draw_text_lines</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">prod_lines</span><span class="p">,</span> <span class="n">mx</span><span class="p">,</span> <span class="n">my</span> <span class="o">+</span> <span class="n">mol_h</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span>
+                         <span class="n">_fnt</span><span class="p">(</span><span class="n">F_SMILES</span><span class="p">),</span> <span class="n">GREY</span><span class="p">)</span>
+
+        <span class="c1"># Separator at bottom of slot</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">line</span><span class="p">([(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">avail_h</span> <span class="o">-</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">avail_w</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">avail_h</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)],</span>
+                  <span class="n">fill</span><span class="o">=</span><span class="n">SEP</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1">#  Paginate steps </span>
+    <span class="n">STEPS_PER_PAGE</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">GAP_H</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.12</span> <span class="o">*</span> <span class="n">DPI</span><span class="p">)</span>
+    <span class="n">STEP_H</span> <span class="o">=</span> <span class="p">(</span><span class="n">PH</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">MG</span> <span class="o">-</span> <span class="n">GAP_H</span> <span class="o">*</span> <span class="p">(</span><span class="n">STEPS_PER_PAGE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">//</span> <span class="n">STEPS_PER_PAGE</span>
+
+    <span class="n">it</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">chunk</span> <span class="o">=</span> <span class="p">[</span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">STEPS_PER_PAGE</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">chunk</span><span class="p">):</span>
+            <span class="k">break</span>
+        <span class="n">pg</span>  <span class="o">=</span> <span class="n">_PI</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">PW</span><span class="p">,</span> <span class="n">PH</span><span class="p">),</span> <span class="n">BG</span><span class="p">)</span>
+        <span class="n">drw</span> <span class="o">=</span> <span class="n">_PID</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">pg</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">slot</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chunk</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">y0</span> <span class="o">=</span> <span class="n">MG</span> <span class="o">+</span> <span class="n">slot</span> <span class="o">*</span> <span class="p">(</span><span class="n">STEP_H</span> <span class="o">+</span> <span class="n">GAP_H</span><span class="p">)</span>
+            <span class="n">_render_step_at</span><span class="p">(</span><span class="n">drw</span><span class="p">,</span> <span class="n">pg</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">MG</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">CW</span><span class="p">,</span> <span class="n">STEP_H</span><span class="p">)</span>
+        <span class="n">pages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pg</span><span class="p">)</span>
+
+    <span class="c1">#  Serialise to multi-page PDF </span>
+    <span class="n">buf</span> <span class="o">=</span> <span class="n">_io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">pages</span><span class="p">:</span>
+        <span class="n">pages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;PDF&quot;</span><span class="p">,</span> <span class="n">save_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">append_images</span><span class="o">=</span><span class="n">pages</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">resolution</span><span class="o">=</span><span class="n">DPI</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Yara Chahda, Corentin Portmann, Ines Ouchen
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>

@@ -119,9 +119,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
-docs/_build/
-
 # PyBuilder
 .pybuilder/
 target/
@@ -245,4 +242,9 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks,windows,macos
 
-docs/docs_out
+echo "__pycache__/" >> .gitignore
+echo "*.pyc" >> .gitignore
+
+echo "dist/" >> .gitignore
+
+.copier-answers.yml

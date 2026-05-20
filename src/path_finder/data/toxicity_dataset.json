@@ -1,0 +1,674 @@
+{
+    "metadata": {
+        "description": "Toxicity dataset: associates each reagent or solvent with its SMILES and its hazard score divided by 9 rescaled to 1",
+        "hazards_scale": "0.00 = safe, 1.00 = very dangerous"
+    },
+    "compounds": [
+
+  {
+    "name": "Acetic anhydride",
+    "smiles": "CC(=O)OC(C)=O",
+    "hazard_score": 0.78
+  },
+  {
+    "name": "potassium carbonate",
+    "smiles": "C(=O)([O-])[O-].[K+].[K+]",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "ethanal",
+    "smiles": "CC=O",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "THF",
+    "smiles": "C1CCOC1",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "DMAP",
+    "smiles": "CN(C)C1=CC=NC=C1",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "water",
+    "smiles": "O",
+    "hazard_score": 0.00
+  },
+  {
+    "name": "KOH",
+    "smiles": "[OH-].[K+]",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "(9-BBN)2",
+    "smiles": "C1CC2CCC1CB2",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "NaOH",
+    "smiles": "[OH-].[Na+]",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "AsPh3",
+    "smiles": "C1=CC=C(C=C1)[As](C2=CC=CC=C2)C3=CC=CC=C3",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "Pd(dppf)Cl2",
+    "smiles": "C1=CC=C(C=C1)P(C2=CC=CC=C2)C3=CC=C[CH-]3.[CH-]1C=CC=C1P(C2=CC=CC=C2)C3=CC=CC=C3.[Cl-].[Cl-].[Fe+2].[Pd+2]",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "(R)-2-iodocyclohex-2-en-1-ol",
+    "smiles": "C1CC=C([C@@H](C1)O)I",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "toluene",
+    "smiles": "CC1=CC=CC=C1",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "DEAD",
+    "smiles": "CCOC(=O)N=NC(=O)OCC",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "nBu3P",
+    "smiles": "CCCCP(CCCC)CCCC",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "(Z)-3-(2-bromovinyl)-2-iodo-6-methoxyphenol",
+    "smiles": "COC1=CC=C(C(=C1O)I)/C=C\\Br",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "silver carbonate",
+    "smiles": "C(=O)([O-])[O-].[Ag+].[Ag+]",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "DCE",
+    "smiles": "ClCCCl",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "PhSH",
+    "smiles": "C1=CC=C(C=C1)S",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "[Mes-Acr][BF4]",
+    "smiles": "CC1=CC(=CC(=C1C2=[N+]3C4=CC=CC=C4C=C5C3=C(C=CC5=O)C6=C2C(=CC(=C6C)C)C)C)C.F[B-](F)(F)F",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "benzene",
+    "smiles": "C1=CC=CC=C1",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "(Py-2Se)2",
+    "smiles": "C1=CC=NC(=C1)[Se][Se]C2=CC=CC=N2",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "PhIO2",
+    "smiles": "C1=CC=C(C=C1)I(=O)=O",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "DME",
+    "smiles": "COCCOC",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "LiAlH4",
+    "smiles": "[Li+].[AlH4-]",
+    "hazard_score": 0.67
+  },
+  {
+    "name": "AcOH",
+    "smiles": "CC(=O)O",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "MeOH",
+    "smiles": "CO",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "potassium azodicarboxylate",
+    "smiles": "C(=O)([O-])N=NC(=O)[O-].[K+].[K+]",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "DCM",
+    "smiles": "ClCCl",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "Acetic anhydride",
+    "smiles": "CC(=O)OC(C)=O",
+    "hazard_score": 0.78
+  },
+  {
+    "name": "Triethylamine",
+    "smiles": "CCN(CC)CC",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "DMAP",
+    "smiles": "CN(C)C1=CC=NC=C1",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "Methylamine",
+    "smiles": "CN",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "potassium carbonate",
+    "smiles": "C(=O)([O-])[O-].[K+].[K+]",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "Boc2O",
+    "smiles": "CC(C)(C)OC(=O)OC(=O)OC(C)(C)C",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "TBSCl",
+    "smiles": "C[Si](C)(C(C)(C)C)Cl",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "imidazole",
+    "smiles": "C1=CN=CN1",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "DIAD",
+    "smiles": "CC(C)OC(=O)N=NC(=O)OC(C)C",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "nBu3P",
+    "smiles": "CCCCP(CCCC)CCCC",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "2-bromoisovanillin",
+    "smiles": "COC1=C(C=C(C=C1)C=O)Br",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "toluene",
+    "smiles": "CC1=CC=CC=C1",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "dppf",
+    "smiles": "C1=CC=C(C=C1)P(C2=CC=CC=C2)C3=CC=C[CH-]3.[CH-]4C=CC=C4P(C5=CC=CC=C5)C6=CC=CC=C6.[Fe+2]",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "Pd(OAc)2",
+    "smiles": "CC(=O)[O-].CC(=O)[O-].[Pd+2]",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "silver carbonate",
+    "smiles": "C(=O)([O-])[O-].[Ag+].[Ag+]",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "tBuOK",
+    "smiles": "CC(C)(C)[O-].[K+]",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "PPh3CH2Br2",
+    "smiles": "BrC(Br)[P+](C1=CC=CC=C1)(C2=CC=CC=C2)C3=CC=CC=C3",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "dppp",
+    "smiles": "C1=CC=C(C=C1)P(CCC P(C2=CC=CC=C2)C3=CC=CC=C3)C4=CC=CC=C4",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "TBAF",
+    "smiles": "CCCC[N+](CCCC)(CCCC)CCCC.[F-]",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "DMF",
+    "smiles": "CN(C)C=O",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "IBX",
+    "smiles": "O=I1(=O)OC2=CC=CC=C2C(=O)O1",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "NaBH4",
+    "smiles": "[BH4-].[Na+]",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "CeCl3",
+    "smiles": "[Cl-].[Cl-].[Cl-].[Ce+3]",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "TFA",
+    "smiles": "C(=O)(C(F)(F)F)O",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "Hg(OAc)2",
+    "smiles": "CC(=O)[O-].CC(=O)[O-].[Hg+2]",
+    "hazard_score": 0.78
+  },
+  {
+    "name": "water",
+    "smiles": "O",
+    "hazard_score": 0.00
+  },
+  {
+    "name": "dioxane",
+    "smiles": "C1COCCO1",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "(4-((tert-butyldimethylsilyl)oxy)phenyl)boronic acid",
+    "smiles": "CC(C)(C)[Si](C)(C)OC1=CC=C(C=C1)B(O)O",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "Pd2(dba)3",
+    "smiles": "C1=CC=C(C=C1)/C=C/C(=O)/C=C/C2=CC=CC=C2.C3=CC=C(C=C3)/C=C/C(=O)/C=C/C4=CC=CC=C4.C5=CC=C(C=C5)/C=C/C(=O)/C=C/C6=CC=CC=C6.[Pd].[Pd]",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "Tricyclohexylphosphine",
+    "smiles": "C1CCC(CC1)P(C2CCCCC2)C3CCCCC3",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "BHT",
+    "smiles": "CC(C)(C)C1=CC(=C(C(=C1)C(C)(C)C)O)C(C)(C)C",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "potassium carbonate",
+    "smiles": "C(=O)([O-])[O-].[K+].[K+]",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "DCM",
+    "smiles": "ClCCl",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "Br2",
+    "smiles": "BrBr",
+    "hazard_score": 0.67
+  },
+  {
+    "name": "diisopropylethylamine",
+    "smiles": "CCN(C(C)C)C(C)C",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "ethoxyethene",
+    "smiles": "CCOC=C",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "DMF",
+    "smiles": "CN(C)C=O",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "cesium fluoride",
+    "smiles": "[F-].[Cs+]",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "AcOH",
+    "smiles": "CC(=O)O",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "MeNO2",
+    "smiles": "C[N+](=O)[O-]",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "ammonium acetate",
+    "smiles": "CC(=O)[O-].[NH4+]",
+    "hazard_score": 0.11
+  },
+  {
+    "name": "THF",
+    "smiles": "C1CCOC1",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "NaCNBH3",
+    "smiles": "[BH3-]C#N.[Na+]",
+    "hazard_score": 0.67
+  },
+  {
+    "name": "LiAlH4",
+    "smiles": "[Li+].[AlH4-]",
+    "hazard_score": 0.67
+  },
+  {
+    "name": "HCl",
+    "smiles": "Cl",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "Triethylamine",
+    "smiles": "CCN(CC)CC",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "ethyl chloroformate",
+    "smiles": "CCOC(=O)Cl",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "1,3-dibromo-5,5-dimethylimidazolidine-2,4-dione",
+    "smiles": "CC1(C)C(=O)N(Br)C(=O)N1Br",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "KOH",
+    "smiles": "[OH-].[K+]",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "EtOH",
+    "smiles": "CCO",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "PhSNa",
+    "smiles": "C1=CC=C(C=C1)[S-].[Na+]",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "HFIP",
+    "smiles": "C(C(F)(F)F)(C(F)(F)F)O",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "hydrogen peroxide",
+    "smiles": "OO",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "sodium bicarbonate",
+    "smiles": "C(=O)([O-])O.[Na+]",
+    "hazard_score": 0.11
+  },
+  {
+    "name": "THF",
+    "smiles": "C1CCOC1",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "LiAlH4",
+    "smiles": "[Li+].[AlH4-]",
+    "hazard_score": 0.67
+  },
+  {
+    "name": "AcOH",
+    "smiles": "CC(=O)O",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "Br2",
+    "smiles": "BrBr",
+    "hazard_score": 0.67
+  },
+  {
+    "name": "sodium acetate",
+    "smiles": "CC(=O)[O-].[Na+]",
+    "hazard_score": 0.11
+  },
+  {
+    "name": "DCM",
+    "smiles": "ClCCl",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "Triethylamine",
+    "smiles": "CCN(CC)CC",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "[(allyl)PdCl]2",
+    "smiles": "C=CC[Pd]Cl.Cl[Pd]CC=C",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "Methyl 6-(((2,2,2-trichloroethoxy)carbonyl)oxy)cyclohex-1-ene-1-carboxylate",
+    "smiles": "COC(=O)C1=CCCC(C1)OC(=O)OCC(Cl)(Cl)Cl",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "MeOH",
+    "smiles": "CO",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "TsOH",
+    "smiles": "CC1=CC=C(C=C1)S(=O)(=O)O",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "HC(OMe)3",
+    "smiles": "COC(OC)OC",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "toluene",
+    "smiles": "CC1=CC=CC=C1",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "DIBAL",
+    "smiles": "CC(C)C[Al](CC(C)C)CC(C)C",
+    "hazard_score": 0.67
+  },
+  {
+    "name": "Et2O",
+    "smiles": "CCOCC",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "Ph3P",
+    "smiles": "C1=CC=C(C=C1)P(C2=CC=CC=C2)C3=CC=CC=C3",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "DIAD",
+    "smiles": "CC(C)OC(=O)N=NC(=O)OC(C)C",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "2-cyanopropan-2-ol",
+    "smiles": "CC(C)(C#N)O",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "water",
+    "smiles": "O",
+    "hazard_score": 0.00
+  },
+  {
+    "name": "dppp",
+    "smiles": "C1=CC=C(C=C1)P(CCCP(C2=CC=CC=C2)C3=CC=CC=C3)C4=CC=CC=C4",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "silver carbonate",
+    "smiles": "C(=O)([O-])[O-].[Ag+].[Ag+]",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "Pd(OAc)2",
+    "smiles": "CC(=O)[O-].CC(=O)[O-].[Pd+2]",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "CBr4",
+    "smiles": "C(Br)(Br)(Br)Br",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "Ph3PCH2Cl",
+    "smiles": "Cl[CH2+]P(C1=CC=CC=C1)(C2=CC=CC=C2)C3=CC=CC=C3",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "n-Bu3SnH",
+    "smiles": "CCCC[Sn](CCCC)(CCCC)[H]",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "Pd(PPh3)4",
+    "smiles": "C1=CC=C(C=C1)P(C2=CC=CC=C2)C3=CC=CC=C3.C4=CC=C(C=C4)P(C5=CC=CC=C5)C6=CC=CC=C6.C7=CC=C(C=C7)P(C8=CC=CC=C8)C9=CC=CC=C9.C%10=CC=C(C=C%10)P(C%11=CC=CC=C%11)C%12=CC=CC=C%12.[Pd]",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "SeO2",
+    "smiles": "O=[Se]=O",
+    "hazard_score": 0.67
+  },
+  {
+    "name": "DMP",
+    "smiles": "CC(C)C1=C(C(=CC=C1)C(C)C)I(OC(=O)C)(OC(=O)C)OC(=O)C",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "ammonium bromide",
+    "smiles": "[NH4+].[Br-]",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "Methylamine",
+    "smiles": "CN",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "NaBH4",
+    "smiles": "[BH4-].[Na+]",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "LDA",
+    "smiles": "CC(C)[N-]C(C)C.[Li+]",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "2-(3-hydroxy-4-methoxyphenyl)acetic acid",
+    "smiles": "COC1=C(C=C(C=C1)CC(=O)O)O",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "POCl3",
+    "smiles": "ClP(=O)(Cl)Cl",
+    "hazard_score": 0.67
+  },
+  {
+    "name": "MeCN",
+    "smiles": "CC#N",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "THF",
+    "smiles": "C1CCOC1",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "NaBH4",
+    "smiles": "[BH4-].[Na+]",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "AcOH",
+    "smiles": "CC(=O)O",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "Br2",
+    "smiles": "BrBr",
+    "hazard_score": 0.67
+  },
+  {
+    "name": "DCM",
+    "smiles": "ClCCl",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "pyridine",
+    "smiles": "C1=CC=NC=C1",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "TFAA",
+    "smiles": "C(=O)(C(F)(F)F)OC(=O)C(F)(F)F",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "PIFA",
+    "smiles": "CC(=O)OI(C1=CC=CC=C1)OC(=O)C",
+    "hazard_score": 0.44
+  },
+  {
+    "name": "MeOH",
+    "smiles": "CO",
+    "hazard_score": 0.33
+  },
+  {
+    "name": "potassium carbonate",
+    "smiles": "C(=O)([O-])[O-].[K+].[K+]",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "formaldehyde",
+    "smiles": "C=O",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "N,N-dimethyl-1,1-bis(neopentyloxy)methanamine",
+    "smiles": "CN(C)C(OCC(C)(C)C)OCC(C)(C)C",
+    "hazard_score": 0.22
+  },
+  {
+    "name": "hydrogen peroxide",
+    "smiles": "OO",
+    "hazard_score": 0.56
+  },
+  {
+    "name": "Hg(OAc)2",
+    "smiles": "CC(=O)[O-].CC(=O)[O-].[Hg+2]",
+    "hazard_score": 0.78
+  },
+  {
+    "name": "LiAlH4",
+    "smiles": "[Li+].[AlH4-]",
+    "hazard_score": 0.67
+  }
+    ]
+}

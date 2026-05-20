@@ -1,194 +1,260 @@
 ![Project Logo](assets/banner.png)
-
-![Coverage Status](assets/coverage-badge.svg)
+![Coverage Status](assets/coverage-badge.svg?v=2)
 
 <h1 align="center">
 path_finder
 </h1>
 
-<br>
+**Retrosynthesis route finder** — AiZynthFinder · Rxn-INSIGHT · Chemistry by Design
 
-# Retrosynthesis Interface
+*Yara Chahda · Corentin Portmann · Inès Ouchen Laksiri — EPFL 2026*
 
-AiZynthFinder · Chemistry by Design · Rxn-INSIGHT
+---
 
-## What this app does ?
+## User installation
 
-This Streamlit application finds and ranks synthesis routes for a target molecule using:
-- **AiZynthFinder** (MCTS retrosynthetic search)
-- A curated reaction dataset (Chemistry by Design)
-- **Rxn-INSIGHT** for reaction classification and condition prediction
+### 1. Install RDKit
 
-## Installation
+RDKit cannot be installed via pip — conda is required for this one step.
 
-### 1. Clone the repository
 ```bash
-git clone https://github.com/your-org/retrosynthesis-interface.git
-cd retrosynthesis-interface
+conda install -c conda-forge rdkit
 ```
 
-### 2. Create and activate the conda environment
+### 2. Install Path Finder
+
 ```bash
-conda env create -f environment.yml
-conda activate retrosynthesis
+pip install path-finder-retrosynthesis
 ```
-#### USPTO Rxn-INSIGHT database
+
+### 3. Run the setup wizard
+
+```bash
+path-finder-setup
+```
+
+This automatically:
+- copies the bundled datasets into `data/`
+- downloads the AiZynthFinder model files (~500 MB) via the official AiZynthFinder downloader
+- generates `data/config.yml` with the correct paths
+
+> If the automatic download fails, download the model files manually from
+> [https://github.com/MolecularAI/aizynthfinder/releases](https://github.com/MolecularAI/aizynthfinder/releases)
+> and place them in `data/aizynthfinder/`.
+
+### 4. Download the Rxn-INSIGHT USPTO database
+
 Download `uspto_rxn_insight.gzip` from:
-> [https://zenodo.org/records/10171745]
+[The rxn-INSIGHT article](https://zenodo.org/records/10171745)
 
-Place it at:
-```
-data/uspto_rxn_insight.gzip
-```
+Place it in `data/uspto_rxn_insight.gzip`.
 
-#### AiZynthFinder model files
-[[Download the pre-trained USPTO models from the AiZynthFinder releases page:
-> https://github.com/MolecularAI/aizynthfinder/releases
+> This file enables reaction condition prediction for novel routes (predicted routes section).
+> Without it, only dataset and validated routes are shown.
 
-You need:
-- `uspto_model.onnx`
-- `uspto_templates.csv.gz`
-
-Place them anywhere on your machine (e.g. `data/aizynthfinder/`)]]
-
-### 4. Configure AiZynthFinder
-
-Copy the template config and edit it with your local paths:
+### 5. Launch
 
 ```bash
-cp data/config_template.yml data/config.yml
+path-finder
 ```
 
-Edit `data/config.yml` and replace every path with the **absolute path** on your machine:
+Open [http://localhost:8501](http://localhost:8501) in your browser.
 
-```yaml
-expansion:
-  uspto:
-    - /absolute/path/to/uspto_model.onnx
-    - /absolute/path/to/uspto_templates.csv.gz
+---
 
-stock:
-  zinc:
-    - /absolute/path/to/zinc_stock.hdf5
-
-filter:
-  uspto:
-    - /absolute/path/to/uspto_filter_model.onnx
-```
-
-> **Important:** use absolute paths (starting with `/` on macOS/Linux or `C:\` on Windows).
-> Relative paths cause silent failures in AiZynthFinder.
-
-You can find the correct paths for the stock and filter files in the AiZynthFinder documentation:
-> https://molecularai.github.io/aizynthfinder/
-
-### 5. Run the app
-
-```bash
-streamlit run app/app_path_finder.py
-```
-
-The app will open at `http://localhost:8501`.
-
-## File structure
+## Summary
 
 ```
-retrosynthesis-interface/
-├── app/
-│   ├── app_path_finder.py      # Streamlit front-end
-│   ├── route_engine.py         # Backend — scoring, AiZ, Rxn-INSIGHT
-│   ├── molecule_rendering.py   # RDKit Cairo rendering
-│   ├── localization.py         # EN/FR UI strings
-│   └── report_builder.py       # PDF generation
-├── data/
-│   ├── reaction_dataset.json   # Main curated routes (included)
-│   ├── toxicity_dataset.json   # Safety scores (included)
-│   ├── generic_reactions.json  # Individual reactions (included)
-│   ├── config_template.yml     # AiZ config template (edit → config.yml)
-│   └── config.yml              # ← YOUR local config (not committed to git)
-├── assets/
-│   └── banner.png
-├── environment.yml
-└── README.md
+conda install -c conda-forge rdkit
+pip install path-finder-retrosynthesis
+path-finder-setup
+# → place uspto_rxn_insight.gzip in data/
+path-finder
 ```
+
+---
+
+## What the app does
+
+Path Finder finds and ranks retrosynthesis routes for a target molecule using three sources:
+
+| Section | Source | Conditions | Yield in scoring |
+|---------|--------|------------|-----------------|
+| 📚 Dataset | Curated Chemistry by Design routes | Real | Yes |
+| ✅ Validated | AiZynthFinder + generic reactions (USPTO) | Real | Yes |
+| 🤖 Predicted | AiZynthFinder + Rxn-INSIGHT | Predicted | No |
+
+Routes are scored using a weighted 1/i² scheme across three user-chosen criteria:
+steps, yield, atom economy, E-factor, or safety.
+
+---
+
+## Data files
+
+| File | Bundled | Description |
+|------|---------|-------------|
+| `reaction_dataset.json` | ✅ | Curated synthesis routes |
+| `toxicity_dataset.json` | ✅ | Safety scores for reagents and solvents |
+| `generic_reactions.json` | ✅ | 10 000 USPTO reactions for step validation |
+| `data/aizynthfinder/` | ❌ | AiZynthFinder model files — downloaded by wizard |
+| `data/config.yml` | ❌ | Generated by wizard — do not commit |
+| `data/uspto_rxn_insight.gzip` | ❌ | Rxn-INSIGHT USPTO database — download manually |
+
+---
+
 ## Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
-| `FileNotFoundError: config.yml` | Check that `data/config.yml` exists and all paths inside are absolute |
-| AiZynthFinder hangs or crashes | Verify the `.onnx` and `.csv.gz` paths in `config.yml` are correct |
-| `No routes found` | The target SMILES may not match the dataset; try Galanthamine or Morphine |
-| Rxn-INSIGHT disabled | `uspto_rxn_insight.gzip` must be present at `data/` and `rxn_insight` installed |
+| `config.yml not found` | Run `path-finder-setup` |
+| AiZynthFinder crash | Check that all paths in `data/config.yml` are absolute |
+| No routes found | Try Galanthamine (`OC1C=C[C@@]23c4cc(OC)ccc4CN(C)C[C@@H]2[C@@H]1O3`) |
+| Predicted routes disabled | Add `data/uspto_rxn_insight.gzip` (see step 4 above) |
 | Slow search (~2 min) | Normal — AiZynthFinder MCTS is computationally intensive |
 
+---
 
-
-
-This package aims to find the best retro synthesis pathways for some drugs, based on criteria selected by the user.
-
-## 🔥 Usage
-
-```python
-from mypackage import main_func
-
-# One line to rule them all
-result = main_func(data)
+## Developer setup
+ 
+```bash
+git clone https://github.com/YaraChahda/path_finder.git
+cd path_finder
+conda install -c conda-forge rdkit
+pip install -e .
+path-finder-setup
+path-finder
 ```
-
-This usage example shows how to quickly leverage the package's main functionality with just one line of code (or a few lines of code). 
-After importing the `main_func` (to be renamed by you), you simply pass in your `data` and get the `result` (this is just an example, your package might have other inputs and outputs). 
-Short and sweet, but the real power lies in the detailed documentation.
-
-## 👩‍💻 Installation
-
-Create a new environment, you may also give the environment a different name. 
-
+ 
+### Running tests
+ 
+```bash
+pytest tests/
 ```
-conda create -n path_finder python=3.10 
+ 
+### Publishing a new version
+ 
+```bash
+sed -i '' 's/version = "X.Y.Z"/version = "X.Y.Z+1"/' pyproject.toml
+git add pyproject.toml
+git commit -m "release: vX.Y.Z+1"
+git tag vX.Y.Z+1
+git push origin clone_optimise_app_clean --tags
+# GitHub Actions publishes to PyPI automatically
 ```
-
-```
-conda activate path_finder
-(conda_env) $ pip install .
-```
-
-If you need jupyter lab, install it 
-
-```
-(path_finder) $ pip install jupyterlab
-```
-
-
-## 🛠️ Development installation
-
-Initialize Git (only for the first time). 
-
-Note: You should have create an empty repository on `https://github.com:YaraChahda/path_finder`.
-
-```
-git init
-git add * 
-git add .*
-git commit -m "Initial commit" 
-git branch -M main
-git remote add origin git@github.com:YaraChahda/path_finder.git 
-git push -u origin main
-```
-
-Then add and commit changes as usual. 
-
-To install the package, run
-
-```
-(path_finder) $ pip install -e ".[test,doc]"
-```
-
-### Run tests and coverage
-
-```
-(conda_env) $ pip install tox
-(conda_env) $ tox
-```
-
-
-
+ 
+---
+ 
+## Repository structure
+ 
+This section describes the purpose of every file and folder so that new
+contributors can orient themselves quickly.
+ 
+### Root-level files
+ 
+| File | Purpose |
+|------|---------|
+| `pyproject.toml` | Package metadata, dependencies, and entry points for `pip install` |
+| `path_finder-env.yml` | Conda environment — use this to recreate the full dev environment |
+| `README.md` | This file |
+| `LICENSE` | MIT licence |
+| `mypy.ini` | Type-checking configuration — ignores RDKit and Rxn-INSIGHT stubs |
+| `.gitignore` | Files excluded from git (config.yml, model files, pycache, dist/) |
+| `.pre-commit-config.yaml` | Pre-commit hooks — checks for large files and merge conflicts |
+| `.readthedocs.yml` | Automatic documentation build on readthedocs.org |
+| `tox.ini` | Test automation configuration |
+ 
+---
+ 
+### `.github/workflows/`
+ 
+| File | Purpose |
+|------|---------|
+| `publish.yml` | Automatically builds and uploads to PyPI when a git tag is pushed |
+ 
+---
+ 
+### `assets/`
+ 
+| File | Purpose |
+|------|---------|
+| `banner.png` | Project banner displayed at the top of this README |
+| `coverage-badge.svg` | Test coverage badge auto-generated by the CI pipeline |
+ 
+---
+ 
+### `data/`
+ 
+Working data directory — none of these files are committed to git.
+ 
+| File / Folder | Purpose |
+|---------------|---------|
+| `aizynthfinder/` | AiZynthFinder model files downloaded by `path-finder-setup` |
+| `config.yml` | AiZynthFinder config created by `path-finder-setup` — contains absolute paths specific to each machine |
+| `reaction_dataset.json` | Main curated dataset (also bundled in the pip package) |
+| `toxicity_dataset.json` | Safety scores (also bundled in the pip package) |
+| `generic_reactions.json` | 10 000 USPTO reactions for step validation (also bundled) |
+| `uspto_rxn_insight.gzip` | Rxn-INSIGHT USPTO database — download manually, enables predicted routes |
+ 
+---
+ 
+### `docs/`
+ 
+| Folder / File | Purpose |
+|---------------|---------|
+| `source/conf.py` | Sphinx documentation configuration |
+| `source/index.md` | Documentation home page |
+| `source/api/` | Auto-generated API reference pages |
+| `docs_out/` | Generated Sphinx HTML output — do not edit manually, rebuilt with `make html` |
+ 
+---
+ 
+### `notebooks/`
+ 
+| File | Purpose |
+|------|---------|
+| `report.ipynb` | Project report — introduction, methods, results, discussion, and live code demonstrations |
+| `screenshots/` | Screenshots of the Streamlit interface used as figures in the report |
+ 
+---
+ 
+### `scripts/`
+ 
+| File | Purpose |
+|------|---------|
+| `convert_orderly_to_generic.py` | Converts the ORDerly-cleaned USPTO Parquet file into `generic_reactions.json` — run once to rebuild the generic dataset from scratch |
+ 
+---
+ 
+### `src/path_finder/`
+ 
+The installable Python package. All application logic lives here.
+ 
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Package entry point — exposes `find_best_routes` and `__version__` |
+| `_about_.py` | Single source of truth for the version number |
+| `app.py` | Streamlit front-end — tab layout, sidebar, route cards, search logic |
+| `app_utensils.py` | UI helper functions used by `app.py` — score tables, scheme HTML, chart builders |
+| `route_engine.py` | Chemistry backend — dataset loading, AiZynthFinder, Rxn-INSIGHT, scoring, and the main `find_best_routes()` entry point |
+| `molecule_rendering.py` | RDKit Cairo rendering — `mol_png()` for Streamlit images, `mol_b64_or_text_svg()` for embedded HTML schemes |
+| `app_layout.py` | All user-visible strings in English and French, plus the colour palette |
+| `report_builder.py` | PDF generation using PIL — multi-page A4 report with metric cards, score table, and reaction step images |
+| `launch.py` | Console entry points — `path-finder` (launches Streamlit) and `path-finder-setup` (setup wizard) |
+| `assets/banner.png` | Banner bundled in the pip package |
+| `data/` | Datasets and config template bundled in the pip package, copied to `data/` on first run |
+ 
+---
+ 
+### `tests/`
+ 
+| File | Purpose |
+|------|---------|
+| `conftest.py` | Shared pytest fixtures (sample routes, mock datasets) |
+| `test_route_engine.py` | Tests for scoring functions, dataset loading, SMILES canonicalisation, and route ranking |
+| `test_molecule_rendering.py` | Tests for PNG rendering, base64 encoding, and fallback data URIs |
+| `test_app_layout.py` | Tests that all required keys exist in both EN and FR dictionaries |
+| `test_report_builder.py` | Tests for PDF generation |
+| `test_app_utensils.py` | Tests for UI helper functions |
+| `test_app.py` | Integration tests for the Streamlit app |
+| `test_launch.py` | Tests for the CLI entry points |
+ 
