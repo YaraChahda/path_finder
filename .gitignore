@@ -255,5 +255,4 @@ echo "*.pyc" >> .gitignore
 
 echo "dist/" >> .gitignore
 
-echo "*.egg-info/" >> .gitignoredocs/docs_out/
-docs/docs_out/
+.copier-answers.yml
