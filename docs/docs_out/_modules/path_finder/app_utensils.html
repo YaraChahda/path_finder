@@ -1,0 +1,1450 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
+        <title>path_finder.app_utensils - path-finder-retrosynthesis 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">path-finder-retrosynthesis 1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <span class="sidebar-brand-text">path-finder-retrosynthesis 1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/modules.html">path_finder</a><input aria-label="Toggle navigation of path_finder" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/path_finder.html">path_finder package</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for path_finder.app_utensils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># app_utensils.py</span>
+<span class="c1"># UI helper functions for the Path Finder app.</span>
+<span class="c1"># All rendering, chart creation, HTML builders, and cached loaders live here</span>
+<span class="c1"># so that app.py stays readable. Imported directly by app.py.</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">streamlit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">st</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">streamlit.components.v1</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">components</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpatches</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">localization</span><span class="w"> </span><span class="kn">import</span> <span class="n">LANG</span><span class="p">,</span> <span class="n">CRITERIA_LABELS</span><span class="p">,</span> <span class="n">PALETTE</span><span class="p">,</span> <span class="n">FIG_BG</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">molecule_rendering</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">mol_png</span><span class="p">,</span>
+    <span class="n">mol_b64_or_text_svg</span>  <span class="k">as</span> <span class="n">_mol_b64_or_text_svg</span><span class="p">,</span>
+    <span class="n">fallback_data_uri</span>    <span class="k">as</span> <span class="n">_fallback_data_uri</span><span class="p">,</span>
+    <span class="n">is_trivial_smiles</span>    <span class="k">as</span> <span class="n">_is_trivial_smiles</span><span class="p">,</span>
+    <span class="n">MODULE_OK</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">report_builder</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_route_report_pdf</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">route_engine</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rt</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="n">rt</span>   <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">Chem</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+
+<span class="c1"># CSS injected inside isolated st.html() / components.html() frames.</span>
+<span class="c1"># Scoped to avoid leaking into the Streamlit global stylesheet.</span>
+
+<span class="n">COMPONENT_STYLE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;style&gt;</span>
+<span class="s2">  @import url(&#39;https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&amp;display=swap&#39;);</span>
+
+<span class="s2">  .score-table {</span>
+<span class="s2">    width:100%; border-collapse:collapse;</span>
+<span class="s2">    font-family:&#39;DM Sans&#39;,sans-serif; font-size:0.87rem; margin:4px 0 14px 0;</span>
+<span class="s2">  }</span>
+<span class="s2">  .score-table th {</span>
+<span class="s2">    background:#1a2e44; color:white; padding:8px 14px;</span>
+<span class="s2">    text-align:left; font-weight:600; font-size:0.75rem; letter-spacing:0.05em;</span>
+<span class="s2">  }</span>
+<span class="s2">  .score-table th:nth-child(2),</span>
+<span class="s2">  .score-table th:nth-child(3),</span>
+<span class="s2">  .score-table th:nth-child(4) { text-align:right; }</span>
+<span class="s2">  .score-table td {</span>
+<span class="s2">    padding:7px 14px; border-bottom:1px solid #edf1f7;</span>
+<span class="s2">    color:#1a2e44; vertical-align:middle;</span>
+<span class="s2">  }</span>
+<span class="s2">  .score-table td:nth-child(2),</span>
+<span class="s2">  .score-table td:nth-child(3),</span>
+<span class="s2">  .score-table td:nth-child(4) {</span>
+<span class="s2">    text-align:right; font-weight:600; font-variant-numeric:tabular-nums;</span>
+<span class="s2">  }</span>
+<span class="s2">  .score-table tr:nth-child(even) { background:#f4f7fb; }</span>
+<span class="s2">  .th-help { cursor:help; border-bottom:1px dashed rgba(255,255,255,0.6); display:inline-block; }</span>
+<span class="s2">  .th-info {</span>
+<span class="s2">    display:inline-block; background:rgba(255,255,255,0.25);</span>
+<span class="s2">    border-radius:50%; width:14px; height:14px;</span>
+<span class="s2">    font-size:0.65rem; line-height:14px; text-align:center;</span>
+<span class="s2">    font-weight:700; margin-left:4px; cursor:help; vertical-align:middle;</span>
+<span class="s2">  }</span>
+<span class="s2">  .why-box {</span>
+<span class="s2">    background:linear-gradient(135deg,#edf4fb,#f4f7fb);</span>
+<span class="s2">    border-left:4px solid #2d5986; border-radius:0 10px 10px 0;</span>
+<span class="s2">    padding:14px 18px; margin:10px 0 18px 0;</span>
+<span class="s2">    font-family:&#39;DM Sans&#39;,sans-serif; font-size:0.89rem;</span>
+<span class="s2">    color:#1a2e44; line-height:1.65;</span>
+<span class="s2">  }</span>
+<span class="s2">  .why-box strong { color:#1a2e44; font-weight:700; }</span>
+<span class="s2">  .why-box ul     { margin:6px 0 6px 20px; padding:0; }</span>
+<span class="s2">  .why-box li     { margin-bottom:3px; }</span>
+<span class="s2">  .why-box em     { font-size:0.82rem; color:#6b7a8d; }</span>
+<span class="s2">  .src-badge { display:inline-block; border-radius:10px; padding:1px 8px;</span>
+<span class="s2">               font-size:0.7rem; font-weight:600; font-family:&#39;DM Sans&#39;,sans-serif;</span>
+<span class="s2">               margin-left:6px; }</span>
+<span class="s2">  .src-dataset    { background:#d4edda; color:#155724; }</span>
+<span class="s2">  .src-generic    { background:#cce5ff; color:#004085; }</span>
+<span class="s2">  .src-rxninsight { background:#fff3cd; color:#856404; }</span>
+<span class="s2">  @keyframes fadeSlideIn {</span>
+<span class="s2">    from { opacity:0; transform:translateX(-14px); }</span>
+<span class="s2">    to   { opacity:1; transform:translateX(0); }</span>
+<span class="s2">  }</span>
+<span class="s2">  @keyframes arrowPulse { 0%,100%{opacity:0.55;} 50%{opacity:1;} }</span>
+<span class="s2">&lt;/style&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="c1"># Per-criterion formula tooltip text shown in the score table header.</span>
+<span class="n">CRITERIA_SCORE_DESC</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;en&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;steps&quot;</span><span class="p">:</span>
+            <span class="s2">&quot;Score = 1 / number_of_steps. Fewer steps gives a score closer to 1.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;yield&quot;</span><span class="p">:</span>
+            <span class="s2">&quot;Score = cumulative yield (product of all step yields). &quot;</span>
+            <span class="s2">&quot;Missing yields are treated as 100 % (neutral). &quot;</span>
+            <span class="s2">&quot;Score closer to 1 means a higher overall yield.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;atom_economy&quot;</span><span class="p">:</span>
+            <span class="s2">&quot;Score = fraction of reactant atoms incorporated into the product. &quot;</span>
+            <span class="s2">&quot;Score closer to 1 means less atomic waste.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;e_factor&quot;</span><span class="p">:</span>
+            <span class="s2">&quot;Score = 1 / (1 + E-factor).  E-factor = kg waste per kg product. &quot;</span>
+            <span class="s2">&quot;Score closer to 1 means less waste generated.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;toxicity&quot;</span><span class="p">:</span>
+            <span class="s2">&quot;Score = 1 - (average hazard of reagents/solvents). &quot;</span>
+            <span class="s2">&quot;Score closer to 1 means safer, less toxic conditions.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;fr&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;steps&quot;</span><span class="p">:</span>
+            <span class="s2">&quot;Score = 1 / nombre_d&#39;étapes. Moins d&#39;étapes → score proche de 1.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;yield&quot;</span><span class="p">:</span>
+            <span class="s2">&quot;Score = rendement cumulé (produit de tous les rendements). &quot;</span>
+            <span class="s2">&quot;Rendements manquants traités à 100 % (neutres). &quot;</span>
+            <span class="s2">&quot;Score proche de 1 = meilleur rendement global.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;atom_economy&quot;</span><span class="p">:</span>
+            <span class="s2">&quot;Score = fraction des atomes des réactifs retrouvés dans le produit. &quot;</span>
+            <span class="s2">&quot;Score proche de 1 = moins de déchets atomiques.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;e_factor&quot;</span><span class="p">:</span>
+            <span class="s2">&quot;Score = 1 / (1 + E-factor).  E-factor = kg déchets / kg produit. &quot;</span>
+            <span class="s2">&quot;Score proche de 1 = moins de déchets.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;toxicity&quot;</span><span class="p">:</span>
+            <span class="s2">&quot;Score = 1 − (danger moyen des réactifs/solvants). &quot;</span>
+            <span class="s2">&quot;Score proche de 1 = conditions plus sûres.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1"># Emoji regex — compiled once at module level</span>
+<span class="n">_EMOJI_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="s2">&quot;[&quot;</span>
+    <span class="s2">&quot;</span><span class="se">\U0001F300</span><span class="s2">-</span><span class="se">\U0001F9FF</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;</span><span class="se">\U00002600</span><span class="s2">-</span><span class="se">\U000027BF</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;</span><span class="se">\U0001F004</span><span class="s2">-</span><span class="se">\U0001F0CF</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;</span><span class="se">\U0001F1E0</span><span class="s2">-</span><span class="se">\U0001F1FF</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;</span><span class="se">\u2702</span><span class="s2">-</span><span class="se">\u27B0</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;</span><span class="se">\u24C2</span><span class="s2">-</span><span class="se">\U0001F251</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;]+&quot;</span><span class="p">,</span>
+    <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">UNICODE</span><span class="p">,</span>
+<span class="p">)</span>
+
+<div class="viewcode-block" id="load_banner">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.load_banner">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_banner</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a local image file and return a base-64 data URI for HTML embedding.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Filesystem path to the image (PNG, JPG, SVG, …).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A ``data:&lt;mime&gt;;base64,&lt;data&gt;`` URI, or an empty string if the file</span>
+<span class="sd">        does not exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+    <span class="n">ext</span>  <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">mime</span> <span class="o">=</span> <span class="s2">&quot;image/png&quot;</span> <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;png&quot;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;image/</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;data:</span><span class="si">{</span><span class="n">mime</span><span class="si">}</span><span class="s2">;base64,</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="hires_fig">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.hires_fig">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hires_fig</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">dpi</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">180</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a high-resolution matplotlib figure with the app background colour.</span>
+
+<span class="sd">    Drop-in replacement for ``plt.subplots()``. Sets the figure and all axes</span>
+<span class="sd">    facecolour to ``FIG_BG`` so charts blend with the page without a white box.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args : positional</span>
+<span class="sd">        Forwarded to ``plt.subplots()``.</span>
+<span class="sd">    dpi : int, optional</span>
+<span class="sd">        Dots per inch for the figure (default 180).</span>
+<span class="sd">    kwargs : keyword</span>
+<span class="sd">        Forwarded to ``plt.subplots()``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">    ax : matplotlib.axes.Axes or ndarray of Axes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">FIG_BG</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">ax</span><span class="p">:</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">FIG_BG</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">FIG_BG</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="strip_emoji">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.strip_emoji">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">strip_emoji</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove all Unicode emoji characters from a string.</span>
+
+<span class="sd">    Matplotlib can&#39;t render emoji so we strip them before any chart call.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    text : str</span>
+<span class="sd">        Input string, possibly containing emoji.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        *text* with all emoji removed and leading/trailing whitespace stripped.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_EMOJI_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="is_purification_step">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.is_purification_step">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_purification_step</span><span class="p">(</span><span class="n">step</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if step is a purification/isolation (keyword or identity transform).&quot;&quot;&quot;</span>
+    <span class="n">rtype</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reaction_type&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">kw</span> <span class="ow">in</span> <span class="n">rtype</span> <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;purif&quot;</span><span class="p">,</span> <span class="s2">&quot;recryst&quot;</span><span class="p">,</span> <span class="s2">&quot;chroma&quot;</span><span class="p">,</span> <span class="s2">&quot;isolation&quot;</span><span class="p">,</span> <span class="s2">&quot;workup&quot;</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="n">prod</span>  <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">reacs</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">if</span> <span class="n">prod</span> <span class="ow">and</span> <span class="n">prod</span> <span class="ow">in</span> <span class="n">reacs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">MODULE_OK</span> <span class="ow">and</span> <span class="n">prod</span> <span class="ow">and</span> <span class="n">Chem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mol_p</span>      <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">prod</span><span class="p">)</span>
+        <span class="n">canon_prod</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolToSmiles</span><span class="p">(</span><span class="n">mol_p</span><span class="p">)</span> <span class="k">if</span> <span class="n">mol_p</span> <span class="k">else</span> <span class="n">prod</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reacs</span><span class="p">:</span>
+            <span class="n">mol_r</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">if</span> <span class="n">r</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">mol_r</span> <span class="ow">and</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolToSmiles</span><span class="p">(</span><span class="n">mol_r</span><span class="p">)</span> <span class="o">==</span> <span class="n">canon_prod</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="build_clickable_scheme_html">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.build_clickable_scheme_html">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_clickable_scheme_html</span><span class="p">(</span>
+    <span class="n">steps_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">route_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">is_predicted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> <span class="c1"># layout sizes — tweak these to resize without touching the HTML / MOL_W, MOL_H = 158, 112</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build the interactive HTML reaction scheme used in Route Search and Analysis.</span>
+
+<span class="sd">    Each molecule in the synthetic sequence is rendered as a double-resolution</span>
+<span class="sd">    Cairo PNG image.  Clicking any reaction arrow opens an inline detail panel</span>
+<span class="sd">    showing conditions, yield, reactant/product structures, and copyable SMILES.</span>
+<span class="sd">    Clicking the same arrow again collapses the panel.</span>
+
+<span class="sd">    Purification step handling</span>
+<span class="sd">    --------------------------</span>
+<span class="sd">    When ``is_purification_step()`` returns ``True`` for a step, the product</span>
+<span class="sd">    molecule is always added to the display sequence — even if its SMILES is</span>
+<span class="sd">    identical to the preceding molecule (standard steps skip duplicates).</span>
+<span class="sd">    The arrow is drawn with a dashed brown style and labelled</span>
+<span class="sd">    &quot;Purification / Isolation&quot;.</span>
+
+<span class="sd">    Co-reactant rendering</span>
+<span class="sd">    ---------------------</span>
+<span class="sd">    Reactants that are not the substrate are rendered as small structure images</span>
+<span class="sd">    above the arrow.  Trivial species (single atoms, ions) are shown as text</span>
+<span class="sd">    labels below the arrow instead.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    steps_data : list</span>
+<span class="sd">        ``route[&quot;dataset_steps&quot;]`` — list of step dicts.</span>
+<span class="sd">    route_id : str</span>
+<span class="sd">        Unique string identifier used as a prefix for all DOM element IDs.</span>
+<span class="sd">    is_predicted : bool, optional</span>
+<span class="sd">        If ``True``, arrows and detail panels use orange colouring to</span>
+<span class="sd">        distinguish predicted routes from validated ones (default ``False``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A complete, self-contained HTML document ready for</span>
+<span class="sd">        ``components.html()``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">steps_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;p style=&#39;color:#888&#39;&gt;No steps.&lt;/p&gt;&quot;</span>
+
+    <span class="n">arrow_color</span> <span class="o">=</span> <span class="s2">&quot;#E65100&quot;</span> <span class="k">if</span> <span class="n">is_predicted</span> <span class="k">else</span> <span class="s2">&quot;#1a2e44&quot;</span>
+    <span class="n">hover_bg</span>    <span class="o">=</span> <span class="s2">&quot;#FFF3E0&quot;</span> <span class="k">if</span> <span class="n">is_predicted</span> <span class="k">else</span> <span class="s2">&quot;#E8F0FC&quot;</span>
+    <span class="n">panel_bg</span>    <span class="o">=</span> <span class="s2">&quot;#FFF8F0&quot;</span> <span class="k">if</span> <span class="n">is_predicted</span> <span class="k">else</span> <span class="s2">&quot;#F0F7FF&quot;</span>
+    <span class="n">rid_js</span>      <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">route_id</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">())</span>
+
+    <span class="c1">#  Layout constants </span>
+    <span class="n">MOL_W</span><span class="p">,</span> <span class="n">MOL_H</span> <span class="o">=</span> <span class="mi">158</span><span class="p">,</span> <span class="mi">112</span>
+    <span class="n">CO_W</span><span class="p">,</span>  <span class="n">CO_H</span>  <span class="o">=</span> <span class="mi">96</span><span class="p">,</span>  <span class="mi">70</span>
+    <span class="n">CELL_W</span>       <span class="o">=</span> <span class="n">MOL_W</span> <span class="o">+</span> <span class="mi">20</span>
+    <span class="n">SCHEME_H</span>     <span class="o">=</span> <span class="mi">200</span>
+    <span class="n">ARROW_SHAFT_W</span> <span class="o">=</span> <span class="mi">90</span>
+    <span class="n">ARROW_CELL_W</span>  <span class="o">=</span> <span class="mi">145</span>
+
+    <span class="c1"># Compute padding above the band for co-reactant images</span>
+    <span class="n">max_co_rows</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps_data</span><span class="p">:</span>
+        <span class="n">reactants</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">product</span>   <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">cond</span>      <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditions&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">co_count</span>  <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reactants</span>
+            <span class="k">if</span> <span class="n">r</span> <span class="o">!=</span> <span class="n">product</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_trivial_smiles</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;solvent&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_trivial_smiles</span><span class="p">(</span><span class="n">cond</span><span class="p">[</span><span class="s2">&quot;solvent&quot;</span><span class="p">]):</span>
+            <span class="n">co_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">co_count</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reagents&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])</span>
+            <span class="k">if</span> <span class="n">r</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_trivial_smiles</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">max_co_rows</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_co_rows</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">co_count</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">//</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="n">display_rows</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_co_rows</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">PAD_TOP</span>      <span class="o">=</span> <span class="n">display_rows</span> <span class="o">*</span> <span class="p">(</span><span class="n">CO_H</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">50</span>
+    <span class="n">PAD_BOTTOM</span>   <span class="o">=</span> <span class="n">display_rows</span> <span class="o">*</span> <span class="p">(</span><span class="n">CO_H</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">//</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">10</span>
+
+    <span class="c1">#  Build molecule sequence and per-arrow metadata </span>
+    <span class="n">mol_sequence</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">arrow_data</span>   <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">steps_data</span><span class="p">):</span>
+        <span class="n">reactants</span>  <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">product</span>    <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">cond</span>       <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditions&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">rtype</span>      <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reaction_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">yld</span>        <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;yield_percent&quot;</span><span class="p">)</span>
+        <span class="n">snum</span>       <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step_number&quot;</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">src_step</span>   <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+        <span class="n">is_purif</span>   <span class="o">=</span> <span class="n">is_purification_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">reactants</span> <span class="ow">and</span> <span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mol_sequence</span><span class="p">:</span>
+            <span class="n">mol_sequence</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">product</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mol_sequence</span> <span class="ow">and</span> <span class="n">mol_sequence</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">product</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_purif</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mol_sequence</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
+
+        <span class="n">prev</span>    <span class="o">=</span> <span class="n">mol_sequence</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol_sequence</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">co_draw</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">co_text</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reactants</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">product</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="p">(</span><span class="n">co_text</span> <span class="k">if</span> <span class="n">_is_trivial_smiles</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">else</span> <span class="n">co_draw</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+        <span class="n">all_cond_parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temperature_C&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">temp</span><span class="p">:</span>
+            <span class="n">all_cond_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;°C&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temp_range&quot;</span><span class="p">):</span>
+            <span class="n">all_cond_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cond</span><span class="p">[</span><span class="s2">&quot;temp_range&quot;</span><span class="p">])</span>
+        <span class="n">solv</span> <span class="o">=</span> <span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;solvent&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">solv</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_is_trivial_smiles</span><span class="p">(</span><span class="n">solv</span><span class="p">):</span>
+                <span class="n">all_cond_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">solv</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">solv</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">co_draw</span><span class="p">:</span>
+                    <span class="n">co_draw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">solv</span><span class="p">)</span>
+                <span class="n">all_cond_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">solv</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reagents&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">r</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">_is_trivial_smiles</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_cond_parts</span><span class="p">:</span>
+                    <span class="n">all_cond_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">co_draw</span><span class="p">:</span>
+                    <span class="n">co_draw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_cond_parts</span><span class="p">:</span>
+                    <span class="n">all_cond_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;apparatus&quot;</span><span class="p">):</span>
+            <span class="n">all_cond_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">cond</span><span class="p">[</span><span class="s2">&quot;apparatus&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
+        <span class="n">cond_display</span>  <span class="o">=</span> <span class="s2">&quot;  ·  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">all_cond_parts</span><span class="p">)</span>
+        <span class="n">display_rtype</span> <span class="o">=</span> <span class="n">rtype</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">is_purif</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rtype</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;Purification / Isolation&quot;</span>
+        <span class="n">below_parts</span>   <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">yld</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">src_step</span> <span class="o">!=</span> <span class="s2">&quot;rxn-insight&quot;</span><span class="p">:</span>
+            <span class="n">below_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">yld</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;%&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">co_text</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>
+            <span class="n">below_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">co_draw_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">co_draw</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">all_cond_parts</span><span class="p">[:</span><span class="mi">4</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">below_parts</span> <span class="ow">and</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">co_draw_set</span><span class="p">:</span>
+                <span class="n">below_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+        <span class="n">arrow_data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="n">snum</span><span class="p">,</span> <span class="s2">&quot;rtype&quot;</span><span class="p">:</span> <span class="n">display_rtype</span><span class="p">,</span>
+            <span class="s2">&quot;yld&quot;</span><span class="p">:</span>  <span class="nb">str</span><span class="p">(</span><span class="n">yld</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;%&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">yld</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">src_step</span> <span class="o">!=</span> <span class="s2">&quot;rxn-insight&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cond&quot;</span><span class="p">:</span> <span class="n">cond_display</span><span class="p">,</span> <span class="s2">&quot;co_draw&quot;</span><span class="p">:</span> <span class="n">co_draw</span><span class="p">,</span> <span class="s2">&quot;co_text&quot;</span><span class="p">:</span> <span class="n">co_text</span><span class="p">,</span>
+            <span class="s2">&quot;below&quot;</span><span class="p">:</span> <span class="n">below_parts</span><span class="p">,</span> <span class="s2">&quot;reactants&quot;</span><span class="p">:</span> <span class="n">reactants</span><span class="p">,</span> <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="n">product</span><span class="p">,</span>
+            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">src_step</span><span class="p">,</span> <span class="s2">&quot;fg&quot;</span><span class="p">:</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fg_reactants&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="s2">&quot;is_purif&quot;</span><span class="p">:</span> <span class="n">is_purif</span><span class="p">,</span>
+        <span class="p">})</span>
+
+    <span class="c1">#  Pre-render molecule images </span>
+    <span class="n">mol_imgs</span>   <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="n">_mol_b64_or_text_svg</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">MOL_W</span><span class="p">,</span> <span class="n">MOL_H</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">mol_sequence</span> <span class="k">if</span> <span class="n">s</span><span class="p">}</span>
+    <span class="n">co_imgs</span>    <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">step_imgs</span>  <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">arrow_data</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">smi</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;co_draw&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">smi</span> <span class="ow">and</span> <span class="n">smi</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">co_imgs</span><span class="p">:</span>
+                <span class="n">co_imgs</span><span class="p">[</span><span class="n">smi</span><span class="p">]</span> <span class="o">=</span> <span class="n">_mol_b64_or_text_svg</span><span class="p">(</span><span class="n">smi</span><span class="p">,</span> <span class="n">CO_W</span><span class="p">,</span> <span class="n">CO_H</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">arrow_data</span><span class="p">:</span>
+        <span class="n">r_b64s</span> <span class="o">=</span> <span class="p">[</span><span class="n">_mol_b64_or_text_svg</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">78</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;reactants&quot;</span><span class="p">][:</span><span class="mi">4</span><span class="p">]]</span>
+        <span class="n">p_b64</span>  <span class="o">=</span> <span class="n">_mol_b64_or_text_svg</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;product&quot;</span><span class="p">],</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">78</span><span class="p">)</span>
+        <span class="n">step_imgs</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;reactants&quot;</span><span class="p">:</span>       <span class="n">r_b64s</span><span class="p">,</span> <span class="s2">&quot;product&quot;</span><span class="p">:</span>         <span class="n">p_b64</span><span class="p">,</span>
+            <span class="s2">&quot;reactant_smiles&quot;</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;reactants&quot;</span><span class="p">],</span> <span class="s2">&quot;product_smiles&quot;</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;product&quot;</span><span class="p">],</span>
+        <span class="p">}</span>
+    <span class="n">step_imgs_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">step_imgs</span><span class="p">)</span>
+
+    <span class="c1">#  Assemble HTML items </span>
+    <span class="n">n_mols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol_sequence</span><span class="p">)</span>
+    <span class="n">items</span>  <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">smi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mol_sequence</span><span class="p">):</span>
+        <span class="n">uri</span>  <span class="o">=</span> <span class="n">mol_imgs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">smi</span><span class="p">,</span> <span class="n">_fallback_data_uri</span><span class="p">(</span><span class="n">smi</span><span class="p">,</span> <span class="n">MOL_W</span><span class="p">,</span> <span class="n">MOL_H</span><span class="p">))</span>
+        <span class="n">role</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">role</span> <span class="o">=</span> <span class="s1">&#39;&lt;div class=&quot;mol-role sm-role&quot;&gt;Starting material&lt;/div&gt;&#39;</span>
+        <span class="k">elif</span> <span class="n">idx</span> <span class="o">==</span> <span class="n">n_mols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">role</span> <span class="o">=</span> <span class="s1">&#39;&lt;div class=&quot;mol-role tgt-role&quot;&gt;Target&lt;/div&gt;&#39;</span>
+        <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">&#39;&lt;div class=&quot;mol-cell&quot;&gt;&#39;</span> <span class="o">+</span> <span class="n">role</span> <span class="o">+</span>
+            <span class="s1">&#39;&lt;img src=&quot;&#39;</span> <span class="o">+</span> <span class="n">uri</span> <span class="o">+</span> <span class="s1">&#39;&quot; width=&quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">MOL_W</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot; height=&quot;&#39;</span> <span class="o">+</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">MOL_H</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot; style=&quot;display:block;border-radius:4px;&#39;</span>
+            <span class="s1">&#39;cursor:zoom-in&quot; onclick=&quot;openFullImg(this.src)&quot;/&gt;&lt;/div&gt;&#39;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrow_data</span><span class="p">):</span>
+            <span class="n">a</span>             <span class="o">=</span> <span class="n">arrow_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">co_slice</span>      <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;co_draw&quot;</span><span class="p">][:</span><span class="mi">4</span><span class="p">]</span>
+            <span class="n">n_co</span>          <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">co_slice</span><span class="p">)</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">_co_tag</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+                <span class="n">u</span> <span class="o">=</span> <span class="n">co_imgs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">_fallback_data_uri</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">CO_W</span><span class="p">,</span> <span class="n">CO_H</span><span class="p">))</span>
+                <span class="k">return</span> <span class="p">(</span>
+                    <span class="s1">&#39;&lt;img src=&quot;&#39;</span> <span class="o">+</span> <span class="n">u</span> <span class="o">+</span> <span class="s1">&#39;&quot; width=&quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">CO_W</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="s1">&#39;&quot; height=&quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">CO_H</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="s1">&#39;&quot; style=&quot;border:1px solid #dce3ec;border-radius:3px;background:#fff;&quot; &#39;</span>
+                    <span class="s1">&#39;title=&quot;&#39;</span> <span class="o">+</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&amp;quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;/&gt;&#39;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">n_co</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">co_html</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">elif</span> <span class="n">n_co</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">co_html</span> <span class="o">=</span> <span class="s1">&#39;&lt;div class=&quot;co-row&quot;&gt;&#39;</span> <span class="o">+</span> <span class="n">_co_tag</span><span class="p">(</span><span class="n">co_slice</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;&lt;/div&gt;&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">top</span> <span class="o">=</span> <span class="s1">&#39;&lt;div class=&quot;co-row&quot;&gt;&#39;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_co_tag</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">co_slice</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;&lt;/div&gt;&#39;</span>
+                <span class="n">bot</span> <span class="o">=</span> <span class="s1">&#39;&lt;div class=&quot;co-row&quot;&gt;&#39;</span> <span class="o">+</span> <span class="n">_co_tag</span><span class="p">(</span><span class="n">co_slice</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;&lt;/div&gt;&#39;</span>
+                <span class="n">co_html</span> <span class="o">=</span> <span class="n">top</span> <span class="o">+</span> <span class="n">bot</span>
+
+            <span class="n">step_json_esc</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+                <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;co_draw&quot;</span><span class="p">,</span><span class="s2">&quot;co_text&quot;</span><span class="p">,</span><span class="s2">&quot;below&quot;</span><span class="p">,</span><span class="s2">&quot;is_purif&quot;</span><span class="p">)}</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&amp;quot;&quot;</span><span class="p">)</span>
+            <span class="n">purif_color</span> <span class="o">=</span> <span class="s2">&quot;#8B5E3C&quot;</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;is_purif&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">arrow_color</span>
+            <span class="n">purif_dash</span>  <span class="o">=</span> <span class="s2">&quot;stroke-dasharray:6,3;&quot;</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;is_purif&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">below_html</span>  <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="s1">&#39;&lt;div class=&quot;b-yld&quot;&gt;&#39;</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;yld&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;&lt;/div&gt;&#39;</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;yld&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span>
+                <span class="p">(</span><span class="s1">&#39;&lt;div class=&quot;b-rtype&quot;&gt;&#39;</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;rtype&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;&lt;/div&gt;&#39;</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;rtype&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span>
+                <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="s1">&#39;&lt;div class=&quot;b-cond&quot;&gt;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)[:</span><span class="mi">32</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;&lt;/div&gt;&#39;</span>
+                    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;below&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">t</span> <span class="o">!=</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;yld&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s1">&#39;&lt;div class=&quot;arrow-cell&quot; data-step=&quot;&#39;</span> <span class="o">+</span> <span class="n">step_json_esc</span> <span class="o">+</span>
+                <span class="s1">&#39;&quot; onclick=&quot;showStepFn&#39;</span> <span class="o">+</span> <span class="n">rid_js</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;,this)&quot;&gt;&#39;</span>
+                <span class="s1">&#39;&lt;div class=&quot;co-above&quot;&gt;&#39;</span> <span class="o">+</span> <span class="n">co_html</span> <span class="o">+</span> <span class="s1">&#39;&lt;/div&gt;&#39;</span>
+                <span class="s1">&#39;&lt;div class=&quot;arrow-line&quot;&gt;&#39;</span>
+                <span class="s1">&#39;&lt;div class=&quot;a-shaft&quot; style=&quot;background:&#39;</span> <span class="o">+</span> <span class="n">purif_color</span> <span class="o">+</span> <span class="s1">&#39;;&#39;</span> <span class="o">+</span> <span class="n">purif_dash</span> <span class="o">+</span> <span class="s1">&#39;&quot;&gt;&lt;/div&gt;&#39;</span>
+                <span class="s1">&#39;&lt;div class=&quot;a-head&quot; style=&quot;border-left-color:&#39;</span> <span class="o">+</span> <span class="n">purif_color</span> <span class="o">+</span> <span class="s1">&#39;;&quot;&gt;&lt;/div&gt;&#39;</span>
+                <span class="s1">&#39;&lt;/div&gt;&#39;</span>
+                <span class="s1">&#39;&lt;div class=&quot;step-lbl&quot; style=&quot;color:&#39;</span> <span class="o">+</span> <span class="n">purif_color</span> <span class="o">+</span> <span class="s1">&#39;;&quot;&gt;Step &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;&lt;/div&gt;&#39;</span>
+                <span class="o">+</span> <span class="n">below_html</span> <span class="o">+</span> <span class="s1">&#39;&lt;/div&gt;&#39;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># inline CSS for the reaction scheme iframe</span>
+    <span class="n">css</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;html,body{margin:0;padding:0;background:#fff;font-family:&#39;DM Sans&#39;,Arial,sans-serif;}&quot;</span>
+        <span class="s2">&quot;*{box-sizing:border-box}&quot;</span>
+        <span class="s2">&quot;#scroll-wrap{overflow-x:auto;overflow-y:visible;background:#FAFAFA;&quot;</span>
+        <span class="s2">&quot;border-radius:10px;border:1px solid #dce3ec;}&quot;</span>
+        <span class="s2">&quot;.band{display:flex;align-items:center;justify-content:flex-start;&quot;</span>
+        <span class="s2">&quot;height:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">SCHEME_H</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px;gap:2px;padding:0 8px;overflow:visible;&quot;</span>
+        <span class="s2">&quot;padding-top:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">PAD_TOP</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px;padding-bottom:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">PAD_BOTTOM</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px;&quot;</span>
+        <span class="s2">&quot;box-sizing:content-box;}&quot;</span>
+        <span class="s2">&quot;.mol-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;&quot;</span>
+        <span class="s2">&quot;min-width:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">CELL_W</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px;max-width:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">CELL_W</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px;&quot;</span>
+        <span class="s2">&quot;height:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">SCHEME_H</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px;&quot;</span>
+        <span class="s2">&quot;background:#fff;border:1px solid #dce3ec;border-radius:8px;padding:4px;&quot;</span>
+        <span class="s2">&quot;box-shadow:0 1px 4px rgba(26,46,68,0.06);flex-shrink:0;}&quot;</span>
+        <span class="s2">&quot;.mol-role{font-size:0.55rem;font-weight:700;letter-spacing:0.06em;&quot;</span>
+        <span class="s2">&quot;text-transform:uppercase;border-radius:10px;padding:1px 6px;margin-bottom:3px;white-space:nowrap;}&quot;</span>
+        <span class="s2">&quot;.sm-role{background:#cce5ff;color:#004085}.tgt-role{background:#d4edda;color:#155724}&quot;</span>
+        <span class="s2">&quot;.arrow-cell{position:relative;display:flex;flex-direction:column;align-items:center;&quot;</span>
+        <span class="s2">&quot;justify-content:center;cursor:pointer;min-width:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ARROW_CELL_W</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px;&quot;</span>
+        <span class="s2">&quot;height:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">SCHEME_H</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px;padding:2px 4px;border-radius:6px;&quot;</span>
+        <span class="s2">&quot;transition:background 0.12s;user-select:none;flex-shrink:0;overflow:visible;}&quot;</span>
+        <span class="s2">&quot;.arrow-cell:hover{background:&quot;</span> <span class="o">+</span> <span class="n">hover_bg</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span>
+        <span class="s2">&quot;.co-above{position:absolute;bottom:100%;margin-bottom:-35px;left:50%;&quot;</span>
+        <span class="s2">&quot;transform:translateX(-50%);display:flex;flex-direction:column;&quot;</span>
+        <span class="s2">&quot;align-items:center;gap:2px;pointer-events:none;}&quot;</span>
+        <span class="s2">&quot;.co-row{display:flex;flex-direction:row;gap:2px;align-items:center;justify-content:center;}&quot;</span>
+        <span class="s2">&quot;.arrow-line{display:flex;align-items:center;width:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ARROW_SHAFT_W</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px;flex-shrink:0;}&quot;</span>
+        <span class="s2">&quot;.a-shaft{width:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ARROW_SHAFT_W</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px;height:2.5px;background:&quot;</span> <span class="o">+</span> <span class="n">arrow_color</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span>
+        <span class="s2">&quot;border-radius:2px 0 0 2px;flex-shrink:0;}&quot;</span>
+        <span class="s2">&quot;.a-head{width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;&quot;</span>
+        <span class="s2">&quot;border-left:10px solid &quot;</span> <span class="o">+</span> <span class="n">arrow_color</span> <span class="o">+</span> <span class="s2">&quot;;flex-shrink:0;}&quot;</span>
+        <span class="s2">&quot;.step-lbl{font-size:10px;font-weight:700;color:&quot;</span> <span class="o">+</span> <span class="n">arrow_color</span> <span class="o">+</span> <span class="s2">&quot;;text-align:center;margin-top:2px;}&quot;</span>
+        <span class="s2">&quot;.b-yld{font-size:12px;font-weight:700;color:&quot;</span> <span class="o">+</span> <span class="n">arrow_color</span> <span class="o">+</span> <span class="s2">&quot;;text-align:center;}&quot;</span>
+        <span class="s2">&quot;.b-rtype{font-size:8.5px;color:#6b7a8d;text-align:center;word-break:break-word;&quot;</span>
+        <span class="s2">&quot;white-space:normal;line-height:1.2;max-width:136px;font-style:italic;}&quot;</span>
+        <span class="s2">&quot;.b-cond{font-size:8px;color:#37506e;text-align:center;word-break:break-word;&quot;</span>
+        <span class="s2">&quot;max-width:136px;line-height:1.15;}&quot;</span>
+        <span class="s2">&quot;.detail-panel{margin-top:6px;padding:12px 16px;background:&quot;</span> <span class="o">+</span> <span class="n">panel_bg</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span>
+        <span class="s2">&quot;border-left:4px solid &quot;</span> <span class="o">+</span> <span class="n">arrow_color</span> <span class="o">+</span> <span class="s2">&quot;;border-radius:0 8px 8px 0;display:none;}&quot;</span>
+        <span class="s2">&quot;.detail-panel.active{display:block}&quot;</span>
+        <span class="s2">&quot;.dp-title{font-weight:700;color:&quot;</span> <span class="o">+</span> <span class="n">arrow_color</span> <span class="o">+</span> <span class="s2">&quot;;margin-bottom:5px;font-size:13px}&quot;</span>
+        <span class="s2">&quot;.dp-grid{display:grid;grid-template-columns:140px 1fr;gap:3px 10px;margin-bottom:6px}&quot;</span>
+        <span class="s2">&quot;.dk{color:#6b7a8d;font-size:11px}.dv{color:#1a2e44;font-size:11px;font-weight:500}&quot;</span>
+        <span class="s2">&quot;.step-imgs{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:5px 0}&quot;</span>
+        <span class="s2">&quot;.step-imgs img{border:1px solid #dce3ec;border-radius:4px}&quot;</span>
+        <span class="s2">&quot;.step-arrow-txt{font-size:15px;color:&quot;</span> <span class="o">+</span> <span class="n">arrow_color</span> <span class="o">+</span> <span class="s2">&quot;;font-weight:700}&quot;</span>
+        <span class="s2">&quot;.smi-section{margin-top:5px}&quot;</span>
+        <span class="s2">&quot;.smi-row{display:flex;align-items:center;gap:5px;margin:2px 0}&quot;</span>
+        <span class="s2">&quot;.smi-code{font-family:monospace;font-size:9px;background:#f5f5f5;&quot;</span>
+        <span class="s2">&quot;padding:2px 5px;border-radius:3px;word-break:break-all;flex:1}&quot;</span>
+        <span class="s2">&quot;.copy-btn{background:&quot;</span> <span class="o">+</span> <span class="n">arrow_color</span> <span class="o">+</span> <span class="s2">&quot;;color:white;border:none;border-radius:3px;&quot;</span>
+        <span class="s2">&quot;padding:2px 6px;font-size:9px;cursor:pointer;white-space:nowrap;flex-shrink:0}&quot;</span>
+        <span class="s2">&quot;.copy-btn:hover</span><span class="si">{opacity:0.8}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1">#  JavaScript </span>
+    <span class="n">js</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;var __si=JSON.parse(document.getElementById(&#39;__si_&quot;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s2">&quot;&#39;).textContent);&quot;</span>
+        <span class="s2">&quot;function notifyResize(){&quot;</span>
+        <span class="s2">&quot;var h=document.getElementById(&#39;wrap-&quot;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s2">&quot;&#39;).scrollHeight;&quot;</span>
+        <span class="s2">&quot;try{window.parent.postMessage({isStreamlitMessage:true,&quot;</span>
+        <span class="s2">&quot;type:&#39;streamlit:setFrameHeight&#39;,height:h+8},&#39;*&#39;);}catch(e)</span><span class="si">{}</span><span class="s2">}&quot;</span>
+        <span class="s2">&quot;function openFullImg(src){&quot;</span>
+        <span class="s2">&quot;var w=window.open(&#39;&#39;,&#39;_blank&#39;,&#39;width=900,height=700&#39;);&quot;</span>
+        <span class="s2">&quot;w.document.write(&#39;&lt;html&gt;&lt;body style=</span><span class="se">\&quot;</span><span class="s2">margin:0;background:#111;display:flex;&quot;</span>
+        <span class="s2">&quot;align-items:center;justify-content:center;height:100vh</span><span class="se">\&quot;</span><span class="s2">&gt;&#39;)&quot;</span>
+        <span class="s2">&quot;;w.document.write(&#39;&lt;img src=</span><span class="se">\&quot;</span><span class="s2">&#39;+src+&#39;</span><span class="se">\&quot;</span><span class="s2"> style=</span><span class="se">\&quot;</span><span class="s2">max-width:100%;max-height:100%;&quot;</span>
+        <span class="s2">&quot;object-fit:contain</span><span class="se">\&quot;</span><span class="s2">/&gt;&#39;);&quot;</span>
+        <span class="s2">&quot;w.document.write(&#39;&lt;/body&gt;&lt;/html&gt;&#39;);w.document.close();}&quot;</span>
+        <span class="s2">&quot;function copyTxt(t){&quot;</span>
+        <span class="s2">&quot;try{navigator.clipboard.writeText(t)}&quot;</span>
+        <span class="s2">&quot;catch(e){var x=document.createElement(&#39;textarea&#39;);x.value=t;&quot;</span>
+        <span class="s2">&quot;document.body.appendChild(x);x.select();document.execCommand(&#39;copy&#39;);&quot;</span>
+        <span class="s2">&quot;document.body.removeChild(x);}}&quot;</span>
+        <span class="s2">&quot;function showStepFn&quot;</span> <span class="o">+</span> <span class="n">rid_js</span> <span class="o">+</span> <span class="s2">&quot;(idx,el){&quot;</span>
+        <span class="s2">&quot;var panel=document.getElementById(&#39;dp-&quot;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s2">&quot;&#39;);&quot;</span>
+        <span class="s2">&quot;if(panel.getAttribute(&#39;data-idx&#39;)==idx&amp;&amp;panel.classList.contains(&#39;active&#39;)){&quot;</span>
+        <span class="s2">&quot;panel.classList.remove(&#39;active&#39;);panel.removeAttribute(&#39;data-idx&#39;);&quot;</span>
+        <span class="s2">&quot;notifyResize();return;}&quot;</span>
+        <span class="s2">&quot;panel.setAttribute(&#39;data-idx&#39;,idx);panel.classList.add(&#39;active&#39;);&quot;</span>
+        <span class="s2">&quot;var d=JSON.parse(el.getAttribute(&#39;data-step&#39;).replace(/&amp;quot;/g,&#39;</span><span class="se">\&quot;</span><span class="s2">&#39;));&quot;</span>
+        <span class="s2">&quot;document.getElementById(&#39;dpt-&quot;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s2">&quot;&#39;).textContent=&#39;Step &#39;+d.step+&#39; — &#39;+(d.rtype||&#39;&#39;);&quot;</span>
+        <span class="s2">&quot;var grid=document.getElementById(&#39;dpg-&quot;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s2">&quot;&#39;);&quot;</span>
+        <span class="s2">&quot;var rows=[[&#39;Reaction type&#39;,d.rtype||&#39;—&#39;],&quot;</span>
+        <span class="s2">&quot;[&#39;Yield&#39;,d.yld||(d.source===&#39;rxn-insight&#39;?&#39;not shown&#39;:&#39;not reported&#39;)],&quot;</span>
+        <span class="s2">&quot;[&#39;Conditions&#39;,d.cond||&#39;—&#39;],[&#39;Source&#39;,d.source]];&quot;</span>
+        <span class="s2">&quot;if(d.source===&#39;rxn-insight&#39;&amp;&amp;d.fg&amp;&amp;d.fg.length&gt;0)rows.push([&#39;Functional groups&#39;,d.fg.join(&#39;, &#39;)]);&quot;</span>
+        <span class="s2">&quot;grid.innerHTML=rows.map(function(r){&quot;</span>
+        <span class="s2">&quot;return &#39;&lt;span class=</span><span class="se">\&quot;</span><span class="s2">dk</span><span class="se">\&quot;</span><span class="s2">&gt;&#39;+r[0]+&#39;&lt;/span&gt;&lt;span class=</span><span class="se">\&quot;</span><span class="s2">dv</span><span class="se">\&quot;</span><span class="s2">&gt;&#39;+r[1]+&#39;&lt;/span&gt;&#39;;}).join(&#39;&#39;);&quot;</span>
+        <span class="s2">&quot;var si=__si[String(d.step)]||</span><span class="si">{}</span><span class="s2">;&quot;</span>
+        <span class="s2">&quot;var imgDiv=document.getElementById(&#39;dpi-&quot;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s2">&quot;&#39;);&quot;</span>
+        <span class="s2">&quot;var ih=&#39;&#39;;&quot;</span>
+        <span class="s2">&quot;(si.reactants||[]).forEach(function(b64){&quot;</span>
+        <span class="s2">&quot;if(b64)ih+=&#39;&lt;img src=</span><span class="se">\&quot;</span><span class="s2">&#39;+b64+&#39;</span><span class="se">\&quot;</span><span class="s2"> width=</span><span class="se">\&quot;</span><span class="s2">105</span><span class="se">\&quot;</span><span class="s2"> height=</span><span class="se">\&quot;</span><span class="s2">74</span><span class="se">\&quot;</span><span class="s2"> &quot;</span>
+        <span class="s2">&quot;style=</span><span class="se">\&quot;</span><span class="s2">cursor:zoom-in</span><span class="se">\&quot;</span><span class="s2"> onclick=</span><span class="se">\&quot;</span><span class="s2">openFullImg(this.src)</span><span class="se">\&quot;</span><span class="s2">/&gt;&#39;;});&quot;</span>
+        <span class="s2">&quot;if((si.reactants||[]).some(Boolean))ih+=&#39;&lt;span class=</span><span class="se">\&quot;</span><span class="s2">step-arrow-txt</span><span class="se">\&quot;</span><span class="s2">&gt;&amp;#8594;&lt;/span&gt;&#39;;&quot;</span>
+        <span class="s2">&quot;if(si.product)ih+=&#39;&lt;img src=</span><span class="se">\&quot;</span><span class="s2">&#39;+si.product+&#39;</span><span class="se">\&quot;</span><span class="s2"> width=</span><span class="se">\&quot;</span><span class="s2">105</span><span class="se">\&quot;</span><span class="s2"> height=</span><span class="se">\&quot;</span><span class="s2">74</span><span class="se">\&quot;</span><span class="s2"> &quot;</span>
+        <span class="s2">&quot;style=</span><span class="se">\&quot;</span><span class="s2">cursor:zoom-in</span><span class="se">\&quot;</span><span class="s2"> onclick=</span><span class="se">\&quot;</span><span class="s2">openFullImg(this.src)</span><span class="se">\&quot;</span><span class="s2">/&gt;&#39;;&quot;</span>
+        <span class="s2">&quot;imgDiv.innerHTML=ih;&quot;</span>
+        <span class="s2">&quot;var sDiv=document.getElementById(&#39;dps-&quot;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s2">&quot;&#39;);&quot;</span>
+        <span class="s2">&quot;var sh=&#39;&lt;b style=</span><span class="se">\&quot;</span><span class="s2">font-size:10px;color:#1a2e44</span><span class="se">\&quot;</span><span class="s2">&gt;SMILES&lt;/b&gt;&#39;;&quot;</span>
+        <span class="s2">&quot;(si.reactant_smiles||[]).forEach(function(s){&quot;</span>
+        <span class="s2">&quot;sh+=&#39;&lt;div class=</span><span class="se">\&quot;</span><span class="s2">smi-row</span><span class="se">\&quot;</span><span class="s2">&gt;&lt;span class=</span><span class="se">\&quot;</span><span class="s2">smi-code</span><span class="se">\&quot;</span><span class="s2">&gt;&#39;+s+&#39;&lt;/span&gt;&#39;&quot;</span>
+        <span class="s2">&quot;+&#39;&lt;button class=</span><span class="se">\&quot;</span><span class="s2">copy-btn</span><span class="se">\&quot;</span><span class="s2"> onclick=</span><span class="se">\&quot;</span><span class="s2">copyTxt(this.dataset.s)</span><span class="se">\&quot;</span><span class="s2"> data-s=</span><span class="se">\&quot;</span><span class="s2">&#39;+s+&#39;</span><span class="se">\&quot;</span><span class="s2">&gt;Copy&lt;/button&gt;&lt;/div&gt;&#39;;});&quot;</span>
+        <span class="s2">&quot;if(si.product_smiles){&quot;</span>
+        <span class="s2">&quot;sh+=&#39;&lt;div class=</span><span class="se">\&quot;</span><span class="s2">smi-row</span><span class="se">\&quot;</span><span class="s2">&gt;&lt;span class=</span><span class="se">\&quot;</span><span class="s2">smi-code</span><span class="se">\&quot;</span><span class="s2">&gt;&amp;#8594; &#39;+si.product_smiles+&#39;&lt;/span&gt;&#39;&quot;</span>
+        <span class="s2">&quot;+&#39;&lt;button class=</span><span class="se">\&quot;</span><span class="s2">copy-btn</span><span class="se">\&quot;</span><span class="s2"> onclick=</span><span class="se">\&quot;</span><span class="s2">copyTxt(this.dataset.s)</span><span class="se">\&quot;</span><span class="s2"> data-s=</span><span class="se">\&quot;</span><span class="s2">&#39;+si.product_smiles+&#39;</span><span class="se">\&quot;</span><span class="s2">&gt;Copy&lt;/button&gt;&lt;/div&gt;&#39;;}&quot;</span>
+        <span class="s2">&quot;sDiv.innerHTML=sh;notifyResize();}&quot;</span>
+        <span class="s2">&quot;window.addEventListener(&#39;load&#39;,notifyResize);&quot;</span>
+        <span class="s2">&quot;new ResizeObserver(notifyResize).observe(document.getElementById(&#39;wrap-&quot;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s2">&quot;&#39;));&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="s2">&quot;&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;style&gt;&quot;</span> <span class="o">+</span> <span class="n">css</span> <span class="o">+</span> <span class="s2">&quot;&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&quot;</span>
+        <span class="s1">&#39;&lt;div id=&quot;wrap-&#39;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s1">&#39;&quot;&gt;&#39;</span>
+        <span class="s1">&#39;&lt;div id=&quot;scroll-wrap&quot;&gt;&lt;div class=&quot;band&quot;&gt;&#39;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&lt;/div&gt;&lt;/div&gt;&#39;</span>
+        <span class="s1">&#39;&lt;div class=&quot;detail-panel&quot; id=&quot;dp-&#39;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s1">&#39;&quot;&gt;&#39;</span>
+        <span class="s1">&#39;&lt;div class=&quot;dp-title&quot; id=&quot;dpt-&#39;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s1">&#39;&quot;&gt;Step details&lt;/div&gt;&#39;</span>
+        <span class="s1">&#39;&lt;div class=&quot;dp-grid&quot; id=&quot;dpg-&#39;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s1">&#39;&quot;&gt;&lt;/div&gt;&#39;</span>
+        <span class="s1">&#39;&lt;div class=&quot;step-imgs&quot; id=&quot;dpi-&#39;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s1">&#39;&quot;&gt;&lt;/div&gt;&#39;</span>
+        <span class="s1">&#39;&lt;div class=&quot;smi-section&quot; id=&quot;dps-&#39;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s1">&#39;&quot;&gt;&lt;/div&gt;&#39;</span>
+        <span class="s1">&#39;&lt;/div&gt;&lt;/div&gt;&#39;</span>
+        <span class="s1">&#39;&lt;script type=&quot;application/json&quot; id=&quot;__si_&#39;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s1">&#39;&quot;&gt;&#39;</span>
+        <span class="o">+</span> <span class="n">step_imgs_json</span> <span class="o">+</span> <span class="s1">&#39;&lt;/script&gt;&#39;</span>
+        <span class="s1">&#39;&lt;script&gt;&#39;</span> <span class="o">+</span> <span class="n">js</span> <span class="o">+</span> <span class="s1">&#39;&lt;/script&gt;&#39;</span>
+        <span class="s1">&#39;&lt;/body&gt;&lt;/html&gt;&#39;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="build_score_table_html">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.build_score_table_html">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_score_table_html</span><span class="p">(</span>
+    <span class="n">details</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">criteria</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render the per-criterion score breakdown table for a route card.</span>
+
+<span class="sd">    Each row displays: criterion name, raw score 0–1 with a hoverable</span>
+<span class="sd">    tooltip explaining the formula, the criterion weight, and the weighted</span>
+<span class="sd">    contribution to the total score.  For predicted routes the yield row</span>
+<span class="sd">    shows &quot;excluded (predicted route)&quot; instead of a numeric score.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    details : dict</span>
+<span class="sd">        Per-criterion detail dicts from ``rank_weighted()`` with keys</span>
+<span class="sd">        ``raw``, ``weight``, ``weighted``, and optionally ``excluded``.</span>
+<span class="sd">    criteria : list of str</span>
+<span class="sd">        Three criterion keys in descending priority order.</span>
+<span class="sd">    weights : dict</span>
+<span class="sd">        ``{criterion_key: float}`` from ``rt.compute_weights()``.</span>
+<span class="sd">    lang : str, optional</span>
+<span class="sd">        Language code ``&quot;en&quot;`` or ``&quot;fr&quot;`` (default ``&quot;en&quot;``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        HTML string that includes ``COMPONENT_STYLE``; safe to pass to</span>
+<span class="sd">        ``st.html()``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">T</span>   <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">CL</span>  <span class="o">=</span> <span class="n">CRITERIA_LABELS</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">csd</span> <span class="o">=</span> <span class="n">CRITERIA_SCORE_DESC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">CRITERIA_SCORE_DESC</span><span class="p">[</span><span class="s2">&quot;en&quot;</span><span class="p">])</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">criteria</span><span class="p">:</span>
+        <span class="n">raw</span>   <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span>
+        <span class="n">tip_c</span> <span class="o">=</span> <span class="n">csd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;score_th_raw_tip&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&amp;quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">raw</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt;&lt;td&gt;</span><span class="si">{</span><span class="n">CL</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/td&gt;&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&lt;td colspan=&#39;3&#39;&gt;&lt;em&gt;excluded (predicted route)&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;&quot;</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">w</span>    <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">cont</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="s2">&quot;weighted&quot;</span><span class="p">]</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="n">CL</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/td&gt;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;&lt;span class=&#39;th-help&#39; title=&#39;</span><span class="si">{</span><span class="n">tip_c</span><span class="si">}</span><span class="s2">&#39; style=&#39;cursor:help;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;border-bottom:1px dashed #888&#39;&gt;</span><span class="si">{</span><span class="n">raw</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;span class=&#39;th-info&#39; style=&#39;margin-left:3px&#39;&gt;?&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="n">w</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%&lt;/td&gt;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="n">cont</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&lt;/td&gt;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;/tr&gt;&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">COMPONENT_STYLE</span> <span class="o">+</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;table class=&#39;score-table&#39;&gt;&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;thead&gt;&lt;tr&gt;&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;th&gt;</span><span class="si">{</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;score_th_crit&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/th&gt;&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;th&gt;</span><span class="si">{</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;score_th_raw&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/th&gt;&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;th&gt;</span><span class="si">{</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;score_th_weight&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/th&gt;&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;th&gt;</span><span class="si">{</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;score_th_contrib&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/th&gt;&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;/tr&gt;&lt;/thead&gt;&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;tbody&gt;</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/tbody&gt;&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;/table&gt;&quot;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="make_ranking_chart">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.make_ranking_chart">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_ranking_chart</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">target_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render a horizontal bar chart ranking routes by total score.</span>
+
+<span class="sd">    Displayed above the route cards whenever more than one route is found</span>
+<span class="sd">    in a given category.  Score values are annotated directly on each bar.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    results : list</span>
+<span class="sd">        List of ``(score, details, route)`` tuples from ``rank_weighted()``.</span>
+<span class="sd">    target_name : str</span>
+<span class="sd">        Target molecule name — used as the chart title suffix.</span>
+<span class="sd">    lang : str, optional</span>
+<span class="sd">        Language code for axis / title strings (default ``&quot;en&quot;``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.figure.Figure</span>
+<span class="sd">        Caller is responsible for calling ``plt.close(fig)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">T</span>      <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_name&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Route </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)[:</span><span class="mi">32</span><span class="p">]</span>
+              <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">)]</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+    <span class="n">n</span>      <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">hires_fig</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">n</span> <span class="o">*</span> <span class="mf">0.65</span><span class="p">)))</span>
+    <span class="n">colors</span>  <span class="o">=</span> <span class="p">[</span><span class="n">PALETTE</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">PALETTE</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="n">bars</span>    <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">scores</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.52</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">bar</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bars</span><span class="p">,</span> <span class="n">scores</span><span class="p">):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.013</span><span class="p">,</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_y</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">9.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#1a2e44&quot;</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;600&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#1a2e44&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;score_axis&quot;</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#6b7a8d&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.30</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;chart_title&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target_name</span><span class="p">),</span>
+                 <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#1a2e44&quot;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">colors</span><span class="o">=</span><span class="s2">&quot;#6b7a8d&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">sp</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#dce3ec&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">1.6</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="make_yield_chart">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.make_yield_chart">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_yield_chart</span><span class="p">(</span><span class="n">steps_route</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render a bar chart of reported step yields for a single route.</span>
+
+<span class="sd">    Used in the Dataset Explorer route detail view.  Steps without a reported</span>
+<span class="sd">    yield are omitted from the chart entirely (no bar, no implied 0 %).</span>
+<span class="sd">    Yield labels use integer format; change ``&quot;:.0f&quot;`` to ``&quot;:.1f&quot;`` for one</span>
+<span class="sd">    decimal place.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    steps_route : list</span>
+<span class="sd">        List of step dicts from ``dataset[&quot;by_route&quot;][route_id]``.</span>
+<span class="sd">    lang : str, optional</span>
+<span class="sd">        Language code for axis labels (default ``&quot;en&quot;``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.figure.Figure</span>
+<span class="sd">        Caller is responsible for calling ``plt.close(fig)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">T</span>  <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">n</span>  <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps_route</span><span class="p">)</span>
+    <span class="n">reported_vals</span>  <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">reported_steps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">steps_route</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;yield_percent&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reported_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">reported_steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">hires_fig</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mf">4.5</span><span class="p">,</span> <span class="n">n</span> <span class="o">*</span> <span class="mf">0.7</span><span class="p">),</span> <span class="mf">2.6</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">reported_vals</span><span class="p">:</span>
+        <span class="n">bars</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">reported_steps</span><span class="p">,</span> <span class="n">reported_vals</span><span class="p">,</span>
+                      <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#1a2e44&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.52</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">bar</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bars</span><span class="p">,</span> <span class="n">reported_vals</span><span class="p">):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">get_x</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1.2</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+                    <span class="n">fontsize</span><span class="o">=</span><span class="mf">7.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#1a2e44&quot;</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;600&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">strip_emoji</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;col_steps&quot;</span><span class="p">]),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#6b7a8d&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Yield (%)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#6b7a8d&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="p">[</span><span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#1a2e44&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Reported yield&quot;</span><span class="p">)],</span>
+              <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">FIG_BG</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;#dce3ec&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">sp</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#dce3ec&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">colors</span><span class="o">=</span><span class="s2">&quot;#6b7a8d&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">1.2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="make_comparison_chart">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.make_comparison_chart">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_comparison_chart</span><span class="p">(</span><span class="n">sel_results</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">criteria</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render a grouped horizontal bar chart comparing raw criterion scores.</span>
+
+<span class="sd">    Each route is plotted in a distinct colour from ``PALETTE``; each row</span>
+<span class="sd">    corresponds to one criterion.  Score values are annotated at the end of</span>
+<span class="sd">    each bar.  Used in the Analysis tab for side-by-side route comparison.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sel_results : list</span>
+<span class="sd">        Subset of ``(score, details, route)`` tuples selected by the user</span>
+<span class="sd">        in the Analysis tab multiselect.</span>
+<span class="sd">    criteria : list of str</span>
+<span class="sd">        Three criterion keys in priority order.</span>
+<span class="sd">    lang : str, optional</span>
+<span class="sd">        Language code for axis and title labels (default ``&quot;en&quot;``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.figure.Figure</span>
+<span class="sd">        Caller is responsible for calling ``plt.close(fig)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">T</span>           <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">CL</span>          <span class="o">=</span> <span class="n">CRITERIA_LABELS</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">route_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_name&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;R</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)[:</span><span class="mi">20</span><span class="p">]</span>
+                   <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sel_results</span><span class="p">)]</span>
+    <span class="n">n_routes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sel_results</span><span class="p">)</span>
+    <span class="n">n_crit</span>   <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">criteria</span><span class="p">)</span>
+    <span class="n">x</span>        <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_crit</span><span class="p">)</span>
+    <span class="n">bar_h</span>    <span class="o">=</span> <span class="mf">0.72</span> <span class="o">/</span> <span class="n">n_routes</span>
+    <span class="n">offsets</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">n_routes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">n_routes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n_routes</span><span class="p">)</span> <span class="o">*</span> <span class="n">bar_h</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>  <span class="o">=</span> <span class="n">hires_fig</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.5</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">2.8</span><span class="p">,</span> <span class="n">n_crit</span> <span class="o">*</span> <span class="mf">1.0</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">route</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sel_results</span><span class="p">):</span>
+        <span class="n">vals</span>  <span class="o">=</span> <span class="p">[</span><span class="n">details</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">criteria</span><span class="p">]</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">PALETTE</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">PALETTE</span><span class="p">)]</span>
+        <span class="n">bars</span>  <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vals</span><span class="p">,</span> <span class="n">bar_h</span> <span class="o">*</span> <span class="mf">0.88</span><span class="p">,</span>
+                        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">route_names</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.92</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">bar</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bars</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">v</span> <span class="o">+</span> <span class="mf">0.012</span><span class="p">,</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_y</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;600&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([</span><span class="n">strip_emoji</span><span class="p">(</span><span class="n">CL</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">criteria</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#1a2e44&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.28</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Raw score (0–1)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#6b7a8d&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">strip_emoji</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;radar_title&quot;</span><span class="p">]),</span>
+                 <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#1a2e44&quot;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+              <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">FIG_BG</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;#dce3ec&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">colors</span><span class="o">=</span><span class="s2">&quot;#6b7a8d&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">sp</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#dce3ec&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="build_why_ranked_html">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.build_why_ranked_html">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_why_ranked_html</span><span class="p">(</span>
+    <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">score_total</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">details</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">criteria</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">steps_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build the &quot;Why is this route ranked #N?&quot; reasoning box.</span>
+
+<span class="sd">    Generates one plain-language bullet per top-2 criterion using domain-relevant</span>
+<span class="sd">    values (step count, bottleneck yield, atom economy score, etc.) rather than</span>
+<span class="sd">    raw numeric scores.  Always produces at least one bullet.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rank : int</span>
+<span class="sd">        1-based rank of the route within its category.</span>
+<span class="sd">    score_total : float</span>
+<span class="sd">        Total weighted score.</span>
+<span class="sd">    details : dict</span>
+<span class="sd">        Per-criterion detail dicts from ``rank_weighted()``.</span>
+<span class="sd">    criteria : list of str</span>
+<span class="sd">        Three criterion keys in descending priority order.</span>
+<span class="sd">    weights : dict</span>
+<span class="sd">        ``{criterion_key: float}`` from ``fi.compute_weights()``.</span>
+<span class="sd">    steps_data : list</span>
+<span class="sd">        ``route[&quot;dataset_steps&quot;]`` used to compute yield statistics.</span>
+<span class="sd">    lang : str, optional</span>
+<span class="sd">        Language code ``&quot;en&quot;`` or ``&quot;fr&quot;`` (default ``&quot;en&quot;``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        HTML string that includes ``COMPONENT_STYLE``; safe for ``st.html()``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">T</span>   <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">CL</span>  <span class="o">=</span> <span class="n">CRITERIA_LABELS</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">bn</span>  <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">bottleneck_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">av</span>  <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">average_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">n</span>   <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">bullets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">crit</span> <span class="ow">in</span> <span class="n">criteria</span><span class="p">[:</span><span class="mi">2</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">crit</span> <span class="o">==</span> <span class="s2">&quot;steps&quot;</span><span class="p">:</span>
+            <span class="n">bullets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;why_steps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">crit</span> <span class="o">==</span> <span class="s2">&quot;yield&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">bn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">bullets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;why_yield&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bn</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">av</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">bullets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;why_avg_yield&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">av</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">crit</span> <span class="o">==</span> <span class="s2">&quot;atom_economy&quot;</span><span class="p">:</span>
+            <span class="n">raw</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="n">crit</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+            <span class="n">bullets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;it achieves an atom economy of &lt;strong&gt;</span><span class="si">{</span><span class="n">raw</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%&lt;/strong&gt;&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">crit</span> <span class="o">==</span> <span class="s2">&quot;e_factor&quot;</span><span class="p">:</span>
+            <span class="n">raw</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="n">crit</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+            <span class="n">bullets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;it has a strong E-factor score of &lt;strong&gt;</span><span class="si">{</span><span class="n">raw</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&lt;/strong&gt;&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">crit</span> <span class="o">==</span> <span class="s2">&quot;toxicity&quot;</span><span class="p">:</span>
+            <span class="n">raw</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="n">crit</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+            <span class="n">bullets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;it has a safety score of &lt;strong&gt;</span><span class="si">{</span><span class="n">raw</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%&lt;/strong&gt;&quot;</span>
+            <span class="p">)</span>
+    <span class="n">items_html</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;li&gt;</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">&lt;/li&gt;&quot;</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bullets</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">COMPONENT_STYLE</span> <span class="o">+</span>
+        <span class="s2">&quot;&lt;div class=&#39;why-box&#39;&gt;&quot;</span>
+        <span class="s2">&quot;&lt;div&gt;&quot;</span> <span class="o">+</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;why_prefix&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">rank</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;/div&gt;&quot;</span>
+        <span class="s2">&quot;&lt;ul&gt;&quot;</span> <span class="o">+</span> <span class="n">items_html</span> <span class="o">+</span> <span class="s2">&quot;&lt;/ul&gt;&quot;</span>
+        <span class="s2">&quot;&lt;em&gt;&quot;</span> <span class="o">+</span> <span class="n">T</span><span class="p">[</span><span class="s2">&quot;why_suffix&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;&lt;/em&gt;&quot;</span>
+        <span class="s2">&quot;&lt;/div&gt;&quot;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="smiles_copy_widget">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.smiles_copy_widget">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">smiles_copy_widget</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render a compact SMILES display widget with a clipboard Copy button.</span>
+
+<span class="sd">    Displayed beneath each reactant and product molecule image in the Dataset</span>
+<span class="sd">    Explorer step-by-step view, allowing the chemist to copy any SMILES string</span>
+<span class="sd">    without manually transcribing it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    smiles : str</span>
+<span class="sd">        SMILES string to display and make copyable via the browser clipboard.</span>
+<span class="sd">    label : str, optional</span>
+<span class="sd">        Reserved for future use (currently unused).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">        Renders directly into the current Streamlit column via</span>
+<span class="sd">        ``components.html()``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">short</span> <span class="o">=</span> <span class="n">smiles</span><span class="p">[:</span><span class="mi">38</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;…&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">38</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">safe</span>  <span class="o">=</span> <span class="n">smiles</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;`&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">`&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">html_snip</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;&lt;div style=&#39;display:flex;align-items:center;gap:6px;background:#f5f7fa;&quot;</span>
+        <span class="s2">&quot;border:1px solid #dce3ec;border-radius:6px;padding:4px 8px;&quot;</span>
+        <span class="s2">&quot;font-family:</span><span class="se">\&quot;</span><span class="s2">DM Mono</span><span class="se">\&quot;</span><span class="s2">,</span><span class="se">\&quot;</span><span class="s2">Fira Mono</span><span class="se">\&quot;</span><span class="s2">,monospace;font-size:0.72rem;&quot;</span>
+        <span class="s2">&quot;color:#37506e;margin-top:2px;margin-bottom:6px;overflow:hidden;&#39;&gt;&quot;</span>
+        <span class="s2">&quot;&lt;span style=&#39;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;&#39;&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot; title=&#39;</span><span class="si">{</span><span class="n">smiles</span><span class="si">}</span><span class="s2">&#39;&gt;</span><span class="si">{</span><span class="n">short</span><span class="si">}</span><span class="s2">&lt;/span&gt;&quot;</span>
+        <span class="s2">&quot;&lt;button onclick=</span><span class="se">\&quot;</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;navigator.clipboard.writeText(`</span><span class="si">{</span><span class="n">safe</span><span class="si">}</span><span class="s2">`)&quot;</span>
+        <span class="s2">&quot;.then(()=&gt;{this.textContent=&#39;✓&#39;;setTimeout(()=&gt;this.textContent=&#39;Copy&#39;,1400)})&quot;</span>
+        <span class="s2">&quot;.catch(()=&gt;{var t=document.createElement(&#39;textarea&#39;);&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;t.value=`</span><span class="si">{</span><span class="n">safe</span><span class="si">}</span><span class="s2">`;document.body.appendChild(t);t.select();&quot;</span>
+        <span class="s2">&quot;document.execCommand(&#39;copy&#39;);document.body.removeChild(t);&quot;</span>
+        <span class="s2">&quot;this.textContent=&#39;✓&#39;;setTimeout(()=&gt;this.textContent=&#39;Copy&#39;,1400);})</span><span class="se">\&quot;</span><span class="s2">&quot;</span>
+        <span class="s2">&quot; style=&#39;background:#1a2e44;color:white;border:none;border-radius:4px;&quot;</span>
+        <span class="s2">&quot;padding:2px 8px;font-size:0.68rem;font-weight:600;cursor:pointer;&quot;</span>
+        <span class="s2">&quot;white-space:nowrap;flex-shrink:0;&#39;&gt;Copy&lt;/button&gt;&quot;</span>
+        <span class="s2">&quot;&lt;/div&gt;&quot;</span>
+    <span class="p">)</span>
+    <span class="n">components</span><span class="o">.</span><span class="n">html</span><span class="p">(</span><span class="n">html_snip</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">36</span><span class="p">,</span> <span class="n">scrolling</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="display_route_card">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.display_route_card">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">display_route_card</span><span class="p">(</span>
+    <span class="n">score_total</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">details</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">route</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">criteria</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">all_results</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">badge</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;📚 dataset&quot;</span><span class="p">,</span>
+    <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render a complete route card inside a Streamlit expander.</span>
+
+<span class="sd">    The card contains (top to bottom):</span>
+
+<span class="sd">    1. Validation status banner (success / info / warning).</span>
+<span class="sd">    2. Four metric columns: total score, step count, bottleneck yield, avg yield.</span>
+<span class="sd">    3. Score breakdown table (``build_score_table_html``).</span>
+<span class="sd">    4. Why-ranked reasoning box (``build_why_ranked_html``).</span>
+<span class="sd">    5. PDF download button (``build_route_report_pdf``).</span>
+<span class="sd">    6. Horizontal rule followed by the interactive reaction scheme</span>
+<span class="sd">       (``build_clickable_scheme_html`` inside ``components.html``).</span>
+<span class="sd">    7. Substances-needed expander with molecule thumbnails, solvents, reagents.</span>
+
+<span class="sd">    The expander is expanded by default only for the first (rank 1) route.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    score_total : float</span>
+<span class="sd">        Total weighted score of the route.</span>
+<span class="sd">    details : dict</span>
+<span class="sd">        Per-criterion detail dicts from ``rank_weighted()``.</span>
+<span class="sd">    route : dict</span>
+<span class="sd">        Enriched route dict (output of the matching / enrichment pipeline).</span>
+<span class="sd">    criteria : list of str</span>
+<span class="sd">        Three criterion keys in priority order.</span>
+<span class="sd">    weights : dict</span>
+<span class="sd">        ``{criterion_key: float}`` from ``fi.compute_weights()``.</span>
+<span class="sd">    all_results : list</span>
+<span class="sd">        Full ranked result list for the category (reserved for future use).</span>
+<span class="sd">    rank : int, optional</span>
+<span class="sd">        1-based rank within the category (default 1).</span>
+<span class="sd">    badge : str, optional</span>
+<span class="sd">        Emoji + label shown in the expander header (default ``&quot;📚 dataset&quot;``).</span>
+<span class="sd">    lang : str, optional</span>
+<span class="sd">        Language code ``&quot;en&quot;`` or ``&quot;fr&quot;`` (default ``&quot;en&quot;``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">        Renders directly into the current Streamlit context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">T</span>          <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">route_name</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_name&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
+    <span class="n">tgt</span>        <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_target&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
+    <span class="n">steps_data</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_steps&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">n_steps</span>    <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">bn</span>         <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">bottleneck_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">av</span>         <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">average_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">medals</span>     <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;🥇&quot;</span><span class="p">,</span><span class="s2">&quot;🥈&quot;</span><span class="p">,</span><span class="s2">&quot;🥉&quot;</span><span class="p">,</span><span class="s2">&quot;4️.&quot;</span><span class="p">,</span><span class="s2">&quot;5️.&quot;</span><span class="p">,</span><span class="s2">&quot;6️.&quot;</span><span class="p">,</span><span class="s2">&quot;7️.&quot;</span><span class="p">,</span><span class="s2">&quot;8️.&quot;</span><span class="p">,</span><span class="s2">&quot;9️.&quot;</span><span class="p">,</span><span class="s2">&quot;10.&quot;</span><span class="p">]</span>
+    <span class="n">medal</span>      <span class="o">=</span> <span class="n">medals</span><span class="p">[</span><span class="n">rank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">rank</span> <span class="o">&lt;=</span> <span class="mi">10</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;#</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">route_key</span>  <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_id&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">())</span>
+    <span class="n">is_pred</span>    <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_predicted&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">status</span>     <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validation_status&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+    <span class="n">v</span>          <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validated_steps_count&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">t_</span>         <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_steps_count&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">expander</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">medal</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">badge</span><span class="si">}</span><span class="s2">]  </span><span class="si">{</span><span class="n">route_name</span><span class="si">}</span><span class="s2">  ·  </span><span class="si">{</span><span class="n">tgt</span><span class="si">}</span><span class="s2">  ·  Score: **</span><span class="si">{</span><span class="n">score_total</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">**&quot;</span><span class="p">,</span>
+        <span class="n">expanded</span><span class="o">=</span><span class="p">(</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="c1"># Status banner</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;validated&quot;</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="s2">&quot;✅ Fully validated — all steps found in generic dataset (real conditions).&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;partial&quot;</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🧪 </span><span class="si">{</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;partial_badge&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="o">=</span><span class="n">t_</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;predicted&quot;</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;⚠️ Predicted route — no steps found in experimental literature. &quot;</span>
+                <span class="s2">&quot;Yield excluded from scoring.&quot;</span>
+                <span class="k">if</span> <span class="n">lang</span> <span class="o">==</span> <span class="s2">&quot;en&quot;</span> <span class="k">else</span>
+                <span class="s2">&quot;⚠️ Route prédite — aucune étape trouvée dans la littérature. &quot;</span>
+                <span class="s2">&quot;Le rendement est exclu du score.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Metrics</span>
+        <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">m3</span><span class="p">,</span> <span class="n">m4</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">m1</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_score&quot;</span><span class="p">],</span>     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score_total</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_score_help&quot;</span><span class="p">])</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_steps&quot;</span><span class="p">],</span>     <span class="n">n_steps</span><span class="p">)</span>
+        <span class="n">m3</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_bottleneck&quot;</span><span class="p">],</span>
+                  <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bn</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">bn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_bn_help&quot;</span><span class="p">])</span>
+        <span class="n">m4</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_avg&quot;</span><span class="p">],</span>       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">av</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">av</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Score table</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**</span><span class="si">{</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;contrib_title&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">**&quot;</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">html</span><span class="p">(</span><span class="n">build_score_table_html</span><span class="p">(</span><span class="n">details</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">lang</span><span class="p">))</span>
+
+        <span class="c1"># Why ranked</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**</span><span class="si">{</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;why_best_title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">rank</span><span class="p">)</span><span class="si">}</span><span class="s2">**&quot;</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">html</span><span class="p">(</span><span class="n">build_why_ranked_html</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">score_total</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">steps_data</span><span class="p">,</span> <span class="n">lang</span><span class="p">))</span>
+
+        <span class="c1"># PDF download</span>
+        <span class="n">dl_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">route_name</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="ow">or</span> <span class="n">c</span> <span class="ow">in</span> <span class="s2">&quot; _-&quot;</span><span class="p">)[:</span><span class="mi">40</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">dl_col</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="k">with</span> <span class="n">dl_col</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pdf_data</span> <span class="o">=</span> <span class="n">build_route_report_pdf</span><span class="p">(</span><span class="n">score_total</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">route</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">download_button</span><span class="p">(</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;⬇️ Download PDF&quot;</span><span class="p">,</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">pdf_data</span><span class="p">,</span>
+                    <span class="n">file_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dl_name</span><span class="si">}</span><span class="s2">.pdf&quot;</span><span class="p">,</span>
+                    <span class="n">mime</span><span class="o">=</span><span class="s2">&quot;application/pdf&quot;</span><span class="p">,</span>
+                    <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;dl_pdf_</span><span class="si">{</span><span class="n">route_key</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Download full synthesis route report as high-resolution PDF&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PDF unavailable: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;**Reaction scheme** *(click an arrow to see step details below)*&quot;</span><span class="p">)</span>
+        <span class="n">components</span><span class="o">.</span><span class="n">html</span><span class="p">(</span>
+            <span class="n">build_clickable_scheme_html</span><span class="p">(</span><span class="n">steps_data</span><span class="p">,</span> <span class="n">route_key</span><span class="p">,</span> <span class="n">is_pred</span><span class="p">),</span>
+            <span class="n">height</span><span class="o">=</span><span class="mi">480</span><span class="p">,</span> <span class="n">scrolling</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">expander</span><span class="p">(</span><span class="s2">&quot;🧪 Substances needed&quot;</span><span class="p">,</span> <span class="n">expanded</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">sub</span>      <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">get_substances_list</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+            <span class="n">all_mols</span> <span class="o">=</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;to_buy&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;to_prepare&quot;</span><span class="p">][:</span><span class="mi">6</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">all_mols</span><span class="p">:</span>
+                <span class="n">n_cols</span>   <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_mols</span><span class="p">))</span>
+                <span class="n">cols_sub</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="n">n_cols</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">smi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_mols</span><span class="p">):</span>
+                    <span class="k">with</span> <span class="n">cols_sub</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">n_cols</span><span class="p">]:</span>
+                        <span class="n">png</span> <span class="o">=</span> <span class="n">mol_png</span><span class="p">(</span><span class="n">smi</span><span class="p">,</span> <span class="mi">320</span><span class="p">,</span> <span class="mi">220</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">png</span><span class="p">:</span>
+                            <span class="n">st</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">png</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;stretch&quot;</span><span class="p">)</span>
+                        <span class="n">smiles_copy_widget</span><span class="p">(</span><span class="n">smi</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;solvents&quot;</span><span class="p">]:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;**🧴 Solvents**&quot;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  ·  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s2">&quot;solvents&quot;</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;reagents&quot;</span><span class="p">]:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;**🔬 Reagents**&quot;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  ·  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s2">&quot;reagents&quot;</span><span class="p">][:</span><span class="mi">10</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="load_dataset_cached">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.load_dataset_cached">[docs]</a>
+<span class="nd">@st</span><span class="o">.</span><span class="n">cache_data</span><span class="p">(</span><span class="n">show_spinner</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_dataset_cached</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Streamlit-cached wrapper around ``rt.load_reaction_dataset()``.</span>
+
+<span class="sd">    Prevents reloading the JSON dataset on every widget interaction during the</span>
+<span class="sd">    same session.  The cache is keyed by *path* so changing the sidebar input</span>
+<span class="sd">    automatically triggers a fresh load.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Filesystem path to ``reaction_dataset.json``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        As returned by ``rt.load_reaction_dataset()`` — keys ``all``,</span>
+<span class="sd">        ``by_product``, ``by_reactant``, ``by_route``, ``metadata``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">rt</span><span class="o">.</span><span class="n">load_reaction_dataset</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_targets_cached">
+<a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.get_targets_cached">[docs]</a>
+<span class="nd">@st</span><span class="o">.</span><span class="n">cache_data</span><span class="p">(</span><span class="n">show_spinner</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_targets_cached</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Streamlit-cached wrapper returning the ``{target_name: SMILES}`` mapping.</span>
+
+<span class="sd">    Used to populate the predefined molecule selector in the Route Search tab.</span>
+<span class="sd">    Caching avoids iterating over all route steps on every widget interaction.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Filesystem path to ``reaction_dataset.json``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        ``{target_name: canonical_SMILES}`` for all targets in the dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">rt</span><span class="o">.</span><span class="n">get_targets_from_dataset</span><span class="p">(</span><span class="n">load_dataset_cached</span><span class="p">(</span><span class="n">path</span><span class="p">))</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Yara Chahda, Corentin Portmann, Ines Ouchen
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>
