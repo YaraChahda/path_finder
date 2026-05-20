@@ -10,68 +10,81 @@ path_finder
 *Yara Chahda · Corentin Portmann · Inès Ouchen Laksiri — EPFL 2026*
 
 ---
-
+ 
 ## User installation
-
-### 1. Install RDKit
-
-RDKit cannot be installed via pip — conda is required for this one step.
-
+ 
+> **Requirements:** macOS or Linux, [Miniconda or Anaconda](https://docs.conda.io/en/latest/miniconda.html)
+ 
+### 1. Create a dedicated environment
+ 
+Python 3.10 is required — newer versions are not compatible with AiZynthFinder.
+ 
 ```bash
-conda install -c conda-forge rdkit
+conda create -n path-finder-env python=3.10 -y
+conda activate path-finder-env
 ```
-
-### 2. Install Path Finder
-
+ 
+### 2. Install RDKit
+ 
+RDKit cannot be installed via pip — conda is required for this one step.
+ 
+```bash
+conda install -c conda-forge rdkit -y
+```
+ 
+### 3. Install Path Finder
+ 
 ```bash
 pip install path-finder-retrosynthesis
 ```
-
-### 3. Run the setup wizard
-
+ 
+### 4. Run the setup wizard
+ 
 ```bash
 path-finder-setup
 ```
-
+ 
 This automatically:
 - copies the bundled datasets into `data/`
-- downloads the AiZynthFinder model files (~500 MB) via the official AiZynthFinder downloader
-- generates `data/config.yml` with the correct paths
-
-> If the automatic download fails, download the model files manually from
+- creates `data/config.yml` with the correct paths
+> **If the wizard fails at step 3 (model download):** download the files manually from
 > [https://github.com/MolecularAI/aizynthfinder/releases](https://github.com/MolecularAI/aizynthfinder/releases)
 > and place them in `data/aizynthfinder/`.
-
-### 4. Download the Rxn-INSIGHT USPTO database
-
+>
+> Files needed: `uspto_model.onnx`, `uspto_templates.csv.gz`, `uspto_filter_model.onnx`, `zinc_stock.hdf5`
+ 
+### 5. Download the Rxn-INSIGHT USPTO database
+ 
 Download `uspto_rxn_insight.gzip` from:
-[The rxn-INSIGHT article](https://zenodo.org/records/10171745)
-
+[https://zenodo.org/records/10171745](https://zenodo.org/records/10171745)
+ 
 Place it in `data/uspto_rxn_insight.gzip`.
-
-> This file enables reaction condition prediction for novel routes (predicted routes section).
+ 
+> This file enables reaction condition prediction for novel routes.
 > Without it, only dataset and validated routes are shown.
-
-### 5. Launch
-
+ 
+### 6. Launch
+ 
 ```bash
 path-finder
 ```
-
+ 
 Open [http://localhost:8501](http://localhost:8501) in your browser.
-
+ 
 ---
-
-## Summary
-
-```
-conda install -c conda-forge rdkit
+ 
+## Quick summary
+ 
+```bash
+conda create -n path-finder-env python=3.10 -y
+conda activate path-finder-env
+conda install -c conda-forge rdkit -y
 pip install path-finder-retrosynthesis
 path-finder-setup
-# → place uspto_rxn_insight.gzip in data/
+# → place data/uspto_rxn_insight.gzip manually
 path-finder
 ```
-
+ 
 ---
 
 ## What the app does
@@ -101,13 +114,29 @@ steps, yield, atom economy, E-factor, or safety.
 | `data/uspto_rxn_insight.gzip` | ❌ | Rxn-INSIGHT USPTO database — download manually |
 
 ---
+ 
+## Troubleshooting
+ 
+| Problem | Solution |
+|---------|----------|
+| `path-finder-setup` not found | Make sure `path-finder-env` is activated: `conda activate path-finder-env` |
+| `config.yml not found` when launching | Run `path-finder-setup` first |
+| AiZynthFinder model download fails | Download manually from [releases page](https://github.com/MolecularAI/aizynthfinder/releases) and place in `data/aizynthfinder/` |
+| AiZynthFinder crash on launch | Open `data/config.yml` and make sure all paths are absolute and the files exist |
+| Predicted routes disabled | Place `data/uspto_rxn_insight.gzip` (see step 5 above) |
+| Slow search (~2 min) | Normal — AiZynthFinder MCTS is computationally intensive |
+| Wrong Python version error | Make sure you created the environment with `python=3.10` |
+ 
+---
 
 ## Developer setup
  
 ```bash
 git clone https://github.com/YaraChahda/path_finder.git
 cd path_finder
-conda install -c conda-forge rdkit
+conda create -n path-finder-dev python=3.10 -y
+conda activate path-finder-dev
+conda install -c conda-forge rdkit -y
 pip install -e .
 path-finder-setup
 path-finder
@@ -117,17 +146,6 @@ path-finder
  
 ```bash
 pytest tests/
-```
- 
-### Publishing a new version
- 
-```bash
-sed -i '' 's/version = "X.Y.Z"/version = "X.Y.Z+1"/' pyproject.toml
-git add pyproject.toml
-git commit -m "release: vX.Y.Z+1"
-git tag vX.Y.Z+1
-git push origin clone_optimise_app_clean --tags
-# GitHub Actions publishes to PyPI automatically
 ```
  
 ---
