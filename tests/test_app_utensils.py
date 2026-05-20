@@ -348,7 +348,7 @@ def test_hires_fig_custom_dpi():
 
 @MPL_SKIP
 def test_hires_fig_background_color():
-    from src.path_finder.localization import FIG_BG
+    from path_finder.app_layout import FIG_BG
     fig, ax = hires_fig()
     assert fig.get_facecolor() is not None
     plt.close(fig)
