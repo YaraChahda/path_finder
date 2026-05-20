@@ -124,22 +124,22 @@ def test_app_imports_get_targets_cached():
 
 
 # ---------------------------------------------------------------------------
-# Localization constants re-exported through app
+# app_layout constants re-exported through app
 # ---------------------------------------------------------------------------
 
-def test_localization_lang_accessible():
-    from src.path_finder.localization import LANG
+def test_app_layout_lang_accessible():
+    from path_finder.app_layout import LANG
     assert "en" in LANG
     assert "fr" in LANG
 
 
-def test_localization_criteria_labels_accessible():
-    from src.path_finder.localization import CRITERIA_LABELS
+def test_app_layout_criteria_labels_accessible():
+    from path_finder.app_layout import CRITERIA_LABELS
     assert "en" in CRITERIA_LABELS
 
 
-def test_localization_palette_accessible():
-    from src.path_finder.localization import PALETTE
+def test_app_layout_palette_accessible():
+    from path_finder.app_layout import PALETTE
     assert isinstance(PALETTE, list)
     assert len(PALETTE) > 0
 
