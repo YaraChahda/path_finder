@@ -237,7 +237,7 @@ The installable Python package. All application logic lives here.
 | `app_utensils.py` | UI helper functions used by `app.py` — score tables, scheme HTML, chart builders |
 | `route_engine.py` | Chemistry backend — dataset loading, AiZynthFinder, Rxn-INSIGHT, scoring, and the main `find_best_routes()` entry point |
 | `molecule_rendering.py` | RDKit Cairo rendering — `mol_png()` for Streamlit images, `mol_b64_or_text_svg()` for embedded HTML schemes |
-| `localization.py` | All user-visible strings in English and French, plus the colour palette |
+| `app_layout.py` | All user-visible strings in English and French, plus the colour palette |
 | `report_builder.py` | PDF generation using PIL — multi-page A4 report with metric cards, score table, and reaction step images |
 | `launch.py` | Console entry points — `path-finder` (launches Streamlit) and `path-finder-setup` (setup wizard) |
 | `assets/banner.png` | Banner bundled in the pip package |
@@ -252,7 +252,7 @@ The installable Python package. All application logic lives here.
 | `conftest.py` | Shared pytest fixtures (sample routes, mock datasets) |
 | `test_route_engine.py` | Tests for scoring functions, dataset loading, SMILES canonicalisation, and route ranking |
 | `test_molecule_rendering.py` | Tests for PNG rendering, base64 encoding, and fallback data URIs |
-| `test_localization.py` | Tests that all required keys exist in both EN and FR dictionaries |
+| `test_app_layout.py` | Tests that all required keys exist in both EN and FR dictionaries |
 | `test_report_builder.py` | Tests for PDF generation |
 | `test_app_utensils.py` | Tests for UI helper functions |
 | `test_app.py` | Integration tests for the Streamlit app |
