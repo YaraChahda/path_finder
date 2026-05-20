@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-from localization import LANG, CRITERIA_LABELS, PALETTE, FIG_BG
+from app_layout import LANG, CRITERIA_LABELS, PALETTE, FIG_BG
 from molecule_rendering import (
     mol_png,
     mol_b64_or_text_svg  as _mol_b64_or_text_svg,
