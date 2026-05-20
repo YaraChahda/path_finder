@@ -245,11 +245,6 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks,windows,macos
 
-docs/docs_outzinc_stock.hdf5
-models/
-*.onnx
-*.hdf5
-
 echo "__pycache__/" >> .gitignore
 echo "*.pyc" >> .gitignore
 
