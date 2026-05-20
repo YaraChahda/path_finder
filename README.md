@@ -258,12 +258,3 @@ The installable Python package. All application logic lives here.
 | `test_app.py` | Integration tests for the Streamlit app |
 | `test_launch.py` | Tests for the CLI entry points |
  
-
----
-
-## Citation
-
-- AiZynthFinder: Genheden et al., *J. Cheminf.* 2020 — [doi:10.1186/s13321-020-00472-1](https://doi.org/10.1186/s13321-020-00472-1)
-- Rxn-INSIGHT: Thakkar et al., *J. Cheminf.* 2023 — [doi:10.1186/s13321-023-00744-4](https://doi.org/10.1186/s13321-023-00744-4)
-- Open Reaction Database: Kearnes et al., *JACS* 2021 — [doi:10.1021/jacs.1c09820](https://doi.org/10.1021/jacs.1c09820)
-- Chemistry by Design: [chemistrybydesign.oia.arizona.edu](https://chemistrybydesign.oia.arizona.edu)
