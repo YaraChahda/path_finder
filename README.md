@@ -13,7 +13,10 @@ path_finder
  
 ## User installation
  
-> **Requirements:** macOS or Linux, [Miniconda or Anaconda](https://docs.conda.io/en/latest/miniconda.html)
+> **Platform:** Tested on macOS only. Linux should work
+> but has not been tested. Windows is not supported.
+>
+> **Requirements:** [Miniconda or Anaconda](https://docs.conda.io/en/latest/miniconda.html)
  
 ### 1. Create a dedicated environment
  
