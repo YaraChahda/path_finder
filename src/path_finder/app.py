@@ -85,7 +85,7 @@ div[data-testid="stExpander"] { border: 1px solid #dce3ec; border-radius: 12px; 
 def main() -> None:
     """Four-tab UI: Route Search, Analysis, Dataset Explorer, Help."""
     # Optional banner image — silently skipped if the file doesn't exist
-    banner_uri = load_banner(str(Path(__file__).parent / "assets" / "banner.png"))
+    banner_uri = load_banner(os.path.join(os.path.dirname(__file__), "assets", "banner.png"))
     if banner_uri:
         st.markdown(
             f'<div style="text-align:center;padding:18px 0 8px 0;">'
