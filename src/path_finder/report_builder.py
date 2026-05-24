@@ -25,21 +25,21 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
     # A4 at 200 DPI — sharp bond lines without PIL grinding.
     # 0.55" margins match standard lab report formatting.
     DPI = 200
-    PW  = int(8.27  * DPI)   # 1654 px
-    PH  = int(11.69 * DPI)   # 2338 px
-    MG  = int(0.55  * DPI)   # 110 px  (left/right margin)
-    CW  = PW - 2 * MG        # usable width
+    PW = int(8.27  * DPI)   # 1654 px
+    PH = int(11.69 * DPI)   # 2338 px
+    MG = int(0.55  * DPI)   # 110 px  (left/right margin)
+    CW = PW - 2 * MG        # usable width
 
     #  Colours 
-    NAVY   = (26,  46,  68)
-    WHITE  = (255, 255, 255)
-    LIGHT  = (235, 242, 250)
-    LGREY  = (245, 248, 252)
-    GREY   = (107, 122, 141)
+    NAVY = (26,  46,  68)
+    WHITE = (255, 255, 255)
+    LIGHT = (235, 242, 250)
+    LGREY = (245, 248, 252)
+    GREY = (107, 122, 141)
     ORANGE = (230,  81,   0)
-    GREEN  = ( 21,  87,  36)
-    SEP    = (220, 227, 236)
-    BG     = (249, 251, 253)
+    GREEN = ( 21,  87,  36)
+    SEP = (220, 227, 236)
+    BG = (249, 251, 253)
 
     #  Fonts 
     def _fnt(size, bold=False):
@@ -79,10 +79,10 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
             scale = 3
             drw = rdMolDraw2D.MolDraw2DCairo(w * scale, h * scale)
             opts = drw.drawOptions()
-            opts.bondLineWidth       = 6.0   # thick bonds
-            opts.padding             = 0.15
+            opts.bondLineWidth = 6.0   # thick bonds
+            opts.padding = 0.15
             opts.addStereoAnnotation = True
-            opts.atomLabelFontSize   = 0.55  # readable atom labels
+            opts.atomLabelFontSize = 0.55  # readable atom labels
             drw.DrawMolecule(mol)
             drw.FinishDrawing()
             img = _PI.open(_io.BytesIO(drw.GetDrawingText())).convert("RGBA")
@@ -185,14 +185,14 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     #  Route metadata 
     steps_data = route.get("dataset_steps", [])
-    rname      = route.get("matched_route_name", "Unknown route")
-    target     = route.get("matched_target", "?")
-    status     = route.get("validation_status", "dataset")
+    rname = route.get("matched_route_name", "Unknown route")
+    target = route.get("matched_target", "?")
+    status = route.get("validation_status", "dataset")
     status_lbl = {"dataset": "Dataset", "validated": "Validated",
                   "partial": "Partial", "predicted": "Predicted"}.get(status, status)
-    sub   = rt.get_substances_list(steps_data)
-    bn_   = rt.bottleneck_yield(steps_data)
-    av_   = rt.average_yield(steps_data)
+    sub = rt.get_substances_list(steps_data)
+    bn_ = rt.bottleneck_yield(steps_data)
+    av_ = rt.average_yield(steps_data)
     cumyl = rt.cumulative_yield(steps_data)
 
     pages = []
@@ -220,10 +220,10 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
     # Metric cards
     CARD_H = F_CARD_LBL + F_CARD_VAL + 24
     mets = [
-        ("Steps",        str(len(steps_data))),
+        ("Steps", str(len(steps_data))),
         ("Cumul. yield", f"{cumyl * 100:.2f}%"),
-        ("Bottleneck",   f"{bn_:.1f}%" if bn_ else "—"),
-        ("Avg yield",    f"{av_:.1f}%" if av_ else "—"),
+        ("Bottleneck", f"{bn_:.1f}%" if bn_ else "—"),
+        ("Avg yield", f"{av_:.1f}%" if av_ else "—"),
     ]
     mc = CW // len(mets)
     mx = MG
@@ -259,8 +259,8 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         row  = [
             c,
             "excluded" if excl else (f"{raw:.4f}" if raw is not None else "—"),
-            "0%"       if excl else f"{(dtl.get('weight') or 0) * 100:.0f}%",
-            "—"        if excl else f"{dtl.get('weighted') or 0:.4f}",
+            "0%" if excl else f"{(dtl.get('weight') or 0) * 100:.0f}%",
+            "—" if excl else f"{dtl.get('weighted') or 0:.4f}",
         ]
         bg_c = LIGHT if ci % 2 == 0 else LGREY
         hx = MG
@@ -317,13 +317,13 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         L = x0 + 6
         W = avail_w - 12
 
-        snum  = step.get("step_number", "?")
+        snum = step.get("step_number", "?")
         rtype = step.get("reaction_type", "—") or "—"
-        yld   = step.get("yield_percent")
+        yld = step.get("yield_percent")
         src_s = step.get("source", "dataset")
-        cond  = step.get("conditions", {}) or {}
-        reac  = step.get("reactants_smiles", [])
-        prod  = step.get("product_smiles", "")
+        cond = step.get("conditions", {}) or {}
+        reac = step.get("reactants_smiles", [])
+        prod = step.get("product_smiles", "")
 
         hdr_c = ORANGE if src_s == "rxn-insight" else NAVY
         yld_s = (f"{yld}%" if yld is not None else
@@ -342,12 +342,12 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
         #  Measure how many lines the reaction type needs in the header ─
         # Reserve right side for yield text
-        yld_txt  = f"Yield: {yld_s}"
-        yld_w    = _text_w(draw, yld_txt, _fnt(F_YIELD))
+        yld_txt = f"Yield: {yld_s}"
+        yld_w = _text_w(draw, yld_txt, _fnt(F_YIELD))
         hdr_text_w = W - yld_w - 20   # width available for "Step N · rtype"
         step_prefix = f"Step {snum}  ·  "
-        prefix_w    = _text_w(draw, step_prefix, _fnt(F_STEP_HDR, True))
-        rtype_w     = hdr_text_w - prefix_w
+        prefix_w = _text_w(draw, step_prefix, _fnt(F_STEP_HDR, True))
+        rtype_w = hdr_text_w - prefix_w
 
         if rtype_w > 20:
             rtype_lines = _wrap_words(draw, rtype, rtype_w, _fnt(F_STEP_HDR, True))
@@ -356,14 +356,14 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
             rtype_lines = _wrap_words(draw, rtype, W, _fnt(F_STEP_HDR, True))
 
         n_hdr_lines = max(len(rtype_lines), 1)
-        HDR_H  = n_hdr_lines * (F_STEP_HDR + 6) + 20
-        HDR_H  = max(HDR_H, F_STEP_HDR + F_YIELD + 28)
+        HDR_H = n_hdr_lines * (F_STEP_HDR + 6) + 20
+        HDR_H = max(HDR_H, F_STEP_HDR + F_YIELD + 28)
 
         #  Measure conditions lines 
         cond_lines = _wrap_words(draw, "Conditions: " + cond_s, W - 16, _fnt(F_COND))
-        n_cond     = len(cond_lines)
-        COND_H     = n_cond * (F_COND + 4) + 16
-        COND_H     = max(COND_H, F_COND + 24)
+        n_cond = len(cond_lines)
+        COND_H = n_cond * (F_COND + 4) + 16
+        COND_H = max(COND_H, F_COND + 24)
 
         #  Draw header band 
         _draw_band(draw, y0, HDR_H, hdr_c)
@@ -422,8 +422,8 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
         # Recompute row width with final mol_w and centre
         row_w = n_reac_shown * mol_w + max(0, n_reac_shown - 1) * PLUS_W + ARW_W + mol_w
-        mx    = x0 + (avail_w - row_w) // 2
-        my    = y + 6
+        mx = x0 + (avail_w - row_w) // 2
+        my = y + 6
 
         # Draw each reactant
         for i, rsmi in enumerate(reac[:n_reac_shown]):
@@ -448,7 +448,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
                 mx += PLUS_W
 
         # Arrow →
-        ay  = my + mol_h // 2
+        ay = my + mol_h // 2
         ax0 = mx + 4
         ax1 = mx + ARW_W - 12
         draw.line([(ax0, ay), (ax1, ay)], fill=NAVY, width=4)
@@ -470,7 +470,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     #  Paginate steps 
     STEPS_PER_PAGE = 3
-    GAP_H  = int(0.12 * DPI)
+    GAP_H = int(0.12 * DPI)
     STEP_H = (PH - 2 * MG - GAP_H * (STEPS_PER_PAGE - 1)) // STEPS_PER_PAGE
 
     it = iter(steps_data)
