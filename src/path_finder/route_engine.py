@@ -788,11 +788,12 @@ def calc_toxicity_score(reactants_smiles, conditions, tox_index, solvent_map) ->
         s = conditions.get(key)
         if s and (smi := solvent_map.get(s)):
             to_check.append(smi)
-    scores = [
-        tox_index[to_canonical(s)]["hazard_score"]
-        if to_canonical(s) in tox_index else 0.5  # unknown = neutral
-        for s in to_check
-    ]
+    scores = []
+    for s in to_check:
+        canon = to_canonical(s)
+        entry = tox_index.get(canon)
+        h = entry.get("hazard_score") if entry else None
+        scores.append(h if h is not None else 0.5)
     return 1.0 - (sum(scores) / len(scores) if scores else 0.5)
 
 
