@@ -753,7 +753,7 @@
         "solvent": "Tf2O, CH2Cl2",
         "co_solvent": null,
         "reagents": [
-          "2,6-di-teRT-butylpyridine"
+          "2,6-di-tert-butylpyridine"
         ],
         "apparatus": null
       },
@@ -863,7 +863,7 @@
         "solvent": "DCM/DMP",
         "co_solvent": null,
         "reagents": [
-          "Dess MaRTin oxidation"
+          "Dess Martin oxidation"
         ],
         "apparatus": null
       },
@@ -1329,7 +1329,7 @@
         "solvent": "DMP/NaHCO3",
         "co_solvent": "CH2Cl2",
         "reagents": [
-          "Dess-MaRTin oxidation"
+          "Dess-Martin oxidation"
         ],
         "apparatus": null
       },
@@ -2517,7 +2517,7 @@
       },
       "yield_percent": 25,
       "yield_note": "25% over 2 steps (steps 10-11)",
-      "reaction_type": "Dess-MaRTin oxidation then elimination"
+      "reaction_type": "Dess-Martin oxidation then elimination"
     },
     {
       "id": "RXN-CAR-12",
@@ -3076,7 +3076,7 @@
         "solvent": "DCM",
         "co_solvent": null,
         "reagents": [
-          "Dess-MaRTin periodinane"
+          "Dess-Martin periodinane"
         ],
         "apparatus": null
       },
@@ -6248,7 +6248,7 @@
         "co_solvent": null,
         "reagents": [
           "propynal",
-          "2,6-di-teRT-butyl-4-methylpyridine",
+          "2,6-di-tert-butyl-4-methylpyridine",
           "MnO2"
         ],
         "apparatus": null
@@ -6607,7 +6607,7 @@
         "solvent": "ClCCl",
         "co_solvent": null,
         "reagents": [
-          "Dess-MaRTin periodinane"
+          "Dess-Martin periodinane"
         ],
         "apparatus": null
       },
@@ -7197,7 +7197,7 @@
         "apparatus": null
       },
       "yield_percent": 82,
-      "reaction_type": "Horner-WadswoRTh-Emmons olefination"
+      "reaction_type": "Horner-Wadsworth-Emmons olefination"
     },
     {
       "id": "RXN-KOB-19",
@@ -7244,7 +7244,7 @@
         "apparatus": null
       },
       "yield_percent": null,
-      "reaction_type": "Acetonide/oRThoester protection of the diol"
+      "reaction_type": "Acetonide/orthoester protection of the diol"
     },
     {
       "id": "RXN-KOB-21",
