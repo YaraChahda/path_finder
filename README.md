@@ -14,7 +14,7 @@ path_finder
 ## User installation
  
 > **Platform:** Tested on macOS only. Linux should work
-> but has not been tested. Windows is not supported.
+> but has not been tested.
 >
 > **Requirements:** [Miniconda or Anaconda](https://docs.conda.io/en/latest/miniconda.html)
  
