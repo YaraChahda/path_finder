@@ -12,9 +12,7 @@ import pytest
 import src.path_finder.launch as launch
 
 
-# ---------------------------------------------------------------------------
 # _pkg_root
-# ---------------------------------------------------------------------------
 
 def test_pkg_root_returns_path():
     result = launch._pkg_root()
@@ -36,9 +34,7 @@ def test_pkg_root_is_parent_of_launch():
     assert (result / "launch.py").exists()
 
 
-# ---------------------------------------------------------------------------
 # _data_dir
-# ---------------------------------------------------------------------------
 
 def test_data_dir_returns_path():
     result = launch._data_dir()
@@ -65,9 +61,7 @@ def test_data_dir_env_var_custom_path():
     assert result == Path(custom)
 
 
-# ---------------------------------------------------------------------------
 # _fallback_template
-# ---------------------------------------------------------------------------
 
 def test_fallback_template_returns_string():
     result = launch._fallback_template()
@@ -109,9 +103,7 @@ def test_fallback_template_is_yaml_like():
     assert ":" in result
 
 
-# ---------------------------------------------------------------------------
 # _write_config_from_template
-# ---------------------------------------------------------------------------
 
 def test_write_config_creates_file(tmp_path):
     pkg   = launch._pkg_root()
@@ -150,11 +142,8 @@ def test_write_config_output_is_valid_string(tmp_path):
     launch._write_config_from_template(pkg, out, aiz)
     content = out.read_text()
     assert len(content) > 0
-
-
-# ---------------------------------------------------------------------------
+    
 # main — smoke tests (subprocess mocked)
-# ---------------------------------------------------------------------------
 
 def test_main_calls_subprocess(tmp_path):
     app = launch._pkg_root() / "app.py"
@@ -185,10 +174,7 @@ def test_main_subprocess_args_include_streamlit():
             cmd = mock_run.call_args[0][0]
             assert "streamlit" in cmd
 
-
-# ---------------------------------------------------------------------------
 # setup — smoke tests (subprocess and filesystem mocked)
-# ---------------------------------------------------------------------------
 
 def test_setup_runs_without_crash(tmp_path):
     with patch.object(launch, "_data_dir", return_value=tmp_path), \
