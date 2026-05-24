@@ -31,10 +31,10 @@ def load_reaction_dataset(path: str) -> dict:
     # bare list or {"reactions": [...]} dict
     if isinstance(raw, list):
         reactions = raw
-        metadata  = {}
+        metadata = {}
     elif isinstance(raw, dict) and "reactions" in raw:
         reactions = raw["reactions"]
-        metadata  = raw.get("_metadata", {})
+        metadata = raw.get("_metadata", {})
     else:
         raise ValueError("unrecognized dataset format")
     print(f"[dataset] {len(reactions)} reactions loaded")
@@ -76,11 +76,11 @@ def load_reaction_dataset(path: str) -> dict:
 
     print(f"[dataset] {len(by_route)} distinct routes indexed")
     return {
-        "by_product":  by_product,
+        "by_product": by_product,
         "by_reactant": by_reactant,
-        "by_route":    by_route,
-        "all":         reactions,
-        "metadata":    metadata,
+        "by_route": by_route,
+        "all": reactions,
+        "metadata": metadata,
     }
 
 
@@ -90,9 +90,9 @@ def get_targets_from_dataset(dataset: dict) -> dict:
     Tries explicit metadata first, then scans steps in reverse for the
     largest product (>=15 heavy atoms) as a proxy for the final structure.
     """
-    by_route    = dataset["by_route"]
+    by_route = dataset["by_route"]
     meta_smiles = dataset["metadata"].get("target_smiles", {})
-    by_target   = {}
+    by_target = {}
     for rid, steps in by_route.items():
         t = steps[0].get("target", "?")
         if t != "?":
@@ -181,7 +181,7 @@ def load_generic_reaction_dataset(path: str) -> dict:
     by_reaction_key = {}  # (sorted_reactants_tuple, product) → rxn
 
     for rxn in reactions:
-        prod  = to_canonical(rxn.get("product_smiles", ""))
+        prod = to_canonical(rxn.get("product_smiles", ""))
         reacs = tuple(sorted([to_canonical(r) for r in rxn.get("reactants_smiles", []) if r]))
         if prod:
             by_product.setdefault(prod, []).append(rxn)
@@ -190,9 +190,9 @@ def load_generic_reaction_dataset(path: str) -> dict:
             by_reaction_key[key] = rxn
 
     return {
-        "by_product":      by_product,
+        "by_product": by_product,
         "by_reaction_key": by_reaction_key,
-        "all":             reactions,
+        "all": reactions,
     }
 
 
@@ -252,7 +252,7 @@ def _walk_reaction_tree(node: dict, steps: list) -> None:
         reactant_nodes = [c for c in child.get("children", []) if c.get("type") == "mol"]
         steps.append({
             "reactants": [c.get("smiles", "") for c in reactant_nodes],
-            "product":   mol_smiles,
+            "product": mol_smiles,
         })
         for rnode in reactant_nodes:
             _walk_reaction_tree(rnode, steps)
@@ -266,27 +266,27 @@ def adapt_route(route: dict) -> dict:
     """
     tree = route["reaction_tree"]
     try:
-        tree_dict    = tree.to_dict()
-        steps_retro  = []
+        tree_dict = tree.to_dict()
+        steps_retro = []
         _walk_reaction_tree(tree_dict, steps_retro)
         # retro → forward
         steps_forward = list(reversed(steps_retro))
-        all_products  = {to_canonical(s["product"]) for s in steps_forward if s["product"]}
+        all_products = {to_canonical(s["product"]) for s in steps_forward if s["product"]}
         all_reactants = {to_canonical(r) for s in steps_forward for r in s["reactants"]}
         # starting materials = reactants never produced within this route
-        leaves        = [r for r in all_reactants if r not in all_products]
+        leaves = [r for r in all_reactants if r not in all_products]
         target_smiles = to_canonical(tree_dict.get("smiles", ""))
     except Exception as e:
         print(f"[adapt_route] error: {e}")
         steps_forward = []; leaves = []; target_smiles = ""
 
     return {
-        "route_id":          "aiz",
-        "route_name":        "AiZynthFinder Route",
-        "steps":             steps_forward,
+        "route_id": "aiz",
+        "route_name": "AiZynthFinder Route",
+        "steps": steps_forward,
         "starting_materials": leaves,
-        "target_smiles":     target_smiles,
-        "raw":               route,
+        "target_smiles": target_smiles,
+        "raw": route,
     }
 
 
@@ -333,22 +333,22 @@ def get_reaction_info_rxninsight(reactants: list, product: str, rxni_db) -> dict
         return {}
     try:
         rxn_smi = ".".join(valid_r) + ">>" + product
-        rxn     = RxnInsightReaction(rxn_smi)
-        info    = rxn.get_reaction_info()
+        rxn = RxnInsightReaction(rxn_smi)
+        info = rxn.get_reaction_info()
 
         result = {
-            "reaction_type":  info.get("NAME") or info.get("CLASS") or "unknown",
+            "reaction_type": info.get("NAME") or info.get("CLASS") or "unknown",
             "reaction_class": info.get("CLASS", "?"),
-            "fg_reactants":   list(info.get("FG_REACTANTS", [])),
-            "fg_products":    list(info.get("FG_PRODUCTS", [])),
-            "by_products":    list(info.get("BY-PRODUCTS", [])),
+            "fg_reactants": list(info.get("FG_REACTANTS", [])),
+            "fg_products": list(info.get("FG_PRODUCTS", [])),
+            "by_products": list(info.get("BY-PRODUCTS", [])),
             "conditions": {
                 "temperature_C": None,
-                "temp_range":    None,
-                "solvent":       None,
-                "co_solvent":    None,
-                "reagents":      [],
-                "apparatus":     None,
+                "temp_range": None,
+                "solvent": None,
+                "co_solvent": None,
+                "reagents": [],
+                "apparatus": None,
             },
         }
 
@@ -379,22 +379,22 @@ def enrich_aiz_route_with_rxninsight(aiz_route: dict, rxni_db, route_index: int)
     Builds dataset steps for a fully predicted AiZ route using Rxn-INSIGHT
     for reaction type and conditions. Yield stays None and is excluded from scoring.
     """
-    steps         = aiz_route.get("steps", [])
+    steps = aiz_route.get("steps", [])
     target_smiles = aiz_route.get("target_smiles", "")
     dataset_steps = []
 
     for i, step in enumerate(steps, 1):
         reactants = step.get("reactants", [])
-        product   = step.get("product", "")
+        product = step.get("product", "")
         rxni_info = get_reaction_info_rxninsight(reactants, product, rxni_db)
         dataset_steps.append({
-            "id":               f"PRED-{route_index:02d}-{i:02d}",
-            "route_id":         f"predicted_{route_index:02d}",
-            "step_number":      i,
+            "id": f"PRED-{route_index:02d}-{i:02d}",
+            "route_id": f"predicted_{route_index:02d}",
+            "step_number": i,
             "reactants_smiles": reactants,
-            "product_smiles":   product,
-            "yield_percent":    None,
-            "source":           "rxn-insight",
+            "product_smiles": product,
+            "yield_percent": None,
+            "source": "rxn-insight",
             **rxni_info,
         })
 
@@ -404,12 +404,12 @@ def enrich_aiz_route_with_rxninsight(aiz_route: dict, rxni_db, route_index: int)
 
     enriched = dict(aiz_route)
     enriched.update({
-        "dataset_steps":      dataset_steps,
-        "matched_route_id":   f"predicted_{route_index:02d}",
+        "dataset_steps": dataset_steps,
+        "matched_route_id": f"predicted_{route_index:02d}",
         "matched_route_name": f"Predicted route #{route_index}",
-        "matched_target":     "?",
-        "coverage":           0,
-        "is_predicted":       True,
+        "matched_target": "?",
+        "coverage": 0,
+        "is_predicted": True,
     })
     return enriched
 
@@ -421,7 +421,7 @@ def is_route_covered_by_dataset(aiz_route: dict, dataset_smiles_index: set,
     That threshold is tight enough to skip genuine duplicates without
     dropping routes that share only a few intermediates.
     """
-    steps    = aiz_route.get("steps", [])
+    steps = aiz_route.get("steps", [])
     products = [to_canonical(s.get("product", "")) for s in steps if s.get("product")]
     if not products:
         return False
@@ -435,7 +435,7 @@ def match_step_in_generic_dataset(reactants: list, product: str, generic_ds: dic
     """
     if not generic_ds:
         return None
-    prod_canon  = to_canonical(product)
+    prod_canon = to_canonical(product)
     reac_canons = tuple(sorted([to_canonical(r) for r in reactants if r]))
     exact = generic_ds.get("by_reaction_key", {}).get((reac_canons, prod_canon))
     if exact:
@@ -452,46 +452,46 @@ def validate_aiz_route_against_generic_dataset(aiz_route: dict, generic_ds: dict
     real conditions; unmatched ones get Rxn-INSIGHT predictions. Final status
     is validated / partial / predicted based on how many steps matched.
     """
-    steps         = aiz_route.get("steps", [])
+    steps = aiz_route.get("steps", [])
     target_smiles = aiz_route.get("target_smiles", "")
-    dataset_steps   = []
+    dataset_steps = []
     validated_count = 0
 
     for i, step in enumerate(steps, 1):
         reactants = step.get("reactants", [])
-        product   = step.get("product", "")
-        match     = match_step_in_generic_dataset(reactants, product, generic_ds)
+        product = step.get("product", "")
+        match = match_step_in_generic_dataset(reactants, product, generic_ds)
 
         if match:
             validated_count += 1
             dataset_steps.append({
-                "id":               f"VAL-{route_index:02d}-{i:02d}",
-                "route_id":         f"validated_{route_index:02d}",
-                "step_number":      i,
+                "id": f"VAL-{route_index:02d}-{i:02d}",
+                "route_id": f"validated_{route_index:02d}",
+                "step_number": i,
                 "reactants_smiles": reactants,
-                "product_smiles":   product,
-                "yield_percent":    match.get("yield_percent"),
-                "reaction_type":    match.get("reaction_type", ""),
-                "reaction_class":   match.get("reaction_class", ""),
-                "fg_reactants":     match.get("fg_reactants", []),
-                "by_products":      match.get("by_products", []),
-                "conditions":       match.get("conditions", {
+                "product_smiles": product,
+                "yield_percent": match.get("yield_percent"),
+                "reaction_type": match.get("reaction_type", ""),
+                "reaction_class": match.get("reaction_class", ""),
+                "fg_reactants": match.get("fg_reactants", []),
+                "by_products": match.get("by_products", []),
+                "conditions": match.get("conditions", {
                     "temperature_C": None, "temp_range": None,
-                    "solvent":       None, "co_solvent": None,
-                    "reagents":      [], "apparatus": None,
+                    "solvent": None, "co_solvent": None,
+                    "reagents": [], "apparatus": None,
                 }),
                 "source": "generic_dataset",
             })
         else:
             rxni_info = get_reaction_info_rxninsight(reactants, product, rxni_db)
             dataset_steps.append({
-                "id":               f"VAL-{route_index:02d}-{i:02d}",
-                "route_id":         f"validated_{route_index:02d}",
-                "step_number":      i,
+                "id": f"VAL-{route_index:02d}-{i:02d}",
+                "route_id": f"validated_{route_index:02d}",
+                "step_number": i,
                 "reactants_smiles": reactants,
-                "product_smiles":   product,
-                "yield_percent":    None,
-                "source":           "rxn-insight",
+                "product_smiles": product,
+                "yield_percent": None,
+                "source": "rxn-insight",
                 **rxni_info,
             })
 
@@ -500,23 +500,23 @@ def validate_aiz_route_against_generic_dataset(aiz_route: dict, generic_ds: dict
         dataset_steps[-1]["product_smiles"] = target_smiles
 
     n = len(steps)
-    if   n == 0:                 status = "predicted"
-    elif validated_count == n:   status = "validated"
-    elif validated_count > 0:    status = "partial"
-    else:                        status = "predicted"
+    if   n == 0: status = "predicted"
+    elif validated_count == n: status = "validated"
+    elif validated_count > 0: status = "partial"
+    else: status = "predicted"
 
     enriched = dict(aiz_route)
     enriched.update({
-        "dataset_steps":         dataset_steps,
-        "matched_route_id":      f"validated_{route_index:02d}",
-        "matched_route_name":    f"AiZ route #{route_index} ({validated_count}/{n} validated)",
-        "matched_target":        aiz_route.get("matched_target", "?"),
-        "coverage":              validated_count,
-        "validation_status":     status,
+        "dataset_steps": dataset_steps,
+        "matched_route_id": f"validated_{route_index:02d}",
+        "matched_route_name": f"AiZ route #{route_index} ({validated_count}/{n} validated)",
+        "matched_target": aiz_route.get("matched_target", "?"),
+        "coverage": validated_count,
+        "validation_status": status,
         "validated_steps_count": validated_count,
-        "total_steps_count":     n,
-        "is_predicted":          status == "predicted",
-        "is_validated":          status in ("validated", "partial"),
+        "total_steps_count": n,
+        "is_predicted": status == "predicted",
+        "is_validated": status in ("validated", "partial"),
     })
     return enriched
 
@@ -548,7 +548,7 @@ def process_novel_routes(aiz_routes: list, dataset: dict, generic_ds: dict,
             aiz_route, generic_ds, rxni_db, counter)
         enriched["matched_target"] = target_name
         status = enriched.get("validation_status", "predicted")
-        v, t   = enriched.get("validated_steps_count", 0), enriched.get("total_steps_count", 0)
+        v, t = enriched.get("validated_steps_count", 0), enriched.get("total_steps_count", 0)
 
         if status == "validated":
             # Some steps matched — goes to validated section
@@ -563,10 +563,10 @@ def process_novel_routes(aiz_routes: list, dataset: dict, generic_ds: dict,
             pure = enrich_aiz_route_with_rxninsight(aiz_route, rxni_db, counter)
             pure["matched_target"] = target_name
             pure.update({
-                "validation_status":     "predicted",
-                "is_validated":          False,
+                "validation_status": "predicted",
+                "is_validated": False,
                 "validated_steps_count": 0,
-                "total_steps_count":     t,
+                "total_steps_count": t,
             })
             predicted_routes.append(pure)
             print(f"    → predicted (no steps in generic dataset)")
@@ -582,7 +582,7 @@ def get_novel_routes_from_aizynthfinder(aiz_routes, dataset, target_name, rxni_d
         print("[rxn-insight] not installed")
         return []
     dataset_smiles_index = build_dataset_smiles_index(dataset)
-    novel   = []
+    novel = []
     counter = 1
     for route in aiz_routes:
         if not route.get("steps"):
@@ -615,18 +615,18 @@ def get_all_dataset_routes_for_target(dataset: dict, target_name: str,
                       f"product {last_product!r} ≠ target {canon_target!r}")
                 continue
         result.append({
-            "route_id":           rid,
-            "route_name":         steps[0].get("route_name", rid),
-            "steps":              [],
+            "route_id": rid,
+            "route_name": steps[0].get("route_name", rid),
+            "steps": [],
             "starting_materials": [],
-            "dataset_steps":      steps,
-            "matched_route_id":   rid,
+            "dataset_steps": steps,
+            "matched_route_id": rid,
             "matched_route_name": steps[0].get("route_name", rid),
-            "matched_target":     steps[0].get("target", "?"),
-            "coverage":           0,
-            "is_predicted":       False,
-            "is_validated":       False,
-            "validation_status":  "dataset",
+            "matched_target": steps[0].get("target", "?"),
+            "coverage": 0,
+            "is_predicted": False,
+            "is_validated": False,
+            "validation_status": "dataset",
         })
         print(f"  [dataset] OK {rid} — {len(steps)} steps")
     return result
@@ -639,8 +639,8 @@ def filter_routes_by_starting_materials(aiz_routes, dataset, target_smiles,
     Truncation to top_n happens later in find_best_routes().
     """
     canon_target = to_canonical(target_smiles) if target_smiles else ""
-    by_route     = dataset["by_route"]
-    result       = []
+    by_route = dataset["by_route"]
+    result = []
 
     for rid, steps in by_route.items():
         if not steps:
@@ -664,18 +664,18 @@ def filter_routes_by_starting_materials(aiz_routes, dataset, target_smiles,
             continue
 
         result.append({
-            "route_id":           rid,
-            "route_name":         steps[0].get("route_name", rid),
-            "steps":              [],
+            "route_id": rid,
+            "route_name": steps[0].get("route_name", rid),
+            "steps": [],
             "starting_materials": [],
-            "dataset_steps":      steps,
-            "matched_route_id":   rid,
+            "dataset_steps": steps,
+            "matched_route_id": rid,
             "matched_route_name": steps[0].get("route_name", rid),
-            "matched_target":     steps[0].get("target", "?"),
-            "coverage":           len(steps),
-            "is_predicted":       False,
-            "is_validated":       False,
-            "validation_status":  "dataset",
+            "matched_target": steps[0].get("target", "?"),
+            "coverage": len(steps),
+            "is_predicted": False,
+            "is_validated": False,
+            "validation_status": "dataset",
         })
         print(f"  [dataset] matched {rid} — {len(steps)} steps")
 
@@ -710,15 +710,15 @@ def get_substances_list(steps_data: list) -> dict:
     solvents = set(); reagents = set()
     for s in steps_data:
         cond = s.get("conditions", {})
-        if cond.get("solvent"):    solvents.add(cond["solvent"])
+        if cond.get("solvent"): solvents.add(cond["solvent"])
         if cond.get("co_solvent"): solvents.add(cond["co_solvent"])
         for r in (cond.get("reagents") or []):
             if r: reagents.add(r)
     return {
-        "to_buy":     sorted(all_reac - all_prod - {""}),
+        "to_buy": sorted(all_reac - all_prod - {""}),
         "to_prepare": sorted(all_prod - {""}),
-        "solvents":   sorted(solvents - {""}),
-        "reagents":   sorted(reagents - {""}),
+        "solvents": sorted(solvents - {""}),
+        "reagents": sorted(reagents - {""}),
     }
 
 
@@ -727,15 +727,15 @@ def fmt_conditions(cond: dict) -> str:
     if not cond:
         return ""
     parts = []
-    if cond.get("temperature_C"):   parts.append(f"{cond['temperature_C']}°C")
-    elif cond.get("temp_range"):    parts.append(cond["temp_range"])
+    if cond.get("temperature_C"): parts.append(f"{cond['temperature_C']}°C")
+    elif cond.get("temp_range"): parts.append(cond["temp_range"])
     if cond.get("solvent"):
         parts.append(cond["solvent"])
-    if cond.get("co_solvent"):      parts.append(f"/ {cond['co_solvent']}")
+    if cond.get("co_solvent"): parts.append(f"/ {cond['co_solvent']}")
     reag = cond.get("reagents", [])
     if isinstance(reag, list) and reag:
         parts.append(", ".join(reag))
-    if cond.get("apparatus"):       parts.append(f"({cond['apparatus']})")
+    if cond.get("apparatus"): parts.append(f"({cond['apparatus']})")
     return "  ·  ".join(parts)
 
 
@@ -754,10 +754,10 @@ def calc_e_factor(reactants_smiles, product_smiles, yield_fraction) -> float:
     prod_mol = safe_mol(product_smiles)
     if not prod_mol:
         return 0.5
-    prod_mw  = Descriptors.MolWt(prod_mol)
+    prod_mw = Descriptors.MolWt(prod_mol)
     total_mw = sum(Descriptors.MolWt(m) for s in reactants_smiles if (m := safe_mol(s)))
     obtained = prod_mw * max(yield_fraction, 0.01)
-    waste    = max(total_mw - obtained, 0)
+    waste = max(total_mw - obtained, 0)
     return 1.0 / (1.0 + waste / obtained)
 
 
@@ -878,17 +878,17 @@ def compute_toxicity(route_data: dict, tox_index: dict) -> float:
 
 # one scoring function per criterion
 CRITERIA_REGISTRY = {
-    "steps":        {"fn": compute_steps,        "description": "number of steps"},
-    "yield":        {"fn": compute_yield,        "description": "cumulative yield"},
+    "steps": {"fn": compute_steps, "description": "number of steps"},
+    "yield": {"fn": compute_yield, "description": "cumulative yield"},
     "atom_economy": {"fn": compute_atom_economy, "description": "atom economy"},
-    "e_factor":     {"fn": compute_e_factor,     "description": "e-factor"},
-    "toxicity":     {"fn": compute_toxicity,     "description": "safety score"},
+    "e_factor": {"fn": compute_e_factor, "description": "e-factor"},
+    "toxicity": {"fn": compute_toxicity, "description": "safety score"},
 }
 
 
 def compute_weights(criteria: list) -> dict:
     """Inverse-square weights (1/i²), normalised to sum 1."""
-    raw   = {c: 1.0 / (i + 1) ** 2 for i, c in enumerate(criteria)}
+    raw = {c: 1.0 / (i + 1) ** 2 for i, c in enumerate(criteria)}
     total = sum(raw.values())
     return {c: w / total for c, w in raw.items()}
 
@@ -908,14 +908,14 @@ def rank_weighted(routes: list, criteria: list, tox_index: dict) -> list:
     Returns [(total_score, details, route)] sorted descending.
     """
     weights = compute_weights(criteria)
-    scored  = []
+    scored = []
 
     for route in routes:
         status = route.get("validation_status", "dataset")
         exclude_yield = (status == "predicted")
 
         details = {}
-        total   = 0.0
+        total = 0.0
 
         active_criteria = [c for c in criteria if not (exclude_yield and c == "yield")]
         active_weights  = (
@@ -930,8 +930,8 @@ def rank_weighted(routes: list, criteria: list, tox_index: dict) -> list:
             else:
                 w = active_weights.get(c, weights[c])
                 details[c] = {
-                    "raw":      round(raw, 4),
-                    "weight":   round(w, 4),
+                    "raw": round(raw, 4),
+                    "weight": round(w, 4),
                     "weighted": round(raw * w, 4),
                     "excluded": False,
                 }
@@ -945,17 +945,17 @@ def rank_weighted(routes: list, criteria: list, tox_index: dict) -> list:
 
 
 def find_best_routes(
-    target_smiles:        str,
-    criteria_priority:    list,
-    dataset_path:         str  = "reaction_dataset.json",
-    toxicity_path:        str  = "toxicity_dataset.json",
-    config_path:          str  = "config.yml",
-    top_n:                int  = 3,
-    target_name:          str  = "",
-    include_predicted:    bool = True,
-    rxninsight_db_path:   str  = "",
+    target_smiles: str,
+    criteria_priority: list,
+    dataset_path: str  = "reaction_dataset.json",
+    toxicity_path: str  = "toxicity_dataset.json",
+    config_path: str  = "config.yml",
+    top_n: int  = 3,
+    target_name: str  = "",
+    include_predicted: bool = True,
+    rxninsight_db_path: str  = "",
     generic_dataset_path: str  = "",
-    n_aiz_routes:         int  = 25,
+    n_aiz_routes: int  = 25,
 ) -> dict:
     """
     Full pipeline: loads datasets, runs AiZynthFinder MCTS, classifies routes
@@ -975,8 +975,8 @@ def find_best_routes(
 
     # 1. load everything up front
     print("\n[1/4] loading datasets...")
-    dataset    = load_reaction_dataset(dataset_path)
-    tox_index  = load_toxicity_dataset(toxicity_path)
+    dataset = load_reaction_dataset(dataset_path)
+    tox_index = load_toxicity_dataset(toxicity_path)
     generic_ds = load_generic_reaction_dataset(generic_dataset_path)
 
     rxni_db = None
@@ -1002,7 +1002,7 @@ def find_best_routes(
 
     # 4. score and truncate each section independently
     print("\n[4/4] scoring...")
-    scored_dataset   = rank_weighted(dataset_routes,   criteria_priority, tox_index)[:top_n]
+    scored_dataset = rank_weighted(dataset_routes, criteria_priority, tox_index)[:top_n]
     scored_validated = rank_weighted(validated_routes, criteria_priority, tox_index)[:top_n]
     scored_predicted = rank_weighted(predicted_routes, criteria_priority, tox_index)[:top_n]
 
