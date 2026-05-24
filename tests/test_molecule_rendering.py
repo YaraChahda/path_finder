@@ -24,17 +24,13 @@ SINGLE_ATOM = "[Na+]"
 DIATOMIC = "Cl"
 
 
-# ---------------------------------------------------------------------------
 # MODULE_OK
-# ---------------------------------------------------------------------------
 
 def test_module_ok_is_bool():
     assert isinstance(MODULE_OK, bool)
 
 
-# ---------------------------------------------------------------------------
 # mol_png
-# ---------------------------------------------------------------------------
 
 def test_mol_png_returns_none_for_empty_smiles():
     assert mol_png("") is None
@@ -70,9 +66,7 @@ def test_mol_png_default_size():
     assert result is not None
 
 
-# ---------------------------------------------------------------------------
 # mol_b64_or_text_svg
-# ---------------------------------------------------------------------------
 
 def test_mol_b64_returns_string():
     result = mol_b64_or_text_svg("", 100, 80)
@@ -110,9 +104,7 @@ def test_mol_b64_single_atom_no_crash():
     assert result.startswith("data:image/png;base64,")
 
 
-# ---------------------------------------------------------------------------
 # fallback_data_uri
-# ---------------------------------------------------------------------------
 
 def test_fallback_returns_string():
     result = fallback_data_uri("test", 100, 80)
@@ -149,9 +141,7 @@ def test_fallback_various_sizes():
         assert result.startswith("data:image/png;base64,")
 
 
-# ---------------------------------------------------------------------------
 # is_trivial_smiles
-# ---------------------------------------------------------------------------
 
 def test_is_trivial_empty_string():
     assert is_trivial_smiles("") is True
