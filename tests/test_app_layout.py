@@ -9,9 +9,7 @@ import pytest
 from path_finder.app_layout import LANG, CRITERIA_LABELS, PALETTE, FIG_BG
 
 
-# ---------------------------------------------------------------------------
 # LANG structure
-# ---------------------------------------------------------------------------
 
 REQUIRED_KEYS = [
     "page_title", "page_caption", "sidebar_title", "tab_search", "tab_analysis",
@@ -83,10 +81,7 @@ def test_lang_chart_title_has_placeholder():
     assert "{target}" in LANG["en"]["chart_title"]
     assert "{target}" in LANG["fr"]["chart_title"]
 
-
-# ---------------------------------------------------------------------------
 # CRITERIA_LABELS
-# ---------------------------------------------------------------------------
 
 CRITERIA_KEYS = ["steps", "yield", "atom_economy", "e_factor", "toxicity"]
 
@@ -118,10 +113,7 @@ def test_criteria_labels_values_are_strings():
 def test_criteria_labels_same_keys():
     assert set(CRITERIA_LABELS["en"].keys()) == set(CRITERIA_LABELS["fr"].keys())
 
-
-# ---------------------------------------------------------------------------
 # PALETTE
-# ---------------------------------------------------------------------------
 
 def test_palette_is_list():
     assert isinstance(PALETTE, list)
@@ -143,9 +135,7 @@ def test_palette_hex_values_valid():
         int(color[1:], 16)  # raises ValueError if not valid hex
 
 
-# ---------------------------------------------------------------------------
 # FIG_BG
-# ---------------------------------------------------------------------------
 
 def test_fig_bg_is_string():
     assert isinstance(FIG_BG, str)
