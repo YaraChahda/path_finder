@@ -38,8 +38,8 @@ try:
     from rdkit import Chem
     MODULE_ERR = ""
 except Exception as e:
-    rt         = None
-    Chem       = None
+    rt = None
+    Chem = None
     MODULE_ERR = str(e)
 
 try:
@@ -111,11 +111,11 @@ def main() -> None:
         st.divider()
         st.subheader(T["files_section"])
 
-        dataset_path         = st.text_input(T["ds_label"],      value="data/reaction_dataset.json",      help=T["help_ds"])
-        toxicity_path        = st.text_input(T["tox_label"]+" *", value="data/toxicity_dataset.json",    help=T["help_tox"])
-        config_path          = st.text_input(T["cfg_label"],      value="data/config.yml",                help=T["help_cfg"])
-        rxninsight_db_path   = st.text_input(T["rxni_label"],     value="data/uspto_rxn_insight.gzip",    help=T["help_rxni"])
-        generic_dataset_path = st.text_input(T["generic_label"],  value="data/generic_reactions.json",   help=T["help_generic"])
+        dataset_path = st.text_input(T["ds_label"], value="data/reaction_dataset.json", help=T["help_ds"])
+        toxicity_path = st.text_input(T["tox_label"]+" *", value="data/toxicity_dataset.json", help=T["help_tox"])
+        config_path = st.text_input(T["cfg_label"], value="data/config.yml", help=T["help_cfg"])
+        rxninsight_db_path = st.text_input(T["rxni_label"], value="data/uspto_rxn_insight.gzip", help=T["help_rxni"])
+        generic_dataset_path = st.text_input(T["generic_label"], value="data/generic_reactions.json", help=T["help_generic"])
 
         if not os.path.exists(toxicity_path):
             st.warning(f"⚠️ `{toxicity_path}` not found — Safety scores will default to 0.5")
@@ -168,15 +168,15 @@ def main() -> None:
                     except Exception:
                         pass
                 if targets_ds:
-                    target_name   = st.selectbox(T["mol_label"], list(targets_ds.keys()),
+                    target_name = st.selectbox(T["mol_label"], list(targets_ds.keys()),
                                                  format_func=lambda x: x.capitalize())
                     target_smiles = targets_ds[target_name]
                 else:
-                    target_name   = "Galanthamine"
+                    target_name = "Galanthamine"
                     target_smiles = "OC1C=C[C@@]23c4cc(OC)ccc4CN(C)C[C@@H]2[C@@H]1O3"
             else:
                 target_smiles = st.text_input(T["smiles_label"], placeholder=T["smiles_ph"])
-                target_name   = "Custom"
+                target_name = "Custom"
                 if target_smiles:
                     if Chem.MolFromSmiles(target_smiles) is None:
                         st.error(T["smiles_invalid"])
@@ -187,11 +187,11 @@ def main() -> None:
             st.subheader(T["criteria_section"])
             st.caption(T["criteria_caption"])
             all_crit = list(CL.keys())
-            c1   = st.selectbox(T["c1_label"], all_crit, format_func=lambda x: CL[x])
+            c1 = st.selectbox(T["c1_label"], all_crit, format_func=lambda x: CL[x])
             rem2 = [c for c in all_crit if c != c1]
-            c2   = st.selectbox(T["c2_label"], rem2, format_func=lambda x: CL[x])
+            c2 = st.selectbox(T["c2_label"], rem2, format_func=lambda x: CL[x])
             rem3 = [c for c in rem2 if c != c2]
-            c3   = st.selectbox(T["c3_label"], rem3, format_func=lambda x: CL[x])
+            c3 = st.selectbox(T["c3_label"], rem3, format_func=lambda x: CL[x])
             criteria = [c1, c2, c3]
             st.session_state["criteria"] = criteria
 
@@ -232,27 +232,27 @@ def main() -> None:
                         if include_predicted and RXNINSIGHT_OK:
                             st.write(T["loading_rxni"])
                         results_raw = rt.find_best_routes(
-                            target_smiles        = target_smiles,
-                            criteria_priority    = criteria,
-                            dataset_path         = dataset_path,
-                            toxicity_path        = toxicity_path,
-                            config_path          = config_path,
-                            top_n                = top_n,
-                            target_name          = target_name if mode == T["mode_pre"] else "",
-                            include_predicted    = include_predicted,
-                            rxninsight_db_path   = rxninsight_db_path,
+                            target_smiles = target_smiles,
+                            criteria_priority = criteria,
+                            dataset_path = dataset_path,
+                            toxicity_path = toxicity_path,
+                            config_path = config_path,
+                            top_n = top_n,
+                            target_name = target_name if mode == T["mode_pre"] else "",
+                            include_predicted = include_predicted,
+                            rxninsight_db_path = rxninsight_db_path,
                             generic_dataset_path = generic_dataset_path,
-                            n_aiz_routes         = n_aiz,
+                            n_aiz_routes = n_aiz,
                         )
                         tox_index = rt.load_toxicity_dataset(toxicity_path)
-                        weights   = rt.compute_weights(criteria)
+                        weights = rt.compute_weights(criteria)
                         st.session_state.update({
-                            "results":       results_raw,
-                            "weights":       weights,
-                            "tox_index":     tox_index,
-                            "target_name":   target_name,
+                            "results": results_raw,
+                            "weights": weights,
+                            "tox_index": tox_index,
+                            "target_name": target_name,
                             "target_smiles": target_smiles,
-                            "criteria":      criteria,
+                            "criteria": criteria,
                         })
                         status.update(label=T["search_ok"], state="complete", expanded=False)
                     except FileNotFoundError as e:
@@ -262,12 +262,12 @@ def main() -> None:
                     except Exception as e:
                         status.update(label=T["err_other"], state="error"); st.exception(e)
 
-        results_raw = st.session_state.get("results",   None)
-        weights     = st.session_state.get("weights",   {})
-        criteria    = st.session_state.get("criteria",  criteria)
+        results_raw = st.session_state.get("results", None)
+        weights = st.session_state.get("weights", {})
+        criteria = st.session_state.get("criteria", criteria)
 
         if results_raw is not None and isinstance(results_raw, dict):
-            scored_dataset   = results_raw.get("dataset",   [])
+            scored_dataset = results_raw.get("dataset", [])
             scored_validated = results_raw.get("validated", [])
             scored_predicted = results_raw.get("predicted", [])
 
@@ -275,8 +275,8 @@ def main() -> None:
                 st.warning(T["no_routes"])
             else:
                 c1_, c2_, c3_, c4_ = st.columns(4)
-                c1_.metric("📚 Dataset",   len(scored_dataset))
-                c2_.metric("✅ Validated",  len(scored_validated))
+                c1_.metric("📚 Dataset", len(scored_dataset))
+                c2_.metric("✅ Validated", len(scored_validated))
                 c3_.metric("🤖 Predicted", len(scored_predicted))
                 c4_.metric("Total", len(scored_dataset) + len(scored_validated) + len(scored_predicted))
 
@@ -330,7 +330,7 @@ def main() -> None:
 
                     filtered = scored_predicted
                     if search_sm.strip():
-                        sc       = rt.to_canonical(search_sm.strip())
+                        sc = rt.to_canonical(search_sm.strip())
                         filtered = [
                             (s, d, r) for s, d, r in scored_predicted
                             if sc in {rt.to_canonical(rsmi)
@@ -363,17 +363,17 @@ def main() -> None:
 
     # ANALYSIS tab
     with tab_analysis:
-        results_raw = st.session_state.get("results",   None)
-        criteria    = st.session_state.get("criteria",  list(CL.keys())[:3])
-        weights     = st.session_state.get("weights",   {})
-        tox_index   = st.session_state.get("tox_index", {})
+        results_raw = st.session_state.get("results", None)
+        criteria = st.session_state.get("criteria", list(CL.keys())[:3])
+        weights = st.session_state.get("weights", {})
+        tox_index = st.session_state.get("tox_index", {})
 
         if results_raw is None or not isinstance(results_raw, dict):
             st.info(T["no_analysis"])
         else:
-            sc_ds  = results_raw.get("dataset",   [])
+            sc_ds = results_raw.get("dataset", [])
             sc_val = results_raw.get("validated", [])
-            sc_pr  = results_raw.get("predicted", [])
+            sc_pr = results_raw.get("predicted", [])
             all_sc = sc_ds + sc_val + sc_pr
 
             if not all_sc:
@@ -391,7 +391,7 @@ def main() -> None:
                     for i, r in enumerate(all_sc)
                 }
                 labels = list(route_opts.keys())
-                sel    = st.multiselect(T["sel_routes"], labels,
+                sel = st.multiselect(T["sel_routes"], labels,
                                         default=labels[:min(3, len(labels))])
 
                 if sel:
@@ -403,12 +403,12 @@ def main() -> None:
                         av_ = rt.average_yield(sd)
                         yc  = rt.cumulative_yield(sd)
                         row = {
-                            "Route":               route.get("matched_route_name","?")[:26],
-                            T["metric_score"]:     f"{score:.3f}",
-                            T["metric_steps"]:     len(sd),
-                            "Cumul. yield":        f"{yc * 100:.4f}%",
+                            "Route": route.get("matched_route_name","?")[:26],
+                            T["metric_score"]: f"{score:.3f}",
+                            T["metric_steps"]: len(sd),
+                            "Cumul. yield": f"{yc * 100:.4f}%",
                             T["metric_bottleneck"]:f"{bn_:.1f}%" if bn_ else "—",
-                            T["metric_avg"]:       f"{av_:.1f}%" if av_ else "—",
+                            T["metric_avg"]: f"{av_:.1f}%" if av_ else "—",
                         }
                         for c in criteria:
                             if c in ("steps", "yield"):
@@ -462,13 +462,13 @@ def main() -> None:
             with st.spinner("Loading…"):
                 ds = load_dataset_cached(dataset_path)
             reactions_all = ds["all"]
-            by_route      = ds["by_route"]
-            targets_uniq  = sorted(set(r.get("target","?") for r in reactions_all))
+            by_route = ds["by_route"]
+            targets_uniq = sorted(set(r.get("target","?") for r in reactions_all))
 
             c1d, c2d, c3d = st.columns(3)
-            c1d.metric(T["total_rxn"],   len(reactions_all))
+            c1d.metric(T["total_rxn"], len(reactions_all))
             c2d.metric(T["dist_routes"], len(by_route))
-            c3d.metric(T["tgt_mols"],    len(targets_uniq))
+            c3d.metric(T["tgt_mols"], len(targets_uniq))
             st.markdown("---")
 
             filter_tgt = st.selectbox(T["filter_lbl"], [T["filter_all"]] + targets_uniq)
@@ -479,17 +479,17 @@ def main() -> None:
                 if filter_tgt != T["filter_all"] and tgt != filter_tgt:
                     continue
                 nm = steps[0].get("route_name", rid)
-                n  = len(steps)
+                n = len(steps)
                 ys = [s.get("yield_percent") for s in steps]
                 yo = [y for y in ys if y is not None]
                 yc = rt.cumulative_yield(steps)
                 rows.append({
-                    T["col_route"]:    nm,
-                    T["col_target"]:   tgt,
-                    T["col_steps"]:    n,
+                    T["col_route"]: nm,
+                    T["col_target"]: tgt,
+                    T["col_steps"]: n,
                     T["col_cumyield"]: round(yc * 100, 4),
-                    T["col_missing"]:  sum(1 for y in ys if y is None),
-                    T["col_avg"]:      round(sum(yo)/len(yo), 1) if yo else None,
+                    T["col_missing"]: sum(1 for y in ys if y is None),
+                    T["col_avg"]: round(sum(yo)/len(yo), 1) if yo else None,
                 })
 
             if rows:
@@ -501,12 +501,12 @@ def main() -> None:
                 st.dataframe(
                     df_routes, width="stretch", hide_index=True,
                     column_config={
-                        T["col_route"]:    st.column_config.TextColumn(T["col_route"]),
-                        T["col_target"]:   st.column_config.TextColumn(T["col_target"]),
-                        T["col_steps"]:    st.column_config.NumberColumn(T["col_steps"],    format="%d"),
+                        T["col_route"]: st.column_config.TextColumn(T["col_route"]),
+                        T["col_target"]: st.column_config.TextColumn(T["col_target"]),
+                        T["col_steps"]: st.column_config.NumberColumn(T["col_steps"], format="%d"),
                         T["col_cumyield"]: st.column_config.NumberColumn(T["col_cumyield"], format="%.2f %%"),
-                        T["col_missing"]:  st.column_config.NumberColumn(T["col_missing"],  format="%d"),
-                        T["col_avg"]:      st.column_config.NumberColumn(T["col_avg"],      format="%.1f %%"),
+                        T["col_missing"]: st.column_config.NumberColumn(T["col_missing"], format="%d"),
+                        T["col_avg"]: st.column_config.NumberColumn(T["col_avg"], format="%.1f %%"),
                     },
                 )
 
@@ -524,7 +524,7 @@ def main() -> None:
             )
 
             if rc:
-                sr   = by_route[rc]
+                sr = by_route[rc]
                 n_sr = len(sr)
                 st.markdown(
                     f"**{sr[0].get('route_name')}** — {n_sr} "
@@ -535,12 +535,12 @@ def main() -> None:
 
                 st.markdown("### Step-by-step details")
                 for step in sr:
-                    snum     = step.get("step_number", "?")
-                    rtype    = step.get("reaction_type", "—") or "—"
-                    yld      = step.get("yield_percent")
-                    cond     = step.get("conditions", {})
-                    prod     = step.get("product_smiles", "")
-                    reac     = step.get("reactants_smiles", [])
+                    snum = step.get("step_number", "?")
+                    rtype = step.get("reaction_type", "—") or "—"
+                    yld = step.get("yield_percent")
+                    cond = step.get("conditions", {})
+                    prod = step.get("product_smiles", "")
+                    reac = step.get("reactants_smiles", [])
                     cond_str = rt.fmt_conditions(cond)
                     is_purif = is_purification_step(step)
                     if is_purif and (rtype == "—" or not rtype):
@@ -562,7 +562,7 @@ def main() -> None:
                         unsafe_allow_html=True,
                     )
 
-                    n_reac   = max(len(reac), 1)
+                    n_reac = max(len(reac), 1)
                     cols_rxn = st.columns([3] * n_reac + [1, 3])
 
                     for i, rsmi in enumerate(reac):
@@ -621,13 +621,13 @@ def main() -> None:
                 route_ds_key     = "ds_" + "".join(c for c in rc if c.isalnum())
                 steps_for_scheme = [
                     {
-                        "step_number":      s.get("step_number"),
-                        "reaction_type":    s.get("reaction_type",""),
-                        "yield_percent":    s.get("yield_percent"),
+                        "step_number": s.get("step_number"),
+                        "reaction_type": s.get("reaction_type",""),
+                        "yield_percent": s.get("yield_percent"),
                         "reactants_smiles": s.get("reactants_smiles",[]),
-                        "product_smiles":   s.get("product_smiles",""),
-                        "conditions":       s.get("conditions",{}),
-                        "source":           "dataset",
+                        "product_smiles": s.get("product_smiles",""),
+                        "conditions": s.get("conditions",{}),
+                        "source": "dataset",
                     }
                     for s in sr
                 ]
