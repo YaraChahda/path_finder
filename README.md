@@ -103,7 +103,7 @@ steps, yield, atom economy, E-factor, or safety.
 ---
 
 ## Data files
-The construction, sources and reconstruction procedure of toxicity_dataset.json are documented in SOURCES_ET_RECONSTRUCTION.md.
+The construction, sources and reconstruction procedure of toxicity_dataset.json are documented in SOURCES_AND_RECONSTRUCTION.md.
 
 | File | Bundled | Description |
 |------|---------|-------------|
