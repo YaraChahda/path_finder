@@ -82,10 +82,7 @@ def _make_step(n, reactants, product, yield_pct=None, reaction_type="Alkylation"
     }
 
 
-# ---------------------------------------------------------------------------
 # load_banner
-# ---------------------------------------------------------------------------
-
 def test_load_banner_missing_file():
     result = load_banner("/no/such/file.png")
     assert result == ""
@@ -116,9 +113,7 @@ def test_load_banner_returns_string():
     assert isinstance(result, str)
 
 
-# ---------------------------------------------------------------------------
 # strip_emoji
-# ---------------------------------------------------------------------------
 
 def test_strip_emoji_no_emoji():
     assert strip_emoji("Hello World") == "Hello World"
@@ -159,9 +154,7 @@ def test_strip_emoji_unicode_non_emoji():
     assert result == "café résumé"
 
 
-# ---------------------------------------------------------------------------
 # is_purification_step
-# ---------------------------------------------------------------------------
 
 def test_is_purification_step_chromatography():
     step = {"reaction_type": "Column chromatography", "product_smiles": BENZENE,
@@ -216,9 +209,7 @@ def test_is_purification_step_missing_reaction_type():
     assert isinstance(is_purification_step(step), bool)
 
 
-# ---------------------------------------------------------------------------
 # build_clickable_scheme_html
-# ---------------------------------------------------------------------------
 
 def test_build_clickable_scheme_html_empty_steps():
     result = build_clickable_scheme_html([], "rid")
@@ -273,9 +264,7 @@ def test_build_clickable_scheme_html_contains_javascript():
     assert "<script" in result
 
 
-# ---------------------------------------------------------------------------
 # build_score_table_html
-# ---------------------------------------------------------------------------
 
 def _make_details(criteria):
     return {
@@ -327,10 +316,7 @@ def test_build_score_table_html_contains_component_style():
     assert "score-table" in result
 
 
-# ---------------------------------------------------------------------------
 # hires_fig
-# ---------------------------------------------------------------------------
-
 @MPL_SKIP
 def test_hires_fig_returns_fig_and_ax():
     fig, ax = hires_fig()
@@ -361,9 +347,7 @@ def test_hires_fig_with_subplots():
     plt.close(fig)
 
 
-# ---------------------------------------------------------------------------
 # make_ranking_chart
-# ---------------------------------------------------------------------------
 
 @pytest.mark.skipif(not (MPL_OK and NP_OK), reason="matplotlib/numpy not available")
 def test_make_ranking_chart_returns_figure():
@@ -392,9 +376,7 @@ def test_make_ranking_chart_french():
     plt.close(fig)
 
 
-# ---------------------------------------------------------------------------
 # make_yield_chart
-# ---------------------------------------------------------------------------
 
 def _make_yield_steps():
     return [
@@ -426,9 +408,7 @@ def test_make_yield_chart_no_reported_yields():
     plt.close(fig)
 
 
-# ---------------------------------------------------------------------------
 # make_comparison_chart
-# ---------------------------------------------------------------------------
 
 @pytest.mark.skipif(not (MPL_OK and NP_OK), reason="matplotlib/numpy not available")
 def test_make_comparison_chart_returns_figure():
@@ -453,9 +433,7 @@ def test_make_comparison_chart_single_route():
     plt.close(fig)
 
 
-# ---------------------------------------------------------------------------
 # COMPONENT_STYLE & CRITERIA_SCORE_DESC
-# ---------------------------------------------------------------------------
 
 def test_component_style_is_string():
     assert isinstance(COMPONENT_STYLE, str)
