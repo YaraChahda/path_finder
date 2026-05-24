@@ -12,6 +12,14 @@ path\_finder.app module
    :undoc-members:
    :show-inheritance:
 
+path\_finder.app\_layout module
+-------------------------------
+
+.. automodule:: path_finder.app_layout
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 path\_finder.app\_utensils module
 ---------------------------------
 
@@ -24,14 +32,6 @@ path\_finder.launch module
 --------------------------
 
 .. automodule:: path_finder.launch
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-path\_finder.app_layout module
---------------------------------
-
-.. automodule:: path_finder.app_layout
    :members:
    :undoc-members:
    :show-inheritance:

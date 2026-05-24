@@ -2,6 +2,8 @@
 # UI strings (EN/FR), colour palette, and matplotlib background colour.
 # Import: from app_layout import LANG, CRITERIA_LABELS, PALETTE, FIG_BG
 
+# All user-visible strings live here so we only need to translate in one place.
+# To add a language, duplicate one of the inner dicts and translate the values.
 LANG = {
     "en": {
         "page_title": "⚗️ Synthesis Route Finder",
@@ -29,6 +31,7 @@ LANG = {
         "smiles_invalid": "Invalid SMILES",
         "smiles_valid": "Valid SMILES ✓",
         "criteria_section": "📊 Scoring criteria (priority order)",
+        # The caption reminds users that the first criterion dominates (73% weight)
         "criteria_caption": "Criterion #1 ≈ 73% of score  ·  #2 ≈ 18%  ·  #3 ≈ 9%",
         "c1_label": "Criterion #1 — highest weight",
         "c2_label": "Criterion #2 — medium weight",
@@ -44,6 +47,7 @@ LANG = {
         "err_param": "❌ Invalid parameter",
         "err_other": "❌ Unexpected error",
         "no_routes": "**No routes found.** Try Galanthamine or Morphine.",
+        # {n} is substituted at runtime with the actual count
         "n_found": "{n} route(s) found and ranked.",
         "chart_title": "Route ranking — {target}",
         "score_axis": "Total score",
@@ -59,8 +63,10 @@ LANG = {
         "score_th_raw_tip": "How well this route performs on this criterion (0=worst, 1=best).",
         "score_th_weight": "Weight",
         "score_th_contrib": "Contribution",
+        # {r} = rank number
         "why_best_title": "🧠 Why is this route ranked #{r}?",
         "flow_title": "🧬 Animated reaction flow",
+        # {n} = step count
         "steps_title": "### 🧪 Detailed synthesis pathway — {n} steps",
         "yield_ok": "**Yield:** {y}%",
         "yield_na": "**Yield:** *not reported (50% default applied)*",
@@ -90,16 +96,19 @@ LANG = {
         "footer": "Chemistry by Design  ·  AiZynthFinder MCTS  ·  Rxn-INSIGHT",
         "mod_err": "❌ Cannot load route_engine:",
         "searching": "🔍 Searching…",
+        # Section headers in the results page — one per route category
         "sec_dataset": "## 📚 Routes from the dataset",
         "sec_validated": "## ✅ Validated routes (AiZ + generic dataset)",
         "sec_predicted": "## 🤖 Purely predicted routes (Rxn-INSIGHT only)",
         "cap_dataset": "Experimentally validated — real conditions and yields",
         "cap_validated": "AiZynthFinder routes with steps referenced in the generic dataset",
         "cap_predicted": "AiZynthFinder routes with no steps in any dataset — Rxn-INSIGHT conditions only",
+        # Coloured badges shown next to route names
         "badge_dataset": "📚 dataset",
         "badge_validated": "✅ validated",
         "badge_partial": "🔬 partial",
         "badge_predicted": "🤖 predicted",
+        # "Why ranked?" bullet templates — {n}, {y}, {a}, {crit}, {s}, {w}, {r} substituted at runtime
         "why_steps": "it has only <strong>{n} steps</strong> — one of the shortest pathways found",
         "why_yield": "it achieves a bottleneck yield of <strong>{y}%</strong> on the limiting step",
         "why_avg_yield": "its average step yield of <strong>{a}%</strong> is above the field average",
@@ -107,6 +116,7 @@ LANG = {
         "why_balanced": "it presents a well-balanced profile across all three selected criteria",
         "why_prefix": "This route is ranked <strong>#{r}</strong> because:",
         "why_suffix": "No single criterion alone determines ranking — the weighted combination reflects your stated priorities.",
+        # Help tab — these strings describe each input file to the user
         "help_ds": "Your main reaction dataset (JSON). Each reaction needs these fields: id, route_id, route_name, target, step_number, reactants_smiles, product_smiles, conditions, yield_percent, reaction_type.",
         "help_tox": "Your toxicity/safety scores file (JSON). Needed for the Safety criterion — if missing, all molecules will default to a score of 0.5.",
         "help_cfg": "Your AiZynthFinder YAML config file (policy network, filter, stocks). AiZynthFinder won't start without it.",
@@ -114,6 +124,7 @@ LANG = {
         "help_generic": "A flat JSON list of individual reactions (same format as your main dataset). Used to check whether AiZynthFinder routes match real experimental data. Without it, all AiZ routes will be flagged as 'predicted'.",
         "help_topn": "How many routes to show per category (Dataset / Validated / Predicted). Doesn't affect the AiZynthFinder search itself — just how many results you see.",
         "help_naiz": "How many routes AiZynthFinder explores internally (MCTS). The higher, the more thorough — but also slower (~2–4 s per extra route). A good starting point: 20–30 for speed, 40–50 if you want better coverage.",
+        # {v} validated steps, {t} total steps, {r} remaining (predicted) steps
         "partial_badge": "{v}/{t} steps referenced in experimental literature (USPTO)",
         "partial_tip": "These {v} step(s) were found in the generic reactions dataset and have real "
                  "experimental conditions. The remaining {r} step(s) use Rxn-INSIGHT predicted conditions.",

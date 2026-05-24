@@ -245,48 +245,59 @@ path_finder
 <hr class="docutils" />
 <section id="user-installation">
 <h1>User installation<a class="headerlink" href="#user-installation" title="Link to this heading">¶</a></h1>
+<blockquote>
+<div><p><strong>Requirements:</strong> macOS or Linux, <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Miniconda or Anaconda</a></p>
+</div></blockquote>
+<section id="create-a-dedicated-environment">
+<h2>1. Create a dedicated environment<a class="headerlink" href="#create-a-dedicated-environment" title="Link to this heading">¶</a></h2>
+<p>Python 3.10 is required — newer versions are not compatible with AiZynthFinder.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>path-finder-env<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>-y
+conda<span class="w"> </span>activate<span class="w"> </span>path-finder-env
+</pre></div>
+</div>
+</section>
 <section id="install-rdkit">
-<h2>1. Install RDKit<a class="headerlink" href="#install-rdkit" title="Link to this heading">¶</a></h2>
+<h2>2. Install RDKit<a class="headerlink" href="#install-rdkit" title="Link to this heading">¶</a></h2>
 <p>RDKit cannot be installed via pip — conda is required for this one step.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>rdkit
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>rdkit<span class="w"> </span>-y
 </pre></div>
 </div>
 </section>
 <section id="install-path-finder">
-<h2>2. Install Path Finder<a class="headerlink" href="#install-path-finder" title="Link to this heading">¶</a></h2>
+<h2>3. Install Path Finder<a class="headerlink" href="#install-path-finder" title="Link to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>path-finder-retrosynthesis
 </pre></div>
 </div>
 </section>
 <section id="run-the-setup-wizard">
-<h2>3. Run the setup wizard<a class="headerlink" href="#run-the-setup-wizard" title="Link to this heading">¶</a></h2>
+<h2>4. Run the setup wizard<a class="headerlink" href="#run-the-setup-wizard" title="Link to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>path-finder-setup
 </pre></div>
 </div>
 <p>This automatically:</p>
 <ul class="simple">
 <li><p>copies the bundled datasets into <code class="docutils literal notranslate"><span class="pre">data/</span></code></p></li>
-<li><p>downloads the AiZynthFinder model files (~500 MB) via the official AiZynthFinder downloader</p></li>
-<li><p>generates <code class="docutils literal notranslate"><span class="pre">data/config.yml</span></code> with the correct paths</p></li>
+<li><p>creates <code class="docutils literal notranslate"><span class="pre">data/config.yml</span></code> with the correct paths</p></li>
 </ul>
 <blockquote>
-<div><p>If the automatic download fails, download the model files manually from
+<div><p><strong>If the wizard fails at step 3 (model download):</strong> download the files manually from
 <a class="reference external" href="https://github.com/MolecularAI/aizynthfinder/releases">https://github.com/MolecularAI/aizynthfinder/releases</a>
 and place them in <code class="docutils literal notranslate"><span class="pre">data/aizynthfinder/</span></code>.</p>
+<p>Files needed: <code class="docutils literal notranslate"><span class="pre">uspto_model.onnx</span></code>, <code class="docutils literal notranslate"><span class="pre">uspto_templates.csv.gz</span></code>, <code class="docutils literal notranslate"><span class="pre">uspto_filter_model.onnx</span></code>, <code class="docutils literal notranslate"><span class="pre">zinc_stock.hdf5</span></code></p>
 </div></blockquote>
 </section>
 <section id="download-the-rxn-insight-uspto-database">
-<h2>4. Download the Rxn-INSIGHT USPTO database<a class="headerlink" href="#download-the-rxn-insight-uspto-database" title="Link to this heading">¶</a></h2>
+<h2>5. Download the Rxn-INSIGHT USPTO database<a class="headerlink" href="#download-the-rxn-insight-uspto-database" title="Link to this heading">¶</a></h2>
 <p>Download <code class="docutils literal notranslate"><span class="pre">uspto_rxn_insight.gzip</span></code> from:
-<a class="reference external" href="https://zenodo.org/records/10171745">The rxn-INSIGHT article</a></p>
+<a class="reference external" href="https://zenodo.org/records/10171745">https://zenodo.org/records/10171745</a></p>
 <p>Place it in <code class="docutils literal notranslate"><span class="pre">data/uspto_rxn_insight.gzip</span></code>.</p>
 <blockquote>
-<div><p>This file enables reaction condition prediction for novel routes (predicted routes section).
+<div><p>This file enables reaction condition prediction for novel routes.
 Without it, only dataset and validated routes are shown.</p>
 </div></blockquote>
 </section>
 <section id="launch">
-<h2>5. Launch<a class="headerlink" href="#launch" title="Link to this heading">¶</a></h2>
+<h2>6. Launch<a class="headerlink" href="#launch" title="Link to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>path-finder
 </pre></div>
 </div>
@@ -294,13 +305,15 @@ Without it, only dataset and validated routes are shown.</p>
 </section>
 </section>
 <hr class="docutils" />
-<section id="summary">
-<h1>Summary<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h1>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">rdkit</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">path</span><span class="o">-</span><span class="n">finder</span><span class="o">-</span><span class="n">retrosynthesis</span>
-<span class="n">path</span><span class="o">-</span><span class="n">finder</span><span class="o">-</span><span class="n">setup</span>
-<span class="c1"># → place uspto_rxn_insight.gzip in data/</span>
-<span class="n">path</span><span class="o">-</span><span class="n">finder</span>
+<section id="quick-summary">
+<h1>Quick summary<a class="headerlink" href="#quick-summary" title="Link to this heading">¶</a></h1>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>path-finder-env<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>-y
+conda<span class="w"> </span>activate<span class="w"> </span>path-finder-env
+conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>rdkit<span class="w"> </span>-y
+pip<span class="w"> </span>install<span class="w"> </span>path-finder-retrosynthesis
+path-finder-setup
+<span class="c1"># → place data/uspto_rxn_insight.gzip manually</span>
+path-finder
 </pre></div>
 </div>
 </section>
@@ -390,20 +403,26 @@ steps, yield, atom economy, E-factor, or safety.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">config.yml</span> <span class="pre">not</span> <span class="pre">found</span></code></p></td>
-<td><p>Run <code class="docutils literal notranslate"><span class="pre">path-finder-setup</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">path-finder-setup</span></code> not found</p></td>
+<td><p>Make sure <code class="docutils literal notranslate"><span class="pre">path-finder-env</span></code> is activated: <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">path-finder-env</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>AiZynthFinder crash</p></td>
-<td><p>Check that all paths in <code class="docutils literal notranslate"><span class="pre">data/config.yml</span></code> are absolute</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">config.yml</span> <span class="pre">not</span> <span class="pre">found</span></code> when launching</p></td>
+<td><p>Run <code class="docutils literal notranslate"><span class="pre">path-finder-setup</span></code> first</p></td>
 </tr>
-<tr class="row-even"><td><p>No routes found</p></td>
-<td><p>Try Galanthamine (<code class="docutils literal notranslate"><span class="pre">OC1C=C[C&#64;&#64;]23c4cc(OC)ccc4CN(C)C[C&#64;&#64;H]2[C&#64;&#64;H]1O3</span></code>)</p></td>
+<tr class="row-even"><td><p>AiZynthFinder model download fails</p></td>
+<td><p>Download manually from <a class="reference external" href="https://github.com/MolecularAI/aizynthfinder/releases">releases page</a> and place in <code class="docutils literal notranslate"><span class="pre">data/aizynthfinder/</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>Predicted routes disabled</p></td>
-<td><p>Add <code class="docutils literal notranslate"><span class="pre">data/uspto_rxn_insight.gzip</span></code> (see step 4 above)</p></td>
+<tr class="row-odd"><td><p>AiZynthFinder crash on launch</p></td>
+<td><p>Open <code class="docutils literal notranslate"><span class="pre">data/config.yml</span></code> and make sure all paths are absolute and the files exist</p></td>
 </tr>
-<tr class="row-even"><td><p>Slow search (~2 min)</p></td>
+<tr class="row-even"><td><p>Predicted routes disabled</p></td>
+<td><p>Place <code class="docutils literal notranslate"><span class="pre">data/uspto_rxn_insight.gzip</span></code> (see step 5 above)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Slow search (~2 min)</p></td>
 <td><p>Normal — AiZynthFinder MCTS is computationally intensive</p></td>
+</tr>
+<tr class="row-even"><td><p>Wrong Python version error</p></td>
+<td><p>Make sure you created the environment with <code class="docutils literal notranslate"><span class="pre">python=3.10</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -414,7 +433,9 @@ steps, yield, atom economy, E-factor, or safety.</p>
 <h1>Developer setup<a class="headerlink" href="#developer-setup" title="Link to this heading">¶</a></h1>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/YaraChahda/path_finder.git
 <span class="nb">cd</span><span class="w"> </span>path_finder
-conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>rdkit
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>path-finder-dev<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>-y
+conda<span class="w"> </span>activate<span class="w"> </span>path-finder-dev
+conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>rdkit<span class="w"> </span>-y
 pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
 path-finder-setup
 path-finder
@@ -423,17 +444,6 @@ path-finder
 <section id="running-tests">
 <h2>Running tests<a class="headerlink" href="#running-tests" title="Link to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>tests/
-</pre></div>
-</div>
-</section>
-<section id="publishing-a-new-version">
-<h2>Publishing a new version<a class="headerlink" href="#publishing-a-new-version" title="Link to this heading">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"> </span><span class="s1">&#39;s/version = &quot;X.Y.Z&quot;/version = &quot;X.Y.Z+1&quot;/&#39;</span><span class="w"> </span>pyproject.toml
-git<span class="w"> </span>add<span class="w"> </span>pyproject.toml
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;release: vX.Y.Z+1&quot;</span>
-git<span class="w"> </span>tag<span class="w"> </span>vX.Y.Z+1
-git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>clone_optimise_app_clean<span class="w"> </span>--tags
-<span class="c1"># GitHub Actions publishes to PyPI automatically</span>
 </pre></div>
 </div>
 </section>
@@ -710,17 +720,6 @@ contributors can orient themselves quickly.</p>
 </tbody>
 </table>
 </div>
-</section>
-</section>
-<hr class="docutils" />
-<section id="citation">
-<h1>Citation<a class="headerlink" href="#citation" title="Link to this heading">¶</a></h1>
-<ul class="simple">
-<li><p>AiZynthFinder: Genheden et al., <em>J. Cheminf.</em> 2020 — <a class="reference external" href="https://doi.org/10.1186/s13321-020-00472-1">doi:10.1186/s13321-020-00472-1</a></p></li>
-<li><p>Rxn-INSIGHT: Thakkar et al., <em>J. Cheminf.</em> 2023 — <a class="reference external" href="https://doi.org/10.1186/s13321-023-00744-4">doi:10.1186/s13321-023-00744-4</a></p></li>
-<li><p>Open Reaction Database: Kearnes et al., <em>JACS</em> 2021 — <a class="reference external" href="https://doi.org/10.1021/jacs.1c09820">doi:10.1021/jacs.1c09820</a></p></li>
-<li><p>Chemistry by Design: <a class="reference external" href="https://chemistrybydesign.oia.arizona.edu">chemistrybydesign.oia.arizona.edu</a></p></li>
-</ul>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -730,6 +729,7 @@ contributors can orient themselves quickly.</p>
 </li>
 </ul>
 </div>
+</section>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h1>
@@ -786,20 +786,20 @@ contributors can orient themselves quickly.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">User installation</a><ul>
-<li><a class="reference internal" href="#install-rdkit">1. Install RDKit</a></li>
-<li><a class="reference internal" href="#install-path-finder">2. Install Path Finder</a></li>
-<li><a class="reference internal" href="#run-the-setup-wizard">3. Run the setup wizard</a></li>
-<li><a class="reference internal" href="#download-the-rxn-insight-uspto-database">4. Download the Rxn-INSIGHT USPTO database</a></li>
-<li><a class="reference internal" href="#launch">5. Launch</a></li>
+<li><a class="reference internal" href="#create-a-dedicated-environment">1. Create a dedicated environment</a></li>
+<li><a class="reference internal" href="#install-rdkit">2. Install RDKit</a></li>
+<li><a class="reference internal" href="#install-path-finder">3. Install Path Finder</a></li>
+<li><a class="reference internal" href="#run-the-setup-wizard">4. Run the setup wizard</a></li>
+<li><a class="reference internal" href="#download-the-rxn-insight-uspto-database">5. Download the Rxn-INSIGHT USPTO database</a></li>
+<li><a class="reference internal" href="#launch">6. Launch</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#summary">Summary</a></li>
+<li><a class="reference internal" href="#quick-summary">Quick summary</a></li>
 <li><a class="reference internal" href="#what-the-app-does">What the app does</a></li>
 <li><a class="reference internal" href="#data-files">Data files</a></li>
 <li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 <li><a class="reference internal" href="#developer-setup">Developer setup</a><ul>
 <li><a class="reference internal" href="#running-tests">Running tests</a></li>
-<li><a class="reference internal" href="#publishing-a-new-version">Publishing a new version</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#repository-structure">Repository structure</a><ul>
@@ -814,7 +814,6 @@ contributors can orient themselves quickly.</p>
 <li><a class="reference internal" href="#tests"><code class="docutils literal notranslate"><span class="pre">tests/</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#citation">Citation</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 

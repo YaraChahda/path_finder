@@ -33,6 +33,7 @@ from app_utensils import (
     get_targets_cached,
 )
 
+# Soft-import route_engine: keep the error message for the sidebar warning
 try:
     import route_engine as rt
     from rdkit import Chem
@@ -42,6 +43,7 @@ except Exception as e:
     Chem = None
     MODULE_ERR = str(e)
 
+# Rxn-INSIGHT is optional — the "include predicted routes" toggle is hidden if absent
 try:
     from rxn_insight.reaction import Reaction as RxnInsightReaction
     RXNINSIGHT_OK = True
@@ -82,6 +84,7 @@ div[data-testid="stExpander"] { border: 1px solid #dce3ec; border-radius: 12px; 
 
 def main() -> None:
     """Four-tab UI: Route Search, Analysis, Dataset Explorer, Help."""
+    # Optional banner image — silently skipped if the file doesn't exist
     banner_uri = load_banner("../../assets/banner.png")
     if banner_uri:
         st.markdown(
@@ -91,6 +94,7 @@ def main() -> None:
             unsafe_allow_html=True,
         )
 
+    # Language selector lives at the very top of the sidebar
     with st.sidebar:
         lang_choice = st.radio(
             "🌐 Language / Langue",
@@ -99,11 +103,13 @@ def main() -> None:
             index=0,
         )
     lang = "en" if "English" in lang_choice else "fr"
+    # T = translation dict, CL = criterion label dict for this language
     T    = LANG[lang]
     CL   = CRITERIA_LABELS[lang]
 
     with st.sidebar:
         st.title(T["sidebar_title"])
+        # If route_engine failed to import, show the error and stop — nothing else will work
         if not MODULE_OK:
             st.error(f"{T['mod_err']}\n\n`{MODULE_ERR}`")
             st.stop()
@@ -111,12 +117,14 @@ def main() -> None:
         st.divider()
         st.subheader(T["files_section"])
 
+        # File paths — users can override these with their own data
         dataset_path = st.text_input(T["ds_label"], value="data/reaction_dataset.json", help=T["help_ds"])
         toxicity_path = st.text_input(T["tox_label"]+" *", value="data/toxicity_dataset.json", help=T["help_tox"])
         config_path = st.text_input(T["cfg_label"], value="data/config.yml", help=T["help_cfg"])
         rxninsight_db_path = st.text_input(T["rxni_label"], value="data/uspto_rxn_insight.gzip", help=T["help_rxni"])
         generic_dataset_path = st.text_input(T["generic_label"], value="data/generic_reactions.json", help=T["help_generic"])
 
+        # Warn early if the toxicity file is missing — the Safety criterion will use 0.5 defaults
         if not os.path.exists(toxicity_path):
             st.warning(f"⚠️ `{toxicity_path}` not found — Safety scores will default to 0.5")
 
@@ -124,6 +132,7 @@ def main() -> None:
         top_n = st.slider(T["topn_label"], 1, 5, 3, help=T["help_topn"])
         n_aiz = st.slider(T["naiz_label"], 5, 50, 25, help=T["help_naiz"])
 
+        # Only show the predicted-routes toggle if Rxn-INSIGHT is actually installed
         include_predicted = False
         if RXNINSIGHT_OK:
             include_predicted = st.toggle(
@@ -138,6 +147,7 @@ def main() -> None:
             st.caption("🤖 Predicted routes disabled — add `data/uspto_rxn_insight.gzip` to enable (see README)")
 
         st.divider()
+        # Weight breakdown expander — only visible after the first search
         if "criteria" in st.session_state:
             with st.expander(T["weights_exp"]):
                 crit_w = rt.compute_weights(st.session_state["criteria"])
@@ -152,6 +162,7 @@ def main() -> None:
         T["tab_search"], T["tab_analysis"], T["tab_dataset"], T["tab_help"],
     ])
 
+    # ROUTE SEARCH TAB
     with tab_search:
         top_left, top_right = st.columns([3, 2])
 
@@ -161,6 +172,7 @@ def main() -> None:
                             horizontal=True, label_visibility="collapsed")
 
             if mode == T["mode_pre"]:
+                # Load molecule list from dataset — falls back to Galanthamine if file is missing
                 targets_ds = {}
                 if os.path.exists(dataset_path):
                     try:
@@ -172,6 +184,7 @@ def main() -> None:
                                                  format_func=lambda x: x.capitalize())
                     target_smiles = targets_ds[target_name]
                 else:
+                    # Hard-coded fallback so the UI is still usable without a dataset
                     target_name = "Galanthamine"
                     target_smiles = "OC1C=C[C@@]23c4cc(OC)ccc4CN(C)C[C@@H]2[C@@H]1O3"
             else:
@@ -180,29 +193,34 @@ def main() -> None:
                 if target_smiles:
                     if Chem.MolFromSmiles(target_smiles) is None:
                         st.error(T["smiles_invalid"])
-                        target_smiles = ""
+                        target_smiles = ""  # block the Run button for invalid input
                     else:
                         st.success(T["smiles_valid"])
 
             st.subheader(T["criteria_section"])
             st.caption(T["criteria_caption"])
             all_crit = list(CL.keys())
+            # Each selectbox removes the already-chosen criteria from the next one
             c1 = st.selectbox(T["c1_label"], all_crit, format_func=lambda x: CL[x])
             rem2 = [c for c in all_crit if c != c1]
             c2 = st.selectbox(T["c2_label"], rem2, format_func=lambda x: CL[x])
             rem3 = [c for c in rem2 if c != c2]
             c3 = st.selectbox(T["c3_label"], rem3, format_func=lambda x: CL[x])
             criteria = [c1, c2, c3]
+            # Persist criteria so the sidebar weight breakdown and Analysis tab can read them
             st.session_state["criteria"] = criteria
 
+            # Disable the button if no valid SMILES is present
             run_search = st.button(T["run_btn"], type="primary", disabled=not target_smiles)
 
         with top_right:
+            # Show the target molecule preview as soon as a valid SMILES is entered
             if target_smiles:
                 png = mol_png(target_smiles, 640, 440)
                 if png:
                     st.image(png, caption=target_name, use_container_width=True)
             else:
+                # Landing state: show all available molecules as a gallery
                 st.markdown(T["welcome"])
                 st.markdown(T["avail_mols"])
                 try:
@@ -219,12 +237,14 @@ def main() -> None:
         st.divider()
 
         if run_search and target_smiles:
+            # Validate required files before starting the (slow) search
             errs = []
             if not os.path.exists(dataset_path): errs.append(f"`{dataset_path}`")
             if not os.path.exists(config_path):  errs.append(f"`{config_path}`")
             for e in errs:
                 st.error(f"{T['err_file']}: {e}")
             if not errs:
+                # st.status shows a live progress log during the search
                 with st.status(T["searching"], expanded=True) as status:
                     try:
                         st.write(T["loading_ds"])
@@ -246,6 +266,7 @@ def main() -> None:
                         )
                         tox_index = rt.load_toxicity_dataset(toxicity_path)
                         weights = rt.compute_weights(criteria)
+                        # Store everything in session_state so other tabs can read it
                         st.session_state.update({
                             "results": results_raw,
                             "weights": weights,
@@ -262,6 +283,7 @@ def main() -> None:
                     except Exception as e:
                         status.update(label=T["err_other"], state="error"); st.exception(e)
 
+        # Pull results from session_state so the display persists across widget interactions
         results_raw = st.session_state.get("results", None)
         weights = st.session_state.get("weights", {})
         criteria = st.session_state.get("criteria", criteria)
@@ -274,6 +296,7 @@ def main() -> None:
             if not scored_dataset and not scored_validated and not scored_predicted:
                 st.warning(T["no_routes"])
             else:
+                # Quick summary counts at the top
                 c1_, c2_, c3_, c4_ = st.columns(4)
                 c1_.metric("📚 Dataset", len(scored_dataset))
                 c2_.metric("✅ Validated", len(scored_validated))
@@ -282,6 +305,7 @@ def main() -> None:
 
                 tgt_name = st.session_state.get("target_name", target_name)
 
+                # SECTION 1 — dataset routes (experimentally validated, real yields)
                 st.markdown(T["sec_dataset"])
                 st.caption(T["cap_dataset"])
                 if not scored_dataset:
@@ -296,6 +320,7 @@ def main() -> None:
                         display_route_card(score_total, details, route, criteria, weights,
                                            scored_dataset, rank, T["badge_dataset"], lang)
 
+                # SECTION 2 — AiZ routes validated against the generic dataset
                 if scored_validated:
                     st.markdown("---")
                     st.markdown(T["sec_validated"])
@@ -307,16 +332,19 @@ def main() -> None:
                         display_route_card(score_total, details, route, criteria, weights,
                                            scored_validated, rank, T["badge_validated"], lang)
 
+                # SECTION 3 — purely predicted routes (Rxn-INSIGHT conditions only)
                 if include_predicted and RXNINSIGHT_OK and scored_predicted:
                     st.markdown("---")
                     st.markdown(T["sec_predicted"])
                     st.caption(T["cap_predicted"])
 
+                    # Starting material search box — filter predicted routes by reagent SMILES
                     search_sm = st.text_input(
                         "Search by starting material SMILES",
                         placeholder="e.g. c1ccc2[nH]ccc2c1",
                         key="sm_search",
                     )
+                    # Build a map of canonical starting-material SMILES → route names
                     all_sm_map = {}
                     for _, _, route in scored_predicted:
                         steps    = route.get("dataset_steps", [])
@@ -324,12 +352,14 @@ def main() -> None:
                         for s in steps:
                             for rsmi in s.get("reactants_smiles", []):
                                 canon = rt.to_canonical(rsmi)
+                                # Only keep reactants that aren't produced in an earlier step
                                 if canon and canon not in all_prod:
                                     all_sm_map.setdefault(canon, []).append(
                                         route.get("matched_route_name", "?"))
 
                     filtered = scored_predicted
                     if search_sm.strip():
+                        # Match canonicalised SMILES or substring of raw SMILES
                         sc = rt.to_canonical(search_sm.strip())
                         filtered = [
                             (s, d, r) for s, d, r in scored_predicted
@@ -345,6 +375,7 @@ def main() -> None:
                         st.success(f"{len(filtered)} route(s) found") if filtered else \
                             st.warning("No routes with this starting material")
 
+                    # Browse up to 30 unique starting materials as a molecule gallery
                     top30 = list(all_sm_map.keys())[:30]
                     with st.expander(f"🗂️ Browse starting materials ({len(top30)} unique)", expanded=False):
                         cols_sm = st.columns(3)
@@ -363,6 +394,7 @@ def main() -> None:
 
     # ANALYSIS tab
     with tab_analysis:
+        # Read from session_state — only populated after a successful search
         results_raw = st.session_state.get("results", None)
         criteria = st.session_state.get("criteria", list(CL.keys())[:3])
         weights = st.session_state.get("weights", {})
@@ -374,6 +406,7 @@ def main() -> None:
             sc_ds = results_raw.get("dataset", [])
             sc_val = results_raw.get("validated", [])
             sc_pr = results_raw.get("predicted", [])
+            # Flatten all three sections for the multi-select comparison
             all_sc = sc_ds + sc_val + sc_pr
 
             if not all_sc:
@@ -381,6 +414,7 @@ def main() -> None:
             else:
                 st.subheader(T["compare_title"])
 
+                # Badge prefix per route: ✅ validated, 🔬 partial, 🤖 predicted, 📚 dataset
                 def _badge_label(r):
                     s = r[2].get("validation_status", "dataset")
                     return {"validated":"✅","partial":"🔬","predicted":"🤖"}.get(s,"📚")
@@ -391,6 +425,7 @@ def main() -> None:
                     for i, r in enumerate(all_sc)
                 }
                 labels = list(route_opts.keys())
+                # Default to the top 3 routes pre-selected
                 sel = st.multiselect(T["sel_routes"], labels,
                                         default=labels[:min(3, len(labels))])
 
@@ -410,11 +445,13 @@ def main() -> None:
                             T["metric_bottleneck"]:f"{bn_:.1f}%" if bn_ else "—",
                             T["metric_avg"]: f"{av_:.1f}%" if av_ else "—",
                         }
+                        # Add scores for the selected criteria
                         for c in criteria:
                             if c in ("steps", "yield"):
-                                continue
+                                continue  # already shown above
                             raw = details[c].get("raw")
                             row[CL[c]] = f"{raw:.4f}" if raw is not None else "N/A"
+                        # Also compute scores for the non-selected criteria (marked with ✗)
                         all_s = rt.compute_all_scores(route, tox_index)
                         for c in rt.CRITERIA_REGISTRY:
                             if c not in criteria and c not in ("steps","yield"):
@@ -433,6 +470,7 @@ def main() -> None:
                         fig_cmp = make_comparison_chart(sel_results, criteria, lang)
                         st.pyplot(fig_cmp); plt.close(fig_cmp)
 
+                    # Side-by-side reaction scheme only when exactly 2 routes are selected
                     if len(sel_results) == 2:
                         st.markdown("---")
                         st.markdown("### Reaction schemes")
@@ -454,7 +492,7 @@ def main() -> None:
                                     height=480, scrolling=True,
                                 )
 
-    # DATASET EXPLORER    
+    # DATASET EXPLORER
     with tab_dataset:
         if not os.path.exists(dataset_path):
             st.warning(T["ds_not_found"].format(path=dataset_path))
@@ -465,6 +503,7 @@ def main() -> None:
             by_route = ds["by_route"]
             targets_uniq = sorted(set(r.get("target","?") for r in reactions_all))
 
+            # Top-level KPIs
             c1d, c2d, c3d = st.columns(3)
             c1d.metric(T["total_rxn"], len(reactions_all))
             c2d.metric(T["dist_routes"], len(by_route))
@@ -473,6 +512,7 @@ def main() -> None:
 
             filter_tgt = st.selectbox(T["filter_lbl"], [T["filter_all"]] + targets_uniq)
 
+            # Build summary table rows — one row per route
             rows = []
             for rid, steps in sorted(by_route.items()):
                 tgt = steps[0].get("target", "?")
@@ -493,6 +533,7 @@ def main() -> None:
                 })
 
             if rows:
+                # Sort by cumulative yield descending so the best routes come first
                 df_routes = (
                     pd.DataFrame(rows)
                     .sort_values(T["col_cumyield"], ascending=False)
@@ -511,6 +552,7 @@ def main() -> None:
                 )
 
             st.markdown("---")
+            # Route detail selector — filtered to match the target filter above
             routes_avail = [
                 rid for rid, steps in by_route.items()
                 if filter_tgt == T["filter_all"]
@@ -530,6 +572,7 @@ def main() -> None:
                     f"**{sr[0].get('route_name')}** — {n_sr} "
                     f"{strip_emoji(T['col_steps']).lower()}"
                 )
+                # Yield per step bar chart
                 fig3 = make_yield_chart(sr, lang)
                 st.pyplot(fig3); plt.close(fig3)
 
@@ -546,6 +589,7 @@ def main() -> None:
                     if is_purif and (rtype == "—" or not rtype):
                         rtype = "Purification / Isolation"
 
+                    # Brown header for purification steps, navy gradient for real reactions
                     header_style = (
                         "background:#6B3E26;" if is_purif else
                         "background:linear-gradient(135deg,#1a2e44 0%,#2d5986 100%);"
@@ -562,6 +606,7 @@ def main() -> None:
                         unsafe_allow_html=True,
                     )
 
+                    # Molecule images: n_reac columns + 1 arrow column + 1 product column
                     n_reac = max(len(reac), 1)
                     cols_rxn = st.columns([3] * n_reac + [1, 3])
 
@@ -574,6 +619,7 @@ def main() -> None:
                                 st.code(rsmi, language=None)
                             smiles_copy_widget(rsmi)
 
+                    # Arrow column (purely decorative SVG-ish arrow via HTML)
                     with cols_rxn[n_reac]:
                         st.markdown(
                             '<div style="display:flex;align-items:center;justify-content:center;'
@@ -595,6 +641,7 @@ def main() -> None:
                             st.code(prod, language=None)
                         smiles_copy_widget(prod)
 
+                    # Conditions footer bar below the molecule row
                     info_parts = []
                     if yld is not None:
                         info_parts.append(f"**Yield:** {yld}%")
@@ -619,6 +666,7 @@ def main() -> None:
                 st.markdown("---")
                 st.markdown("**Full reaction scheme** *(click an arrow for extra details)*")
                 route_ds_key     = "ds_" + "".join(c for c in rc if c.isalnum())
+                # Normalise steps to the minimal fields expected by build_clickable_scheme_html
                 steps_for_scheme = [
                     {
                         "step_number": s.get("step_number"),
@@ -631,13 +679,14 @@ def main() -> None:
                     }
                     for s in sr
                 ]
+                # Taller iframe for longer routes
                 scheme_h = 320 if n_sr <= 5 else (400 if n_sr <= 12 else 480)
                 components.html(
                     build_clickable_scheme_html(steps_for_scheme, route_ds_key, False),
                     height=scheme_h, scrolling=True,
                 )
 
-    # HELP    
+    # HELP
     with tab_help:
         st.subheader(T["help_title"])
         if lang == "en":

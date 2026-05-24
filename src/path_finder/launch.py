@@ -10,11 +10,15 @@ from pathlib import Path
 
 
 def _pkg_root() -> Path:
+    # Always points to the directory that contains this file,
+    # regardless of where the CLI is invoked from
     return Path(__file__).parent
 
 
 def _data_dir() -> Path:
     import os
+    # Lets users override the data directory with an env variable;
+    # defaults to a "data/" folder next to the working directory
     return Path(os.environ.get("PATH_FINDER_DATA", "data"))
 
 
@@ -27,6 +31,7 @@ def main():
         sys.exit(1)
 
     data = _data_dir()
+    # Remind users to run setup if config.yml is missing
     if not (data / "config.yml").exists():
         print("WARNING: config.yml not found — run `path-finder-setup` first.\n")
 
@@ -34,6 +39,7 @@ def main():
     print("AiZynthFinder · Rxn-INSIGHT · Chemistry by Design")
     print("Yara Chahda · Corentin Portmann · Inès Ouchen Laksiri — EPFL 2026")
     print("\nOpen http://localhost:8501 in your browser.\n")
+    # Hand off to Streamlit — this blocks until the user stops the server
     subprocess.run(
         [sys.executable, "-m", "streamlit", "run", str(app)],
         check=True,
@@ -100,7 +106,7 @@ def setup():
     print("\nStep 3/5 - downloading AiZynthFinder models (~500 MB)...")
     aiz_dir = data / "aizynthfinder"
     aiz_dir.mkdir(exist_ok=True)
-    config_from_aiz = False
+    config_from_aiz = False  # will be True if AiZ wrote its own config.yml
 
     if not aiz_ok:
         print("  SKIPPED - AiZynthFinder not installed")
@@ -155,10 +161,12 @@ def setup():
     if config_out.exists():
         print(f"  OK config.yml already exists - skipped")
     elif config_from_aiz:
+        # AiZ downloaded its own config — reuse it directly
         shutil.copy2(aiz_dir / "config.yml", config_out)
         print("  OK config.yml copied from AiZynthFinder download")
         print("  OK No manual editing required - paths set automatically")
     else:
+        # Write from template and ask the user to fix the placeholder path
         _write_config_from_template(pkg, config_out, aiz_dir)
         print(f"\n  ATTENTION: open {config_out.resolve()}")
         print("  Replace /PATH/TO/AIZYNTHFINDER/ with:")
@@ -199,6 +207,7 @@ def _write_config_from_template(pkg: Path, output: Path, aiz_dir: Path) -> None:
     """Writes config.yml from the bundled template, substituting the actual aizynthfinder model path."""
     template = pkg / "data" / "config_template.yml"
     content  = template.read_text() if template.exists() else _fallback_template()
+    # Replace the placeholder with the real path on this machine
     content  = content.replace(
         "/PATH/TO/AIZYNTHFINDER/",
         str(aiz_dir.resolve()) + "/",

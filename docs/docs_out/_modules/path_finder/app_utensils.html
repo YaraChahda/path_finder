@@ -230,9 +230,8 @@
         <article role="main" id="furo-main-content">
           <h1>Source code for path_finder.app_utensils</h1><div class="highlight"><pre>
 <span></span><span class="c1"># app_utensils.py</span>
-<span class="c1"># UI helper functions for the Path Finder app.</span>
-<span class="c1"># All rendering, chart creation, HTML builders, and cached loaders live here</span>
-<span class="c1"># so that app.py stays readable. Imported directly by app.py.</span>
+<span class="c1"># UI helpers: HTML builders, charts, cached loaders.</span>
+<span class="c1"># Keeps app.py thin — everything rendering-related lives here</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -249,9 +248,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">app_layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">LANG</span><span class="p">,</span> <span class="n">CRITERIA_LABELS</span><span class="p">,</span> <span class="n">PALETTE</span><span class="p">,</span> <span class="n">FIG_BG</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">molecule_rendering</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">mol_png</span><span class="p">,</span>
-    <span class="n">mol_b64_or_text_svg</span>  <span class="k">as</span> <span class="n">_mol_b64_or_text_svg</span><span class="p">,</span>
-    <span class="n">fallback_data_uri</span>    <span class="k">as</span> <span class="n">_fallback_data_uri</span><span class="p">,</span>
-    <span class="n">is_trivial_smiles</span>    <span class="k">as</span> <span class="n">_is_trivial_smiles</span><span class="p">,</span>
+    <span class="n">mol_b64_or_text_svg</span> <span class="k">as</span> <span class="n">_mol_b64_or_text_svg</span><span class="p">,</span>
+    <span class="n">fallback_data_uri</span> <span class="k">as</span> <span class="n">_fallback_data_uri</span><span class="p">,</span>
+    <span class="n">is_trivial_smiles</span> <span class="k">as</span> <span class="n">_is_trivial_smiles</span><span class="p">,</span>
     <span class="n">MODULE_OK</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">report_builder</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_route_report_pdf</span>
@@ -263,10 +262,7 @@
     <span class="n">rt</span>   <span class="o">=</span> <span class="kc">None</span>
     <span class="n">Chem</span> <span class="o">=</span> <span class="kc">None</span>
 
-
-
-<span class="c1"># CSS injected inside isolated st.html() / components.html() frames.</span>
-<span class="c1"># Scoped to avoid leaking into the Streamlit global stylesheet.</span>
+<span class="c1"># CSS for isolated st.html() frames — scoped so it doesn&#39;t bleed into Streamlit&#39;s own styles</span>
 
 <span class="n">COMPONENT_STYLE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">&lt;style&gt;</span>
@@ -363,7 +359,7 @@
     <span class="p">},</span>
 <span class="p">}</span>
 
-<span class="c1"># Emoji regex — compiled once at module level</span>
+<span class="c1"># compiled once — matplotlib can&#39;t render emoji so we strip them before any chart call</span>
 <span class="n">_EMOJI_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
     <span class="s2">&quot;[&quot;</span>
     <span class="s2">&quot;</span><span class="se">\U0001F300</span><span class="s2">-</span><span class="se">\U0001F9FF</span><span class="s2">&quot;</span>
@@ -379,25 +375,12 @@
 <div class="viewcode-block" id="load_banner">
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.load_banner">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_banner</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load a local image file and return a base-64 data URI for HTML embedding.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    path : str</span>
-<span class="sd">        Filesystem path to the image (PNG, JPG, SVG, …).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str</span>
-<span class="sd">        A ``data:&lt;mime&gt;;base64,&lt;data&gt;`` URI, or an empty string if the file</span>
-<span class="sd">        does not exist.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reads a local image and returns a base64 data URI for HTML embedding. Returns &quot;&quot; if missing.&quot;&quot;&quot;</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-    <span class="n">ext</span>  <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="n">mime</span> <span class="o">=</span> <span class="s2">&quot;image/png&quot;</span> <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;png&quot;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;image/</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;data:</span><span class="si">{</span><span class="n">mime</span><span class="si">}</span><span class="s2">;base64,</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
@@ -405,26 +388,7 @@
 <div class="viewcode-block" id="hires_fig">
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.hires_fig">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">hires_fig</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">dpi</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">180</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create a high-resolution matplotlib figure with the app background colour.</span>
-
-<span class="sd">    Drop-in replacement for ``plt.subplots()``. Sets the figure and all axes</span>
-<span class="sd">    facecolour to ``FIG_BG`` so charts blend with the page without a white box.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    args : positional</span>
-<span class="sd">        Forwarded to ``plt.subplots()``.</span>
-<span class="sd">    dpi : int, optional</span>
-<span class="sd">        Dots per inch for the figure (default 180).</span>
-<span class="sd">    kwargs : keyword</span>
-<span class="sd">        Forwarded to ``plt.subplots()``.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    fig : matplotlib.figure.Figure</span>
-<span class="sd">    ax : matplotlib.axes.Axes or ndarray of Axes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;plt.subplots() wrapper that sets the background to FIG_BG so charts blend with the page.&quot;&quot;&quot;</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">fig</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">FIG_BG</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">):</span>
@@ -438,21 +402,7 @@
 <div class="viewcode-block" id="strip_emoji">
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.strip_emoji">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">strip_emoji</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Remove all Unicode emoji characters from a string.</span>
-
-<span class="sd">    Matplotlib can&#39;t render emoji so we strip them before any chart call.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    text : str</span>
-<span class="sd">        Input string, possibly containing emoji.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str</span>
-<span class="sd">        *text* with all emoji removed and leading/trailing whitespace stripped.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Strips emoji from text and trims whitespace — matplotlib chokes on Unicode emoji.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_EMOJI_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
 
 
@@ -463,12 +413,12 @@
     <span class="n">rtype</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reaction_type&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">kw</span> <span class="ow">in</span> <span class="n">rtype</span> <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;purif&quot;</span><span class="p">,</span> <span class="s2">&quot;recryst&quot;</span><span class="p">,</span> <span class="s2">&quot;chroma&quot;</span><span class="p">,</span> <span class="s2">&quot;isolation&quot;</span><span class="p">,</span> <span class="s2">&quot;workup&quot;</span><span class="p">)):</span>
         <span class="k">return</span> <span class="kc">True</span>
-    <span class="n">prod</span>  <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">prod</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
     <span class="n">reacs</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
     <span class="k">if</span> <span class="n">prod</span> <span class="ow">and</span> <span class="n">prod</span> <span class="ow">in</span> <span class="n">reacs</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">MODULE_OK</span> <span class="ow">and</span> <span class="n">prod</span> <span class="ow">and</span> <span class="n">Chem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">mol_p</span>      <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">prod</span><span class="p">)</span>
+        <span class="n">mol_p</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">prod</span><span class="p">)</span>
         <span class="n">canon_prod</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolToSmiles</span><span class="p">(</span><span class="n">mol_p</span><span class="p">)</span> <span class="k">if</span> <span class="n">mol_p</span> <span class="k">else</span> <span class="n">prod</span>
         <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reacs</span><span class="p">:</span>
             <span class="n">mol_r</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">if</span> <span class="n">r</span> <span class="k">else</span> <span class="kc">None</span>
@@ -485,66 +435,33 @@
     <span class="n">is_predicted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> <span class="c1"># layout sizes — tweak these to resize without touching the HTML / MOL_W, MOL_H = 158, 112</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Build the interactive HTML reaction scheme used in Route Search and Analysis.</span>
-
-<span class="sd">    Each molecule in the synthetic sequence is rendered as a double-resolution</span>
-<span class="sd">    Cairo PNG image.  Clicking any reaction arrow opens an inline detail panel</span>
-<span class="sd">    showing conditions, yield, reactant/product structures, and copyable SMILES.</span>
-<span class="sd">    Clicking the same arrow again collapses the panel.</span>
-
-<span class="sd">    Purification step handling</span>
-<span class="sd">    --------------------------</span>
-<span class="sd">    When ``is_purification_step()`` returns ``True`` for a step, the product</span>
-<span class="sd">    molecule is always added to the display sequence — even if its SMILES is</span>
-<span class="sd">    identical to the preceding molecule (standard steps skip duplicates).</span>
-<span class="sd">    The arrow is drawn with a dashed brown style and labelled</span>
-<span class="sd">    &quot;Purification / Isolation&quot;.</span>
-
-<span class="sd">    Co-reactant rendering</span>
-<span class="sd">    ---------------------</span>
-<span class="sd">    Reactants that are not the substrate are rendered as small structure images</span>
-<span class="sd">    above the arrow.  Trivial species (single atoms, ions) are shown as text</span>
-<span class="sd">    labels below the arrow instead.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    steps_data : list</span>
-<span class="sd">        ``route[&quot;dataset_steps&quot;]`` — list of step dicts.</span>
-<span class="sd">    route_id : str</span>
-<span class="sd">        Unique string identifier used as a prefix for all DOM element IDs.</span>
-<span class="sd">    is_predicted : bool, optional</span>
-<span class="sd">        If ``True``, arrows and detail panels use orange colouring to</span>
-<span class="sd">        distinguish predicted routes from validated ones (default ``False``).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str</span>
-<span class="sd">        A complete, self-contained HTML document ready for</span>
-<span class="sd">        ``components.html()``.</span>
+<span class="sd">    Builds the interactive reaction scheme HTML. Each arrow is clickable and</span>
+<span class="sd">    opens a panel with conditions, yield, and copyable SMILES. Predicted routes</span>
+<span class="sd">    use orange colouring; purification steps get a dashed brown arrow.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">steps_data</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&lt;p style=&#39;color:#888&#39;&gt;No steps.&lt;/p&gt;&quot;</span>
 
     <span class="n">arrow_color</span> <span class="o">=</span> <span class="s2">&quot;#E65100&quot;</span> <span class="k">if</span> <span class="n">is_predicted</span> <span class="k">else</span> <span class="s2">&quot;#1a2e44&quot;</span>
-    <span class="n">hover_bg</span>    <span class="o">=</span> <span class="s2">&quot;#FFF3E0&quot;</span> <span class="k">if</span> <span class="n">is_predicted</span> <span class="k">else</span> <span class="s2">&quot;#E8F0FC&quot;</span>
-    <span class="n">panel_bg</span>    <span class="o">=</span> <span class="s2">&quot;#FFF8F0&quot;</span> <span class="k">if</span> <span class="n">is_predicted</span> <span class="k">else</span> <span class="s2">&quot;#F0F7FF&quot;</span>
-    <span class="n">rid_js</span>      <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">route_id</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">())</span>
+    <span class="n">hover_bg</span> <span class="o">=</span> <span class="s2">&quot;#FFF3E0&quot;</span> <span class="k">if</span> <span class="n">is_predicted</span> <span class="k">else</span> <span class="s2">&quot;#E8F0FC&quot;</span>
+    <span class="n">panel_bg</span> <span class="o">=</span> <span class="s2">&quot;#FFF8F0&quot;</span> <span class="k">if</span> <span class="n">is_predicted</span> <span class="k">else</span> <span class="s2">&quot;#F0F7FF&quot;</span>
+    <span class="n">rid_js</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">route_id</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">())</span>
 
     <span class="c1">#  Layout constants </span>
     <span class="n">MOL_W</span><span class="p">,</span> <span class="n">MOL_H</span> <span class="o">=</span> <span class="mi">158</span><span class="p">,</span> <span class="mi">112</span>
     <span class="n">CO_W</span><span class="p">,</span>  <span class="n">CO_H</span>  <span class="o">=</span> <span class="mi">96</span><span class="p">,</span>  <span class="mi">70</span>
-    <span class="n">CELL_W</span>       <span class="o">=</span> <span class="n">MOL_W</span> <span class="o">+</span> <span class="mi">20</span>
-    <span class="n">SCHEME_H</span>     <span class="o">=</span> <span class="mi">200</span>
+    <span class="n">CELL_W</span> <span class="o">=</span> <span class="n">MOL_W</span> <span class="o">+</span> <span class="mi">20</span>
+    <span class="n">SCHEME_H</span> <span class="o">=</span> <span class="mi">200</span>
     <span class="n">ARROW_SHAFT_W</span> <span class="o">=</span> <span class="mi">90</span>
-    <span class="n">ARROW_CELL_W</span>  <span class="o">=</span> <span class="mi">145</span>
+    <span class="n">ARROW_CELL_W</span> <span class="o">=</span> <span class="mi">145</span>
 
     <span class="c1"># Compute padding above the band for co-reactant images</span>
     <span class="n">max_co_rows</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps_data</span><span class="p">:</span>
         <span class="n">reactants</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">product</span>   <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">cond</span>      <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditions&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">co_count</span>  <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="n">product</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditions&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">co_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
             <span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reactants</span>
             <span class="k">if</span> <span class="n">r</span> <span class="o">!=</span> <span class="n">product</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_trivial_smiles</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
         <span class="p">)</span>
@@ -557,22 +474,22 @@
         <span class="n">max_co_rows</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_co_rows</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">co_count</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">//</span> <span class="mi">3</span><span class="p">))</span>
 
     <span class="n">display_rows</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_co_rows</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">PAD_TOP</span>      <span class="o">=</span> <span class="n">display_rows</span> <span class="o">*</span> <span class="p">(</span><span class="n">CO_H</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">50</span>
-    <span class="n">PAD_BOTTOM</span>   <span class="o">=</span> <span class="n">display_rows</span> <span class="o">*</span> <span class="p">(</span><span class="n">CO_H</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">//</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">10</span>
+    <span class="n">PAD_TOP</span> <span class="o">=</span> <span class="n">display_rows</span> <span class="o">*</span> <span class="p">(</span><span class="n">CO_H</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">50</span>
+    <span class="n">PAD_BOTTOM</span> <span class="o">=</span> <span class="n">display_rows</span> <span class="o">*</span> <span class="p">(</span><span class="n">CO_H</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">//</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">10</span>
 
     <span class="c1">#  Build molecule sequence and per-arrow metadata </span>
     <span class="n">mol_sequence</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">arrow_data</span>   <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">arrow_data</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">steps_data</span><span class="p">):</span>
-        <span class="n">reactants</span>  <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">product</span>    <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">cond</span>       <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditions&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">rtype</span>      <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reaction_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">yld</span>        <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;yield_percent&quot;</span><span class="p">)</span>
-        <span class="n">snum</span>       <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step_number&quot;</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">src_step</span>   <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
-        <span class="n">is_purif</span>   <span class="o">=</span> <span class="n">is_purification_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="n">reactants</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">product</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditions&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">rtype</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reaction_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">yld</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;yield_percent&quot;</span><span class="p">)</span>
+        <span class="n">snum</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step_number&quot;</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">src_step</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+        <span class="n">is_purif</span> <span class="o">=</span> <span class="n">is_purification_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">reactants</span> <span class="ow">and</span> <span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mol_sequence</span><span class="p">:</span>
             <span class="n">mol_sequence</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -583,7 +500,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">mol_sequence</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
 
-        <span class="n">prev</span>    <span class="o">=</span> <span class="n">mol_sequence</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol_sequence</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">mol_sequence</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol_sequence</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">co_draw</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">co_text</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reactants</span><span class="p">:</span>
@@ -618,9 +535,9 @@
                     <span class="n">all_cond_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cond</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;apparatus&quot;</span><span class="p">):</span>
             <span class="n">all_cond_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">cond</span><span class="p">[</span><span class="s2">&quot;apparatus&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
-        <span class="n">cond_display</span>  <span class="o">=</span> <span class="s2">&quot;  ·  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">all_cond_parts</span><span class="p">)</span>
+        <span class="n">cond_display</span> <span class="o">=</span> <span class="s2">&quot;  ·  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">all_cond_parts</span><span class="p">)</span>
         <span class="n">display_rtype</span> <span class="o">=</span> <span class="n">rtype</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">is_purif</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rtype</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;Purification / Isolation&quot;</span>
-        <span class="n">below_parts</span>   <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">below_parts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">yld</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">src_step</span> <span class="o">!=</span> <span class="s2">&quot;rxn-insight&quot;</span><span class="p">:</span>
             <span class="n">below_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">yld</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;%&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">co_text</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>
@@ -640,18 +557,18 @@
         <span class="p">})</span>
 
     <span class="c1">#  Pre-render molecule images </span>
-    <span class="n">mol_imgs</span>   <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="n">_mol_b64_or_text_svg</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">MOL_W</span><span class="p">,</span> <span class="n">MOL_H</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">mol_sequence</span> <span class="k">if</span> <span class="n">s</span><span class="p">}</span>
-    <span class="n">co_imgs</span>    <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">step_imgs</span>  <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">mol_imgs</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="n">_mol_b64_or_text_svg</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">MOL_W</span><span class="p">,</span> <span class="n">MOL_H</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">mol_sequence</span> <span class="k">if</span> <span class="n">s</span><span class="p">}</span>
+    <span class="n">co_imgs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">step_imgs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">arrow_data</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">smi</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;co_draw&quot;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">smi</span> <span class="ow">and</span> <span class="n">smi</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">co_imgs</span><span class="p">:</span>
                 <span class="n">co_imgs</span><span class="p">[</span><span class="n">smi</span><span class="p">]</span> <span class="o">=</span> <span class="n">_mol_b64_or_text_svg</span><span class="p">(</span><span class="n">smi</span><span class="p">,</span> <span class="n">CO_W</span><span class="p">,</span> <span class="n">CO_H</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">arrow_data</span><span class="p">:</span>
         <span class="n">r_b64s</span> <span class="o">=</span> <span class="p">[</span><span class="n">_mol_b64_or_text_svg</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">78</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;reactants&quot;</span><span class="p">][:</span><span class="mi">4</span><span class="p">]]</span>
-        <span class="n">p_b64</span>  <span class="o">=</span> <span class="n">_mol_b64_or_text_svg</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;product&quot;</span><span class="p">],</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">78</span><span class="p">)</span>
+        <span class="n">p_b64</span> <span class="o">=</span> <span class="n">_mol_b64_or_text_svg</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;product&quot;</span><span class="p">],</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">78</span><span class="p">)</span>
         <span class="n">step_imgs</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;reactants&quot;</span><span class="p">:</span>       <span class="n">r_b64s</span><span class="p">,</span> <span class="s2">&quot;product&quot;</span><span class="p">:</span>         <span class="n">p_b64</span><span class="p">,</span>
+            <span class="s2">&quot;reactants&quot;</span><span class="p">:</span> <span class="n">r_b64s</span><span class="p">,</span> <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="n">p_b64</span><span class="p">,</span>
             <span class="s2">&quot;reactant_smiles&quot;</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;reactants&quot;</span><span class="p">],</span> <span class="s2">&quot;product_smiles&quot;</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;product&quot;</span><span class="p">],</span>
         <span class="p">}</span>
     <span class="n">step_imgs_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">step_imgs</span><span class="p">)</span>
@@ -673,9 +590,9 @@
             <span class="s1">&#39;cursor:zoom-in&quot; onclick=&quot;openFullImg(this.src)&quot;/&gt;&lt;/div&gt;&#39;</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">arrow_data</span><span class="p">):</span>
-            <span class="n">a</span>             <span class="o">=</span> <span class="n">arrow_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-            <span class="n">co_slice</span>      <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;co_draw&quot;</span><span class="p">][:</span><span class="mi">4</span><span class="p">]</span>
-            <span class="n">n_co</span>          <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">co_slice</span><span class="p">)</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">arrow_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">co_slice</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;co_draw&quot;</span><span class="p">][:</span><span class="mi">4</span><span class="p">]</span>
+            <span class="n">n_co</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">co_slice</span><span class="p">)</span>
             <span class="k">def</span><span class="w"> </span><span class="nf">_co_tag</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
                 <span class="n">u</span> <span class="o">=</span> <span class="n">co_imgs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">_fallback_data_uri</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">CO_W</span><span class="p">,</span> <span class="n">CO_H</span><span class="p">))</span>
                 <span class="k">return</span> <span class="p">(</span>
@@ -856,34 +773,9 @@
     <span class="n">weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Render the per-criterion score breakdown table for a route card.</span>
-
-<span class="sd">    Each row displays: criterion name, raw score 0–1 with a hoverable</span>
-<span class="sd">    tooltip explaining the formula, the criterion weight, and the weighted</span>
-<span class="sd">    contribution to the total score.  For predicted routes the yield row</span>
-<span class="sd">    shows &quot;excluded (predicted route)&quot; instead of a numeric score.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    details : dict</span>
-<span class="sd">        Per-criterion detail dicts from ``rank_weighted()`` with keys</span>
-<span class="sd">        ``raw``, ``weight``, ``weighted``, and optionally ``excluded``.</span>
-<span class="sd">    criteria : list of str</span>
-<span class="sd">        Three criterion keys in descending priority order.</span>
-<span class="sd">    weights : dict</span>
-<span class="sd">        ``{criterion_key: float}`` from ``rt.compute_weights()``.</span>
-<span class="sd">    lang : str, optional</span>
-<span class="sd">        Language code ``&quot;en&quot;`` or ``&quot;fr&quot;`` (default ``&quot;en&quot;``).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str</span>
-<span class="sd">        HTML string that includes ``COMPONENT_STYLE``; safe to pass to</span>
-<span class="sd">        ``st.html()``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">T</span>   <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
-    <span class="n">CL</span>  <span class="o">=</span> <span class="n">CRITERIA_LABELS</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Renders the score breakdown table for a route card (raw score, weight, contribution per criterion).&quot;&quot;&quot;</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">CL</span> <span class="o">=</span> <span class="n">CRITERIA_LABELS</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
     <span class="n">csd</span> <span class="o">=</span> <span class="n">CRITERIA_SCORE_DESC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">CRITERIA_SCORE_DESC</span><span class="p">[</span><span class="s2">&quot;en&quot;</span><span class="p">])</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">criteria</span><span class="p">:</span>
@@ -895,7 +787,7 @@
                 <span class="sa">f</span><span class="s2">&quot;&lt;td colspan=&#39;3&#39;&gt;&lt;em&gt;excluded (predicted route)&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;&quot;</span>
             <span class="p">)</span>
             <span class="k">continue</span>
-        <span class="n">w</span>    <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">cont</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="s2">&quot;weighted&quot;</span><span class="p">]</span>
         <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt;&quot;</span>
@@ -924,34 +816,15 @@
 <div class="viewcode-block" id="make_ranking_chart">
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.make_ranking_chart">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_ranking_chart</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">target_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Render a horizontal bar chart ranking routes by total score.</span>
-
-<span class="sd">    Displayed above the route cards whenever more than one route is found</span>
-<span class="sd">    in a given category.  Score values are annotated directly on each bar.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    results : list</span>
-<span class="sd">        List of ``(score, details, route)`` tuples from ``rank_weighted()``.</span>
-<span class="sd">    target_name : str</span>
-<span class="sd">        Target molecule name — used as the chart title suffix.</span>
-<span class="sd">    lang : str, optional</span>
-<span class="sd">        Language code for axis / title strings (default ``&quot;en&quot;``).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    matplotlib.figure.Figure</span>
-<span class="sd">        Caller is responsible for calling ``plt.close(fig)``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">T</span>      <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Horizontal bar chart ranking routes by score. Shown above the route cards when more than one route exists.&quot;&quot;&quot;</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_name&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Route </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)[:</span><span class="mi">32</span><span class="p">]</span>
               <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">)]</span>
     <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
-    <span class="n">n</span>      <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">hires_fig</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">n</span> <span class="o">*</span> <span class="mf">0.65</span><span class="p">)))</span>
-    <span class="n">colors</span>  <span class="o">=</span> <span class="p">[</span><span class="n">PALETTE</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">PALETTE</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
-    <span class="n">bars</span>    <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">scores</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.52</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">PALETTE</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">PALETTE</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="n">bars</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">scores</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.52</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">bar</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bars</span><span class="p">,</span> <span class="n">scores</span><span class="p">):</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.013</span><span class="p">,</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_y</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">9.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#1a2e44&quot;</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;600&quot;</span><span class="p">)</span>
@@ -973,28 +846,9 @@
 <div class="viewcode-block" id="make_yield_chart">
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.make_yield_chart">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_yield_chart</span><span class="p">(</span><span class="n">steps_route</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Render a bar chart of reported step yields for a single route.</span>
-
-<span class="sd">    Used in the Dataset Explorer route detail view.  Steps without a reported</span>
-<span class="sd">    yield are omitted from the chart entirely (no bar, no implied 0 %).</span>
-<span class="sd">    Yield labels use integer format; change ``&quot;:.0f&quot;`` to ``&quot;:.1f&quot;`` for one</span>
-<span class="sd">    decimal place.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    steps_route : list</span>
-<span class="sd">        List of step dicts from ``dataset[&quot;by_route&quot;][route_id]``.</span>
-<span class="sd">    lang : str, optional</span>
-<span class="sd">        Language code for axis labels (default ``&quot;en&quot;``).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    matplotlib.figure.Figure</span>
-<span class="sd">        Caller is responsible for calling ``plt.close(fig)``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">T</span>  <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
-    <span class="n">n</span>  <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps_route</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bar chart of reported step yields. Steps without a yield are simply omitted — no implied 0%.&quot;&quot;&quot;</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps_route</span><span class="p">)</span>
     <span class="n">reported_vals</span>  <span class="o">=</span> <span class="p">[]</span>
     <span class="n">reported_steps</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">steps_route</span><span class="p">):</span>
@@ -1028,42 +882,21 @@
 <div class="viewcode-block" id="make_comparison_chart">
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.make_comparison_chart">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_comparison_chart</span><span class="p">(</span><span class="n">sel_results</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">criteria</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Render a grouped horizontal bar chart comparing raw criterion scores.</span>
-
-<span class="sd">    Each route is plotted in a distinct colour from ``PALETTE``; each row</span>
-<span class="sd">    corresponds to one criterion.  Score values are annotated at the end of</span>
-<span class="sd">    each bar.  Used in the Analysis tab for side-by-side route comparison.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    sel_results : list</span>
-<span class="sd">        Subset of ``(score, details, route)`` tuples selected by the user</span>
-<span class="sd">        in the Analysis tab multiselect.</span>
-<span class="sd">    criteria : list of str</span>
-<span class="sd">        Three criterion keys in priority order.</span>
-<span class="sd">    lang : str, optional</span>
-<span class="sd">        Language code for axis and title labels (default ``&quot;en&quot;``).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    matplotlib.figure.Figure</span>
-<span class="sd">        Caller is responsible for calling ``plt.close(fig)``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">T</span>           <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
-    <span class="n">CL</span>          <span class="o">=</span> <span class="n">CRITERIA_LABELS</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Grouped horizontal bar chart for side-by-side criterion score comparison in the Analysis tab.&quot;&quot;&quot;</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">CL</span> <span class="o">=</span> <span class="n">CRITERIA_LABELS</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
     <span class="n">route_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_name&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;R</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)[:</span><span class="mi">20</span><span class="p">]</span>
                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sel_results</span><span class="p">)]</span>
     <span class="n">n_routes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sel_results</span><span class="p">)</span>
-    <span class="n">n_crit</span>   <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">criteria</span><span class="p">)</span>
-    <span class="n">x</span>        <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_crit</span><span class="p">)</span>
-    <span class="n">bar_h</span>    <span class="o">=</span> <span class="mf">0.72</span> <span class="o">/</span> <span class="n">n_routes</span>
-    <span class="n">offsets</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">n_routes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">n_routes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n_routes</span><span class="p">)</span> <span class="o">*</span> <span class="n">bar_h</span>
-    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>  <span class="o">=</span> <span class="n">hires_fig</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.5</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">2.8</span><span class="p">,</span> <span class="n">n_crit</span> <span class="o">*</span> <span class="mf">1.0</span><span class="p">)))</span>
+    <span class="n">n_crit</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">criteria</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_crit</span><span class="p">)</span>
+    <span class="n">bar_h</span> <span class="o">=</span> <span class="mf">0.72</span> <span class="o">/</span> <span class="n">n_routes</span>
+    <span class="n">offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">n_routes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">n_routes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n_routes</span><span class="p">)</span> <span class="o">*</span> <span class="n">bar_h</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">hires_fig</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.5</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">2.8</span><span class="p">,</span> <span class="n">n_crit</span> <span class="o">*</span> <span class="mf">1.0</span><span class="p">)))</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">route</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sel_results</span><span class="p">):</span>
-        <span class="n">vals</span>  <span class="o">=</span> <span class="p">[</span><span class="n">details</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">criteria</span><span class="p">]</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">details</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">criteria</span><span class="p">]</span>
         <span class="n">color</span> <span class="o">=</span> <span class="n">PALETTE</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">PALETTE</span><span class="p">)]</span>
-        <span class="n">bars</span>  <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vals</span><span class="p">,</span> <span class="n">bar_h</span> <span class="o">*</span> <span class="mf">0.88</span><span class="p">,</span>
+        <span class="n">bars</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vals</span><span class="p">,</span> <span class="n">bar_h</span> <span class="o">*</span> <span class="mf">0.88</span><span class="p">,</span>
                         <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">route_names</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.92</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">bar</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bars</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">v</span> <span class="o">+</span> <span class="mf">0.012</span><span class="p">,</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_y</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
@@ -1096,40 +929,12 @@
     <span class="n">steps_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
     <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Build the &quot;Why is this route ranked #N?&quot; reasoning box.</span>
-
-<span class="sd">    Generates one plain-language bullet per top-2 criterion using domain-relevant</span>
-<span class="sd">    values (step count, bottleneck yield, atom economy score, etc.) rather than</span>
-<span class="sd">    raw numeric scores.  Always produces at least one bullet.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    rank : int</span>
-<span class="sd">        1-based rank of the route within its category.</span>
-<span class="sd">    score_total : float</span>
-<span class="sd">        Total weighted score.</span>
-<span class="sd">    details : dict</span>
-<span class="sd">        Per-criterion detail dicts from ``rank_weighted()``.</span>
-<span class="sd">    criteria : list of str</span>
-<span class="sd">        Three criterion keys in descending priority order.</span>
-<span class="sd">    weights : dict</span>
-<span class="sd">        ``{criterion_key: float}`` from ``fi.compute_weights()``.</span>
-<span class="sd">    steps_data : list</span>
-<span class="sd">        ``route[&quot;dataset_steps&quot;]`` used to compute yield statistics.</span>
-<span class="sd">    lang : str, optional</span>
-<span class="sd">        Language code ``&quot;en&quot;`` or ``&quot;fr&quot;`` (default ``&quot;en&quot;``).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str</span>
-<span class="sd">        HTML string that includes ``COMPONENT_STYLE``; safe for ``st.html()``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">T</span>   <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
-    <span class="n">CL</span>  <span class="o">=</span> <span class="n">CRITERIA_LABELS</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
-    <span class="n">bn</span>  <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">bottleneck_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
-    <span class="n">av</span>  <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">average_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
-    <span class="n">n</span>   <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Builds the &#39;Why is this route ranked #N?&#39; box with one plain-language bullet per top-2 criterion.&quot;&quot;&quot;</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">CL</span> <span class="o">=</span> <span class="n">CRITERIA_LABELS</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">bn</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">bottleneck_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">av</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">average_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
     <span class="n">bullets</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">crit</span> <span class="ow">in</span> <span class="n">criteria</span><span class="p">[:</span><span class="mi">2</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">crit</span> <span class="o">==</span> <span class="s2">&quot;steps&quot;</span><span class="p">:</span>
@@ -1168,28 +973,9 @@
 <div class="viewcode-block" id="smiles_copy_widget">
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.smiles_copy_widget">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">smiles_copy_widget</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Render a compact SMILES display widget with a clipboard Copy button.</span>
-
-<span class="sd">    Displayed beneath each reactant and product molecule image in the Dataset</span>
-<span class="sd">    Explorer step-by-step view, allowing the chemist to copy any SMILES string</span>
-<span class="sd">    without manually transcribing it.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    smiles : str</span>
-<span class="sd">        SMILES string to display and make copyable via the browser clipboard.</span>
-<span class="sd">    label : str, optional</span>
-<span class="sd">        Reserved for future use (currently unused).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    None</span>
-<span class="sd">        Renders directly into the current Streamlit column via</span>
-<span class="sd">        ``components.html()``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Renders a compact SMILES label with a one-click Copy button using the browser clipboard API.&quot;&quot;&quot;</span>
     <span class="n">short</span> <span class="o">=</span> <span class="n">smiles</span><span class="p">[:</span><span class="mi">38</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;…&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">38</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="n">safe</span>  <span class="o">=</span> <span class="n">smiles</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;`&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">`&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">safe</span> <span class="o">=</span> <span class="n">smiles</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;`&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">`&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">html_snip</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;&lt;div style=&#39;display:flex;align-items:center;gap:6px;background:#f5f7fa;&quot;</span>
         <span class="s2">&quot;border:1px solid #dce3ec;border-radius:6px;padding:4px 8px;&quot;</span>
@@ -1226,67 +1012,29 @@
     <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Render a complete route card inside a Streamlit expander.</span>
-
-<span class="sd">    The card contains (top to bottom):</span>
-
-<span class="sd">    1. Validation status banner (success / info / warning).</span>
-<span class="sd">    2. Four metric columns: total score, step count, bottleneck yield, avg yield.</span>
-<span class="sd">    3. Score breakdown table (``build_score_table_html``).</span>
-<span class="sd">    4. Why-ranked reasoning box (``build_why_ranked_html``).</span>
-<span class="sd">    5. PDF download button (``build_route_report_pdf``).</span>
-<span class="sd">    6. Horizontal rule followed by the interactive reaction scheme</span>
-<span class="sd">       (``build_clickable_scheme_html`` inside ``components.html``).</span>
-<span class="sd">    7. Substances-needed expander with molecule thumbnails, solvents, reagents.</span>
-
-<span class="sd">    The expander is expanded by default only for the first (rank 1) route.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    score_total : float</span>
-<span class="sd">        Total weighted score of the route.</span>
-<span class="sd">    details : dict</span>
-<span class="sd">        Per-criterion detail dicts from ``rank_weighted()``.</span>
-<span class="sd">    route : dict</span>
-<span class="sd">        Enriched route dict (output of the matching / enrichment pipeline).</span>
-<span class="sd">    criteria : list of str</span>
-<span class="sd">        Three criterion keys in priority order.</span>
-<span class="sd">    weights : dict</span>
-<span class="sd">        ``{criterion_key: float}`` from ``fi.compute_weights()``.</span>
-<span class="sd">    all_results : list</span>
-<span class="sd">        Full ranked result list for the category (reserved for future use).</span>
-<span class="sd">    rank : int, optional</span>
-<span class="sd">        1-based rank within the category (default 1).</span>
-<span class="sd">    badge : str, optional</span>
-<span class="sd">        Emoji + label shown in the expander header (default ``&quot;📚 dataset&quot;``).</span>
-<span class="sd">    lang : str, optional</span>
-<span class="sd">        Language code ``&quot;en&quot;`` or ``&quot;fr&quot;`` (default ``&quot;en&quot;``).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    None</span>
-<span class="sd">        Renders directly into the current Streamlit context.</span>
+<span class="sd">    Renders a full route card in a Streamlit expander: status banner, metrics,</span>
+<span class="sd">    score table, why-ranked box, PDF download, reaction scheme, substances list.</span>
+<span class="sd">    Expanded by default only for rank 1.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">T</span>          <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">LANG</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
     <span class="n">route_name</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_name&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
-    <span class="n">tgt</span>        <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_target&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
+    <span class="n">tgt</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_target&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
     <span class="n">steps_data</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_steps&quot;</span><span class="p">,</span> <span class="p">[])</span>
-    <span class="n">n_steps</span>    <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
-    <span class="n">bn</span>         <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">bottleneck_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
-    <span class="n">av</span>         <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">average_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
-    <span class="n">medals</span>     <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;🥇&quot;</span><span class="p">,</span><span class="s2">&quot;🥈&quot;</span><span class="p">,</span><span class="s2">&quot;🥉&quot;</span><span class="p">,</span><span class="s2">&quot;4️.&quot;</span><span class="p">,</span><span class="s2">&quot;5️.&quot;</span><span class="p">,</span><span class="s2">&quot;6️.&quot;</span><span class="p">,</span><span class="s2">&quot;7️.&quot;</span><span class="p">,</span><span class="s2">&quot;8️.&quot;</span><span class="p">,</span><span class="s2">&quot;9️.&quot;</span><span class="p">,</span><span class="s2">&quot;10.&quot;</span><span class="p">]</span>
-    <span class="n">medal</span>      <span class="o">=</span> <span class="n">medals</span><span class="p">[</span><span class="n">rank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">rank</span> <span class="o">&lt;=</span> <span class="mi">10</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;#</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">route_key</span>  <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_id&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">())</span>
-    <span class="n">is_pred</span>    <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_predicted&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">status</span>     <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validation_status&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
-    <span class="n">v</span>          <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validated_steps_count&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">t_</span>         <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_steps_count&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">n_steps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">bn</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">bottleneck_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">av</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">average_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">medals</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;🥇&quot;</span><span class="p">,</span><span class="s2">&quot;🥈&quot;</span><span class="p">,</span><span class="s2">&quot;🥉&quot;</span><span class="p">,</span><span class="s2">&quot;4️.&quot;</span><span class="p">,</span><span class="s2">&quot;5️.&quot;</span><span class="p">,</span><span class="s2">&quot;6️.&quot;</span><span class="p">,</span><span class="s2">&quot;7️.&quot;</span><span class="p">,</span><span class="s2">&quot;8️.&quot;</span><span class="p">,</span><span class="s2">&quot;9️.&quot;</span><span class="p">,</span><span class="s2">&quot;10.&quot;</span><span class="p">]</span>
+    <span class="n">medal</span> <span class="o">=</span> <span class="n">medals</span><span class="p">[</span><span class="n">rank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">rank</span> <span class="o">&lt;=</span> <span class="mi">10</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;#</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">route_key</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_id&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">())</span>
+    <span class="n">is_pred</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_predicted&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validation_status&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validated_steps_count&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">t_</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_steps_count&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">expander</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">medal</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">badge</span><span class="si">}</span><span class="s2">]  </span><span class="si">{</span><span class="n">route_name</span><span class="si">}</span><span class="s2">  ·  </span><span class="si">{</span><span class="n">tgt</span><span class="si">}</span><span class="s2">  ·  Score: **</span><span class="si">{</span><span class="n">score_total</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">**&quot;</span><span class="p">,</span>
         <span class="n">expanded</span><span class="o">=</span><span class="p">(</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span>
     <span class="p">):</span>
-        <span class="c1"># Status banner</span>
         <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;validated&quot;</span><span class="p">:</span>
             <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="s2">&quot;✅ Fully validated — all steps found in generic dataset (real conditions).&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;partial&quot;</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -1300,23 +1048,19 @@
                 <span class="s2">&quot;Le rendement est exclu du score.&quot;</span>
             <span class="p">)</span>
 
-        <span class="c1"># Metrics</span>
         <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">m3</span><span class="p">,</span> <span class="n">m4</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-        <span class="n">m1</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_score&quot;</span><span class="p">],</span>     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score_total</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_score_help&quot;</span><span class="p">])</span>
-        <span class="n">m2</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_steps&quot;</span><span class="p">],</span>     <span class="n">n_steps</span><span class="p">)</span>
+        <span class="n">m1</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_score&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score_total</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_score_help&quot;</span><span class="p">])</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_steps&quot;</span><span class="p">],</span> <span class="n">n_steps</span><span class="p">)</span>
         <span class="n">m3</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_bottleneck&quot;</span><span class="p">],</span>
                   <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bn</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">bn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_bn_help&quot;</span><span class="p">])</span>
-        <span class="n">m4</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_avg&quot;</span><span class="p">],</span>       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">av</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">av</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">)</span>
+        <span class="n">m4</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="s2">&quot;metric_avg&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">av</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">av</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Score table</span>
         <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**</span><span class="si">{</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;contrib_title&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">**&quot;</span><span class="p">)</span>
         <span class="n">st</span><span class="o">.</span><span class="n">html</span><span class="p">(</span><span class="n">build_score_table_html</span><span class="p">(</span><span class="n">details</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">lang</span><span class="p">))</span>
 
-        <span class="c1"># Why ranked</span>
         <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**</span><span class="si">{</span><span class="n">T</span><span class="p">[</span><span class="s1">&#39;why_best_title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">rank</span><span class="p">)</span><span class="si">}</span><span class="s2">**&quot;</span><span class="p">)</span>
         <span class="n">st</span><span class="o">.</span><span class="n">html</span><span class="p">(</span><span class="n">build_why_ranked_html</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">score_total</span><span class="p">,</span> <span class="n">details</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">steps_data</span><span class="p">,</span> <span class="n">lang</span><span class="p">))</span>
 
-        <span class="c1"># PDF download</span>
         <span class="n">dl_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">route_name</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="ow">or</span> <span class="n">c</span> <span class="ow">in</span> <span class="s2">&quot; _-&quot;</span><span class="p">)[:</span><span class="mi">40</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">dl_col</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
         <span class="k">with</span> <span class="n">dl_col</span><span class="p">:</span>
@@ -1342,10 +1086,10 @@
 
         <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">expander</span><span class="p">(</span><span class="s2">&quot;🧪 Substances needed&quot;</span><span class="p">,</span> <span class="n">expanded</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-            <span class="n">sub</span>      <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">get_substances_list</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+            <span class="n">sub</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">get_substances_list</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
             <span class="n">all_mols</span> <span class="o">=</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;to_buy&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;to_prepare&quot;</span><span class="p">][:</span><span class="mi">6</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">all_mols</span><span class="p">:</span>
-                <span class="n">n_cols</span>   <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_mols</span><span class="p">))</span>
+                <span class="n">n_cols</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_mols</span><span class="p">))</span>
                 <span class="n">cols_sub</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="n">n_cols</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">smi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_mols</span><span class="p">):</span>
                     <span class="k">with</span> <span class="n">cols_sub</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">n_cols</span><span class="p">]:</span>
@@ -1365,24 +1109,7 @@
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.load_dataset_cached">[docs]</a>
 <span class="nd">@st</span><span class="o">.</span><span class="n">cache_data</span><span class="p">(</span><span class="n">show_spinner</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_dataset_cached</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Streamlit-cached wrapper around ``rt.load_reaction_dataset()``.</span>
-
-<span class="sd">    Prevents reloading the JSON dataset on every widget interaction during the</span>
-<span class="sd">    same session.  The cache is keyed by *path* so changing the sidebar input</span>
-<span class="sd">    automatically triggers a fresh load.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    path : str</span>
-<span class="sd">        Filesystem path to ``reaction_dataset.json``.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    dict</span>
-<span class="sd">        As returned by ``rt.load_reaction_dataset()`` — keys ``all``,</span>
-<span class="sd">        ``by_product``, ``by_reactant``, ``by_route``, ``metadata``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cached wrapper around rt.load_reaction_dataset() — avoids reloading on every widget interaction.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">rt</span><span class="o">.</span><span class="n">load_reaction_dataset</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
 
@@ -1390,22 +1117,7 @@
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.app_utensils.get_targets_cached">[docs]</a>
 <span class="nd">@st</span><span class="o">.</span><span class="n">cache_data</span><span class="p">(</span><span class="n">show_spinner</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_targets_cached</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Streamlit-cached wrapper returning the ``{target_name: SMILES}`` mapping.</span>
-
-<span class="sd">    Used to populate the predefined molecule selector in the Route Search tab.</span>
-<span class="sd">    Caching avoids iterating over all route steps on every widget interaction.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    path : str</span>
-<span class="sd">        Filesystem path to ``reaction_dataset.json``.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    dict</span>
-<span class="sd">        ``{target_name: canonical_SMILES}`` for all targets in the dataset.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cached {target_name: SMILES} mapping for the molecule selector in the Route Search tab.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">rt</span><span class="o">.</span><span class="n">get_targets_from_dataset</span><span class="p">(</span><span class="n">load_dataset_cached</span><span class="p">(</span><span class="n">path</span><span class="p">))</span></div>
 
 </pre></div>

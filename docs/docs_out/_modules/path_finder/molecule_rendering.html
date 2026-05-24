@@ -230,14 +230,12 @@
         <article role="main" id="furo-main-content">
           <h1>Source code for path_finder.molecule_rendering</h1><div class="highlight"><pre>
 <span></span><span class="c1"># molecule_rendering.py</span>
-<span class="c1"># RDKit rendering helpers — PNG and base64 for the app</span>
+<span class="c1"># RDKit → PNG/base64 for the app. If RDKit is missing every function</span>
+<span class="c1"># returns None or a placeholder so the app can still start.</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
 
-<span class="c1"># RDKit imports with graceful degradation</span>
-<span class="c1"># If RDKit is unavailable all functions return None / a tiny placeholder URI</span>
-<span class="c1"># so the app can still start and show error messages rather than crashing.</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem</span><span class="w"> </span><span class="kn">import</span> <span class="n">Draw</span><span class="p">,</span> <span class="n">rdDepictor</span>
@@ -250,16 +248,14 @@
 <div class="viewcode-block" id="mol_png">
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.molecule_rendering.mol_png">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mol_png</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">800</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">540</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return a PNG image of the molecule for display in the route scheme.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;PNG bytes of the molecule, or None if the SMILES is invalid.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">MODULE_OK</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">smiles</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">mol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># 8x upscale — crisp on HiDPI</span>
+        <span class="c1"># 8× so it stays sharp on HiDPI screens; CSS handles the display size</span>
         <span class="n">drawer</span> <span class="o">=</span> <span class="n">rdMolDraw2D</span><span class="o">.</span><span class="n">MolDraw2DCairo</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="mi">8</span><span class="p">,</span> <span class="n">h</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="n">drawer</span><span class="o">.</span><span class="n">drawOptions</span><span class="p">()</span>
         <span class="n">opts</span><span class="o">.</span><span class="n">addStereoAnnotation</span> <span class="o">=</span> <span class="kc">True</span>
@@ -280,9 +276,7 @@
 <div class="viewcode-block" id="mol_b64_or_text_svg">
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.molecule_rendering.mol_b64_or_text_svg">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mol_b64_or_text_svg</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return a data URI of the molecule image for display in the route scheme.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Data URI (PNG base64) of the molecule, or a text placeholder if invalid.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">smiles</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">MODULE_OK</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">fallback_data_uri</span><span class="p">(</span><span class="n">smiles</span> <span class="ow">or</span> <span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
     <span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
@@ -291,7 +285,7 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">_PI</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_io</span>
-        <span class="c1"># skip 2D coords for single atoms, they cause rdkit errors</span>
+        <span class="c1"># single atoms crash rdDepictor, skip them</span>
         <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">rdDepictor</span><span class="o">.</span><span class="n">Compute2DCoords</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
         <span class="c1"># 8x upscale — crisp on HiDPI</span>
@@ -302,9 +296,7 @@
         <span class="n">drawer</span><span class="o">.</span><span class="n">DrawMolecule</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
         <span class="n">drawer</span><span class="o">.</span><span class="n">FinishDrawing</span><span class="p">()</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">drawer</span><span class="o">.</span><span class="n">GetDrawingText</span><span class="p">()</span>
-        <span class="c1"># keep 8x resolution, CSS width handles display size</span>
-        <span class="c1"># so the browser displays at the correct size while retaining full</span>
-        <span class="c1"># resolution for popup zoom.</span>
+        <span class="c1"># full 8× resolution in the file; CSS width controls display size</span>
         <span class="n">buf</span> <span class="o">=</span> <span class="n">_io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
         <span class="k">return</span> <span class="s2">&quot;data:image/png;base64,&quot;</span> <span class="o">+</span> <span class="n">b64</span>
@@ -316,9 +308,7 @@
 <div class="viewcode-block" id="fallback_data_uri">
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.molecule_rendering.fallback_data_uri">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fallback_data_uri</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return a data URI of a placeholder image with the given text.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;PNG placeholder with the given text. Falls back to a 1×1 transparent PNG if PIL is also missing.&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">_PI</span><span class="p">,</span> <span class="n">ImageDraw</span> <span class="k">as</span> <span class="n">_PID</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_io</span>
@@ -348,20 +338,7 @@
 <div class="viewcode-block" id="is_trivial_smiles">
 <a class="viewcode-back" href="../../api/path_finder.html#path_finder.molecule_rendering.is_trivial_smiles">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">is_trivial_smiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return True if the SMILES is too small to render as a structure image</span>
-<span class="sd">    (single atoms, ions, salts with ≤2 heavy atoms per fragment).</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    smiles : str</span>
-<span class="sd">        SMILES to check.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    bool</span>
-<span class="sd">        True if every fragment has 2 or fewer heavy atoms.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if every fragment has &lt;=2 heavy atoms (single atoms, ions, diatomics).&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">smiles</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">MODULE_OK</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>

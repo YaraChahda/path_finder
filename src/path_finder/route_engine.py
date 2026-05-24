@@ -44,10 +44,12 @@ def load_reaction_dataset(path: str) -> dict:
     for rxn in reactions:
         prod = rxn.get("product_smiles", "")
         
+        # Normalise product to a plain string if it was stored as a list
         if isinstance(prod, list):
             rxn["product_smiles"] = '.'.join(str(s) for s in prod if s)
 
         reac = rxn.get("reactants_smiles", [])
+        # Normalise reactants to a flat list of strings regardless of input shape
         if isinstance(reac, str):
             rxn["reactants_smiles"] = [reac]
         elif isinstance(reac, list):
@@ -106,11 +108,13 @@ def get_targets_from_dataset(dataset: dict) -> dict:
             result[target] = to_canonical(candidate)
             continue
         
+        # Walk steps in reverse — the last step product is typically the target
         found = None
         for rid, steps in by_target[target]:
             for step in reversed(steps):
                 prod = step.get("product_smiles", "")
                 mol  = Chem.MolFromSmiles(prod) if prod else None
+                # Only trust large products (>=15 atoms) as the actual target
                 if mol and mol.GetNumAtoms() >= 15:
                     found = to_canonical(prod)
                     break
@@ -153,6 +157,7 @@ def load_rxninsight_database(path: str):
         if "REACTION" in df.columns and "RXN" not in df.columns:
             df = df.rename(columns={"REACTION": "RXN"})
         
+        # Keep only the columns we actually use — saves memory
         cols_needed = [
             "RXN", "SOLVENT", "REAGENT", "CATALYST", "NAME", "CLASS",
             "TAG2", "rxn_str_patt_fp", "rxn_dif_patt_fp",
@@ -185,6 +190,7 @@ def load_generic_reaction_dataset(path: str) -> dict:
         reacs = tuple(sorted([to_canonical(r) for r in rxn.get("reactants_smiles", []) if r]))
         if prod:
             by_product.setdefault(prod, []).append(rxn)
+        # Exact-match key: both reactants and product must match
         key = (reacs, prod)
         if key not in by_reaction_key:
             by_reaction_key[key] = rxn
@@ -254,6 +260,7 @@ def _walk_reaction_tree(node: dict, steps: list) -> None:
             "reactants": [c.get("smiles", "") for c in reactant_nodes],
             "product": mol_smiles,
         })
+        # Recurse into each reactant to collect earlier steps
         for rnode in reactant_nodes:
             _walk_reaction_tree(rnode, steps)
 
@@ -296,12 +303,14 @@ def run_aizynthfinder(target_smiles: str, config_path: str = "config.yml",
     canon = validate_smiles_for_aizynthfinder(target_smiles)
     print(f"[AiZynthFinder] target: {canon} (requesting up to {n_routes} routes)")
     finder = AiZynthFinder(configfile=config_path)
+    # Use the default USPTO policy and ZINC stock
     finder.stock.select("zinc")
     finder.expansion_policy.select("uspto")
     finder.filter_policy.select("uspto")
     finder.target_smiles = canon
     finder.tree_search()
     finder.build_routes()
+    # Slice to n_routes before the (slow) adapt_route conversion
     routes_raw = list(finder.routes)[:n_routes]
     print(f"[AiZynthFinder] {len(routes_raw)} routes found")
     return [adapt_route(r) for r in routes_raw]
@@ -328,10 +337,12 @@ def get_reaction_info_rxninsight(reactants: list, product: str, rxni_db) -> dict
     """
     if not RXNINSIGHT_AVAILABLE:
         return {}
+    # Filter out reactants that RDKit can't parse
     valid_r = [r for r in reactants if r and Chem.MolFromSmiles(r)]
     if not valid_r or not product or not Chem.MolFromSmiles(product):
         return {}
     try:
+        # Build the reaction SMILES in the format Rxn-INSIGHT expects
         rxn_smi = ".".join(valid_r) + ">>" + product
         rxn = RxnInsightReaction(rxn_smi)
         info = rxn.get_reaction_info()
@@ -361,6 +372,7 @@ def get_reaction_info_rxninsight(reactants: list, product: str, rxni_db) -> dict
                 )
                 if df_nb is not None and len(df_nb) > 0:
                     rxn.suggest_conditions(df_nb)
+                    # Pick the most frequent suggestion for each field
                     solv = _best_condition(rxn.suggested_solvent)
                     cata = _best_condition(rxn.suggested_catalyst)
                     reag = _best_condition(rxn.suggested_reagent)
@@ -393,7 +405,7 @@ def enrich_aiz_route_with_rxninsight(aiz_route: dict, rxni_db, route_index: int)
             "step_number": i,
             "reactants_smiles": reactants,
             "product_smiles": product,
-            "yield_percent": None,
+            "yield_percent": None,  # no experimental yield for predicted routes
             "source": "rxn-insight",
             **rxni_info,
         })
@@ -437,6 +449,7 @@ def match_step_in_generic_dataset(reactants: list, product: str, generic_ds: dic
         return None
     prod_canon = to_canonical(product)
     reac_canons = tuple(sorted([to_canonical(r) for r in reactants if r]))
+    # Exact match: same reactants AND same product
     exact = generic_ds.get("by_reaction_key", {}).get((reac_canons, prod_canon))
     if exact:
         return exact
@@ -463,6 +476,7 @@ def validate_aiz_route_against_generic_dataset(aiz_route: dict, generic_ds: dict
         match = match_step_in_generic_dataset(reactants, product, generic_ds)
 
         if match:
+            # Step found in generic dataset — use real experimental conditions
             validated_count += 1
             dataset_steps.append({
                 "id": f"VAL-{route_index:02d}-{i:02d}",
@@ -483,6 +497,7 @@ def validate_aiz_route_against_generic_dataset(aiz_route: dict, generic_ds: dict
                 "source": "generic_dataset",
             })
         else:
+            # Step not found — fall back to Rxn-INSIGHT predictions
             rxni_info = get_reaction_info_rxninsight(reactants, product, rxni_db)
             dataset_steps.append({
                 "id": f"VAL-{route_index:02d}-{i:02d}",
@@ -499,6 +514,7 @@ def validate_aiz_route_against_generic_dataset(aiz_route: dict, generic_ds: dict
     if dataset_steps and target_smiles:
         dataset_steps[-1]["product_smiles"] = target_smiles
 
+    # Determine overall validation status based on how many steps were matched
     n = len(steps)
     if   n == 0: status = "predicted"
     elif validated_count == n: status = "validated"
@@ -539,6 +555,7 @@ def process_novel_routes(aiz_routes: list, dataset: dict, generic_ds: dict,
     for aiz_route in aiz_routes:
         if not aiz_route.get("steps"):
             continue
+        # Skip routes already well-covered by the curated dataset
         if is_route_covered_by_dataset(aiz_route, dataset_smiles_index):
             print(f"  [novel] covered by main dataset — skipped")
             continue
@@ -551,7 +568,7 @@ def process_novel_routes(aiz_routes: list, dataset: dict, generic_ds: dict,
         v, t = enriched.get("validated_steps_count", 0), enriched.get("total_steps_count", 0)
 
         if status == "validated":
-            # Some steps matched — goes to validated section
+            # All steps matched — goes to validated section
             validated_routes.append(enriched)
             print(f"    → validated ({v}/{t} steps in generic dataset)")
         elif status == "partial":
@@ -560,6 +577,7 @@ def process_novel_routes(aiz_routes: list, dataset: dict, generic_ds: dict,
             predicted_routes.append(enriched)
             print(f"    → partial ({v}/{t} steps validated) — shown in predicted with badge")
         else:
+            # No steps matched — re-enrich entirely from Rxn-INSIGHT
             pure = enrich_aiz_route_with_rxninsight(aiz_route, rxni_db, counter)
             pure["matched_target"] = target_name
             pure.update({
@@ -715,6 +733,7 @@ def get_substances_list(steps_data: list) -> dict:
         for r in (cond.get("reagents") or []):
             if r: reagents.add(r)
     return {
+        # to_buy = reactants never produced in this route (true starting materials)
         "to_buy": sorted(all_reac - all_prod - {""}),
         "to_prepare": sorted(all_prod - {""}),
         "solvents": sorted(solvents - {""}),
@@ -764,13 +783,14 @@ def calc_e_factor(reactants_smiles, product_smiles, yield_fraction) -> float:
 def calc_toxicity_score(reactants_smiles, conditions, tox_index, solvent_map) -> float:
     """Safety score = 1 - mean(hazard) across reactants and solvents. Unknown compounds default to 0.5."""
     to_check = list(reactants_smiles)
+    # Resolve solvent names to SMILES so we can look them up in tox_index
     for key in ("solvent", "co_solvent"):
         s = conditions.get(key)
         if s and (smi := solvent_map.get(s)):
             to_check.append(smi)
     scores = [
         tox_index[to_canonical(s)]["hazard_score"]
-        if to_canonical(s) in tox_index else 0.5
+        if to_canonical(s) in tox_index else 0.5  # unknown = neutral
         for s in to_check
     ]
     return 1.0 - (sum(scores) / len(scores) if scores else 0.5)
@@ -824,6 +844,7 @@ def compute_yield(route_data: dict, tox_index: dict) -> float:
     if not steps:
         return 0.0
     if status == "predicted":
+        # Yield is meaningless for predicted routes — return neutral 1.0 so it doesn't distort ranking
         return 1.0
     result = 1.0
     for s in steps:
@@ -832,7 +853,7 @@ def compute_yield(route_data: dict, tox_index: dict) -> float:
         if y is not None and src in ("generic_dataset", "dataset"):
             result *= y / 100.0
         else:
-            result *= 1.0
+            result *= 1.0  # missing yield = neutral (don't penalise)
     return result
 
 
@@ -917,6 +938,7 @@ def rank_weighted(routes: list, criteria: list, tox_index: dict) -> list:
         details = {}
         total = 0.0
 
+        # Re-compute weights without yield if this route is predicted
         active_criteria = [c for c in criteria if not (exclude_yield and c == "yield")]
         active_weights  = (
             compute_weights(active_criteria) if len(active_criteria) < len(criteria)
@@ -926,6 +948,7 @@ def rank_weighted(routes: list, criteria: list, tox_index: dict) -> list:
         for c in criteria:
             raw = CRITERIA_REGISTRY[c]["fn"](route, tox_index)
             if exclude_yield and c == "yield":
+                # Mark as excluded so the UI can display "N/A" instead of a score
                 details[c] = {"raw": None, "weight": 0.0, "weighted": 0.0, "excluded": True}
             else:
                 w = active_weights.get(c, weights[c])
@@ -937,6 +960,7 @@ def rank_weighted(routes: list, criteria: list, tox_index: dict) -> list:
                 }
                 total += raw * w
 
+        # Attach full scores for all criteria so the Analysis tab can show them too
         details["_all_scores"] = compute_all_scores(route, tox_index)
         scored.append((round(total, 4), details, route))
 

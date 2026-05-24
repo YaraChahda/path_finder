@@ -245,217 +245,53 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app.main">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/path_finder/app.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app.main" title="Link to this definition">¶</a></dt>
-<dd><p>Main function for the Path Finder Streamlit app.
-Builds the UI across four tabs: Route Search, Analysis, Dataset Explorer, Help.
-Helper functions are all in app_utensils.py.</p>
+<dd><p>Four-tab UI: Route Search, Analysis, Dataset Explorer, Help.</p>
 </dd></dl>
 
+</section>
+<section id="module-path_finder.app_layout">
+<span id="path-finder-app-layout-module"></span><h2>path_finder.app_layout module<a class="headerlink" href="#module-path_finder.app_layout" title="Link to this heading">¶</a></h2>
 </section>
 <section id="module-path_finder.app_utensils">
 <span id="path-finder-app-utensils-module"></span><h2>path_finder.app_utensils module<a class="headerlink" href="#module-path_finder.app_utensils" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.build_clickable_scheme_html">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">build_clickable_scheme_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_predicted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#build_clickable_scheme_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.build_clickable_scheme_html" title="Link to this definition">¶</a></dt>
-<dd><p>Build the interactive HTML reaction scheme used in Route Search and Analysis.</p>
-<p>Each molecule in the synthetic sequence is rendered as a double-resolution
-Cairo PNG image.  Clicking any reaction arrow opens an inline detail panel
-showing conditions, yield, reactant/product structures, and copyable SMILES.
-Clicking the same arrow again collapses the panel.</p>
-<section id="purification-step-handling">
-<h3>Purification step handling<a class="headerlink" href="#purification-step-handling" title="Link to this heading">¶</a></h3>
-<p>When <code class="docutils literal notranslate"><span class="pre">is_purification_step()</span></code> returns <code class="docutils literal notranslate"><span class="pre">True</span></code> for a step, the product
-molecule is always added to the display sequence — even if its SMILES is
-identical to the preceding molecule (standard steps skip duplicates).
-The arrow is drawn with a dashed brown style and labelled
-“Purification / Isolation”.</p>
-</section>
-<section id="co-reactant-rendering">
-<h3>Co-reactant rendering<a class="headerlink" href="#co-reactant-rendering" title="Link to this heading">¶</a></h3>
-<p>Reactants that are not the substrate are rendered as small structure images
-above the arrow.  Trivial species (single atoms, ions) are shown as text
-labels below the arrow instead.</p>
-</section>
-<section id="parameters">
-<h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>steps_data<span class="classifier">list</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">route[&quot;dataset_steps&quot;]</span></code> — list of step dicts.</p>
-</dd>
-<dt>route_id<span class="classifier">str</span></dt><dd><p>Unique string identifier used as a prefix for all DOM element IDs.</p>
-</dd>
-<dt>is_predicted<span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, arrows and detail panels use orange colouring to
-distinguish predicted routes from validated ones (default <code class="docutils literal notranslate"><span class="pre">False</span></code>).</p>
-</dd>
-</dl>
-</section>
-<section id="returns">
-<h3>Returns<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>str</dt><dd><p>A complete, self-contained HTML document ready for
-<code class="docutils literal notranslate"><span class="pre">components.html()</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Builds the interactive reaction scheme HTML. Each arrow is clickable and
+opens a panel with conditions, yield, and copyable SMILES. Predicted routes
+use orange colouring; purification steps get a dashed brown arrow.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.build_score_table_html">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">build_score_table_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'en'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#build_score_table_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.build_score_table_html" title="Link to this definition">¶</a></dt>
-<dd><p>Render the per-criterion score breakdown table for a route card.</p>
-<p>Each row displays: criterion name, raw score 0–1 with a hoverable
-tooltip explaining the formula, the criterion weight, and the weighted
-contribution to the total score.  For predicted routes the yield row
-shows “excluded (predicted route)” instead of a numeric score.</p>
-<section id="id1">
-<h3>Parameters<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>details<span class="classifier">dict</span></dt><dd><p>Per-criterion detail dicts from <code class="docutils literal notranslate"><span class="pre">rank_weighted()</span></code> with keys
-<code class="docutils literal notranslate"><span class="pre">raw</span></code>, <code class="docutils literal notranslate"><span class="pre">weight</span></code>, <code class="docutils literal notranslate"><span class="pre">weighted</span></code>, and optionally <code class="docutils literal notranslate"><span class="pre">excluded</span></code>.</p>
-</dd>
-<dt>criteria<span class="classifier">list of str</span></dt><dd><p>Three criterion keys in descending priority order.</p>
-</dd>
-<dt>weights<span class="classifier">dict</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">{criterion_key:</span> <span class="pre">float}</span></code> from <code class="docutils literal notranslate"><span class="pre">rt.compute_weights()</span></code>.</p>
-</dd>
-<dt>lang<span class="classifier">str, optional</span></dt><dd><p>Language code <code class="docutils literal notranslate"><span class="pre">&quot;en&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;fr&quot;</span></code> (default <code class="docutils literal notranslate"><span class="pre">&quot;en&quot;</span></code>).</p>
-</dd>
-</dl>
-</section>
-<section id="id2">
-<h3>Returns<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>str</dt><dd><p>HTML string that includes <code class="docutils literal notranslate"><span class="pre">COMPONENT_STYLE</span></code>; safe to pass to
-<code class="docutils literal notranslate"><span class="pre">st.html()</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Renders the score breakdown table for a route card (raw score, weight, contribution per criterion).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.build_why_ranked_html">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">build_why_ranked_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_total</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'en'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#build_why_ranked_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.build_why_ranked_html" title="Link to this definition">¶</a></dt>
-<dd><p>Build the “Why is this route ranked #N?” reasoning box.</p>
-<p>Generates one plain-language bullet per top-2 criterion using domain-relevant
-values (step count, bottleneck yield, atom economy score, etc.) rather than
-raw numeric scores.  Always produces at least one bullet.</p>
-<section id="id3">
-<h3>Parameters<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>rank<span class="classifier">int</span></dt><dd><p>1-based rank of the route within its category.</p>
-</dd>
-<dt>score_total<span class="classifier">float</span></dt><dd><p>Total weighted score.</p>
-</dd>
-<dt>details<span class="classifier">dict</span></dt><dd><p>Per-criterion detail dicts from <code class="docutils literal notranslate"><span class="pre">rank_weighted()</span></code>.</p>
-</dd>
-<dt>criteria<span class="classifier">list of str</span></dt><dd><p>Three criterion keys in descending priority order.</p>
-</dd>
-<dt>weights<span class="classifier">dict</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">{criterion_key:</span> <span class="pre">float}</span></code> from <code class="docutils literal notranslate"><span class="pre">fi.compute_weights()</span></code>.</p>
-</dd>
-<dt>steps_data<span class="classifier">list</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">route[&quot;dataset_steps&quot;]</span></code> used to compute yield statistics.</p>
-</dd>
-<dt>lang<span class="classifier">str, optional</span></dt><dd><p>Language code <code class="docutils literal notranslate"><span class="pre">&quot;en&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;fr&quot;</span></code> (default <code class="docutils literal notranslate"><span class="pre">&quot;en&quot;</span></code>).</p>
-</dd>
-</dl>
-</section>
-<section id="id4">
-<h3>Returns<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>str</dt><dd><p>HTML string that includes <code class="docutils literal notranslate"><span class="pre">COMPONENT_STYLE</span></code>; safe for <code class="docutils literal notranslate"><span class="pre">st.html()</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Builds the ‘Why is this route ranked #N?’ box with one plain-language bullet per top-2 criterion.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.display_route_card">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">display_route_card</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score_total</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">badge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'📚</span> <span class="pre">dataset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'en'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#display_route_card"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.display_route_card" title="Link to this definition">¶</a></dt>
-<dd><p>Render a complete route card inside a Streamlit expander.</p>
-<p>The card contains (top to bottom):</p>
-<ol class="arabic simple">
-<li><p>Validation status banner (success / info / warning).</p></li>
-<li><p>Four metric columns: total score, step count, bottleneck yield, avg yield.</p></li>
-<li><p>Score breakdown table (<code class="docutils literal notranslate"><span class="pre">build_score_table_html</span></code>).</p></li>
-<li><p>Why-ranked reasoning box (<code class="docutils literal notranslate"><span class="pre">build_why_ranked_html</span></code>).</p></li>
-<li><p>PDF download button (<code class="docutils literal notranslate"><span class="pre">build_route_report_pdf</span></code>).</p></li>
-<li><p>Horizontal rule followed by the interactive reaction scheme
-(<code class="docutils literal notranslate"><span class="pre">build_clickable_scheme_html</span></code> inside <code class="docutils literal notranslate"><span class="pre">components.html</span></code>).</p></li>
-<li><p>Substances-needed expander with molecule thumbnails, solvents, reagents.</p></li>
-</ol>
-<p>The expander is expanded by default only for the first (rank 1) route.</p>
-<section id="id5">
-<h3>Parameters<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>score_total<span class="classifier">float</span></dt><dd><p>Total weighted score of the route.</p>
-</dd>
-<dt>details<span class="classifier">dict</span></dt><dd><p>Per-criterion detail dicts from <code class="docutils literal notranslate"><span class="pre">rank_weighted()</span></code>.</p>
-</dd>
-<dt>route<span class="classifier">dict</span></dt><dd><p>Enriched route dict (output of the matching / enrichment pipeline).</p>
-</dd>
-<dt>criteria<span class="classifier">list of str</span></dt><dd><p>Three criterion keys in priority order.</p>
-</dd>
-<dt>weights<span class="classifier">dict</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">{criterion_key:</span> <span class="pre">float}</span></code> from <code class="docutils literal notranslate"><span class="pre">fi.compute_weights()</span></code>.</p>
-</dd>
-<dt>all_results<span class="classifier">list</span></dt><dd><p>Full ranked result list for the category (reserved for future use).</p>
-</dd>
-<dt>rank<span class="classifier">int, optional</span></dt><dd><p>1-based rank within the category (default 1).</p>
-</dd>
-<dt>badge<span class="classifier">str, optional</span></dt><dd><p>Emoji + label shown in the expander header (default <code class="docutils literal notranslate"><span class="pre">&quot;📚</span> <span class="pre">dataset&quot;</span></code>).</p>
-</dd>
-<dt>lang<span class="classifier">str, optional</span></dt><dd><p>Language code <code class="docutils literal notranslate"><span class="pre">&quot;en&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;fr&quot;</span></code> (default <code class="docutils literal notranslate"><span class="pre">&quot;en&quot;</span></code>).</p>
-</dd>
-</dl>
-</section>
-<section id="id6">
-<h3>Returns<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>None</dt><dd><p>Renders directly into the current Streamlit context.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Renders a full route card in a Streamlit expander: status banner, metrics,
+score table, why-ranked box, PDF download, reaction scheme, substances list.
+Expanded by default only for rank 1.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.get_targets_cached">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">get_targets_cached</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#get_targets_cached"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.get_targets_cached" title="Link to this definition">¶</a></dt>
-<dd><p>Streamlit-cached wrapper returning the <code class="docutils literal notranslate"><span class="pre">{target_name:</span> <span class="pre">SMILES}</span></code> mapping.</p>
-<p>Used to populate the predefined molecule selector in the Route Search tab.
-Caching avoids iterating over all route steps on every widget interaction.</p>
-<section id="id7">
-<h3>Parameters<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>path<span class="classifier">str</span></dt><dd><p>Filesystem path to <code class="docutils literal notranslate"><span class="pre">reaction_dataset.json</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id8">
-<h3>Returns<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{target_name:</span> <span class="pre">canonical_SMILES}</span></code> for all targets in the dataset.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Cached {target_name: SMILES} mapping for the molecule selector in the Route Search tab.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.hires_fig">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">hires_fig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#hires_fig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.hires_fig" title="Link to this definition">¶</a></dt>
-<dd><p>Create a high-resolution matplotlib figure with the app background colour.</p>
-<p>Drop-in replacement for <code class="docutils literal notranslate"><span class="pre">plt.subplots()</span></code>. Sets the figure and all axes
-facecolour to <code class="docutils literal notranslate"><span class="pre">FIG_BG</span></code> so charts blend with the page without a white box.</p>
-<section id="id9">
-<h3>Parameters<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>args<span class="classifier">positional</span></dt><dd><p>Forwarded to <code class="docutils literal notranslate"><span class="pre">plt.subplots()</span></code>.</p>
-</dd>
-<dt>dpi<span class="classifier">int, optional</span></dt><dd><p>Dots per inch for the figure (default 180).</p>
-</dd>
-<dt>kwargs<span class="classifier">keyword</span></dt><dd><p>Forwarded to <code class="docutils literal notranslate"><span class="pre">plt.subplots()</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id10">
-<h3>Returns<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h3>
-<p>fig : matplotlib.figure.Figure
-ax : matplotlib.axes.Axes or ndarray of Axes</p>
-</section>
+<dd><p>plt.subplots() wrapper that sets the background to FIG_BG so charts blend with the page.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -467,173 +303,43 @@ ax : matplotlib.axes.Axes or ndarray of Axes</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.load_banner">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">load_banner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#load_banner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.load_banner" title="Link to this definition">¶</a></dt>
-<dd><p>Load a local image file and return a base-64 data URI for HTML embedding.</p>
-<section id="id11">
-<h3>Parameters<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>path<span class="classifier">str</span></dt><dd><p>Filesystem path to the image (PNG, JPG, SVG, …).</p>
-</dd>
-</dl>
-</section>
-<section id="id12">
-<h3>Returns<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>str</dt><dd><p>A <code class="docutils literal notranslate"><span class="pre">data:&lt;mime&gt;;base64,&lt;data&gt;</span></code> URI, or an empty string if the file
-does not exist.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Reads a local image and returns a base64 data URI for HTML embedding. Returns “” if missing.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.load_dataset_cached">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">load_dataset_cached</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#load_dataset_cached"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.load_dataset_cached" title="Link to this definition">¶</a></dt>
-<dd><p>Streamlit-cached wrapper around <code class="docutils literal notranslate"><span class="pre">rt.load_reaction_dataset()</span></code>.</p>
-<p>Prevents reloading the JSON dataset on every widget interaction during the
-same session.  The cache is keyed by <em>path</em> so changing the sidebar input
-automatically triggers a fresh load.</p>
-<section id="id13">
-<h3>Parameters<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>path<span class="classifier">str</span></dt><dd><p>Filesystem path to <code class="docutils literal notranslate"><span class="pre">reaction_dataset.json</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id14">
-<h3>Returns<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">rt.load_reaction_dataset()</span></code> — keys <code class="docutils literal notranslate"><span class="pre">all</span></code>,
-<code class="docutils literal notranslate"><span class="pre">by_product</span></code>, <code class="docutils literal notranslate"><span class="pre">by_reactant</span></code>, <code class="docutils literal notranslate"><span class="pre">by_route</span></code>, <code class="docutils literal notranslate"><span class="pre">metadata</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Cached wrapper around rt.load_reaction_dataset() — avoids reloading on every widget interaction.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.make_comparison_chart">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">make_comparison_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sel_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'en'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#make_comparison_chart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.make_comparison_chart" title="Link to this definition">¶</a></dt>
-<dd><p>Render a grouped horizontal bar chart comparing raw criterion scores.</p>
-<p>Each route is plotted in a distinct colour from <code class="docutils literal notranslate"><span class="pre">PALETTE</span></code>; each row
-corresponds to one criterion.  Score values are annotated at the end of
-each bar.  Used in the Analysis tab for side-by-side route comparison.</p>
-<section id="id15">
-<h3>Parameters<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>sel_results<span class="classifier">list</span></dt><dd><p>Subset of <code class="docutils literal notranslate"><span class="pre">(score,</span> <span class="pre">details,</span> <span class="pre">route)</span></code> tuples selected by the user
-in the Analysis tab multiselect.</p>
-</dd>
-<dt>criteria<span class="classifier">list of str</span></dt><dd><p>Three criterion keys in priority order.</p>
-</dd>
-<dt>lang<span class="classifier">str, optional</span></dt><dd><p>Language code for axis and title labels (default <code class="docutils literal notranslate"><span class="pre">&quot;en&quot;</span></code>).</p>
-</dd>
-</dl>
-</section>
-<section id="id16">
-<h3>Returns<a class="headerlink" href="#id16" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>matplotlib.figure.Figure</dt><dd><p>Caller is responsible for calling <code class="docutils literal notranslate"><span class="pre">plt.close(fig)</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Grouped horizontal bar chart for side-by-side criterion score comparison in the Analysis tab.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.make_ranking_chart">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">make_ranking_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'en'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#make_ranking_chart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.make_ranking_chart" title="Link to this definition">¶</a></dt>
-<dd><p>Render a horizontal bar chart ranking routes by total score.</p>
-<p>Displayed above the route cards whenever more than one route is found
-in a given category.  Score values are annotated directly on each bar.</p>
-<section id="id17">
-<h3>Parameters<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>results<span class="classifier">list</span></dt><dd><p>List of <code class="docutils literal notranslate"><span class="pre">(score,</span> <span class="pre">details,</span> <span class="pre">route)</span></code> tuples from <code class="docutils literal notranslate"><span class="pre">rank_weighted()</span></code>.</p>
-</dd>
-<dt>target_name<span class="classifier">str</span></dt><dd><p>Target molecule name — used as the chart title suffix.</p>
-</dd>
-<dt>lang<span class="classifier">str, optional</span></dt><dd><p>Language code for axis / title strings (default <code class="docutils literal notranslate"><span class="pre">&quot;en&quot;</span></code>).</p>
-</dd>
-</dl>
-</section>
-<section id="id18">
-<h3>Returns<a class="headerlink" href="#id18" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>matplotlib.figure.Figure</dt><dd><p>Caller is responsible for calling <code class="docutils literal notranslate"><span class="pre">plt.close(fig)</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Horizontal bar chart ranking routes by score. Shown above the route cards when more than one route exists.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.make_yield_chart">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">make_yield_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps_route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lang</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'en'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#make_yield_chart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.make_yield_chart" title="Link to this definition">¶</a></dt>
-<dd><p>Render a bar chart of reported step yields for a single route.</p>
-<p>Used in the Dataset Explorer route detail view.  Steps without a reported
-yield are omitted from the chart entirely (no bar, no implied 0 %).
-Yield labels use integer format; change <code class="docutils literal notranslate"><span class="pre">&quot;:.0f&quot;</span></code> to <code class="docutils literal notranslate"><span class="pre">&quot;:.1f&quot;</span></code> for one
-decimal place.</p>
-<section id="id19">
-<h3>Parameters<a class="headerlink" href="#id19" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>steps_route<span class="classifier">list</span></dt><dd><p>List of step dicts from <code class="docutils literal notranslate"><span class="pre">dataset[&quot;by_route&quot;][route_id]</span></code>.</p>
-</dd>
-<dt>lang<span class="classifier">str, optional</span></dt><dd><p>Language code for axis labels (default <code class="docutils literal notranslate"><span class="pre">&quot;en&quot;</span></code>).</p>
-</dd>
-</dl>
-</section>
-<section id="id20">
-<h3>Returns<a class="headerlink" href="#id20" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>matplotlib.figure.Figure</dt><dd><p>Caller is responsible for calling <code class="docutils literal notranslate"><span class="pre">plt.close(fig)</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Bar chart of reported step yields. Steps without a yield are simply omitted — no implied 0%.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.smiles_copy_widget">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">smiles_copy_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#smiles_copy_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.smiles_copy_widget" title="Link to this definition">¶</a></dt>
-<dd><p>Render a compact SMILES display widget with a clipboard Copy button.</p>
-<p>Displayed beneath each reactant and product molecule image in the Dataset
-Explorer step-by-step view, allowing the chemist to copy any SMILES string
-without manually transcribing it.</p>
-<section id="id21">
-<h3>Parameters<a class="headerlink" href="#id21" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>smiles<span class="classifier">str</span></dt><dd><p>SMILES string to display and make copyable via the browser clipboard.</p>
-</dd>
-<dt>label<span class="classifier">str, optional</span></dt><dd><p>Reserved for future use (currently unused).</p>
-</dd>
-</dl>
-</section>
-<section id="id22">
-<h3>Returns<a class="headerlink" href="#id22" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>None</dt><dd><p>Renders directly into the current Streamlit column via
-<code class="docutils literal notranslate"><span class="pre">components.html()</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Renders a compact SMILES label with a one-click Copy button using the browser clipboard API.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.app_utensils.strip_emoji">
 <span class="sig-prename descclassname"><span class="pre">path_finder.app_utensils.</span></span><span class="sig-name descname"><span class="pre">strip_emoji</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/path_finder/app_utensils.html#strip_emoji"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.app_utensils.strip_emoji" title="Link to this definition">¶</a></dt>
-<dd><p>Remove all Unicode emoji characters from a string.</p>
-<p>Matplotlib can’t render emoji so we strip them before any chart call.</p>
-<section id="id23">
-<h3>Parameters<a class="headerlink" href="#id23" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>text<span class="classifier">str</span></dt><dd><p>Input string, possibly containing emoji.</p>
-</dd>
-</dl>
-</section>
-<section id="id24">
-<h3>Returns<a class="headerlink" href="#id24" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>str</dt><dd><p><em>text</em> with all emoji removed and leading/trailing whitespace stripped.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Strips emoji from text and trims whitespace — matplotlib chokes on Unicode emoji.</p>
 </dd></dl>
 
 </section>
@@ -644,58 +350,40 @@ Registered in pyproject.toml under [project.scripts].</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.launch.main">
 <span class="sig-prename descclassname"><span class="pre">path_finder.launch.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/path_finder/launch.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.launch.main" title="Link to this definition">¶</a></dt>
-<dd><p>Start the Streamlit app (called by the path-finder command).</p>
+<dd><p>Launches the Streamlit app. Called by the path-finder CLI command.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.launch.setup">
 <span class="sig-prename descclassname"><span class="pre">path_finder.launch.</span></span><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/path_finder/launch.html#setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.launch.setup" title="Link to this definition">¶</a></dt>
-<dd><p>Run once after install to download models and create config.yml.</p>
+<dd><p>First-time setup: checks dependencies, copies data files, downloads AiZ models, writes config.yml.</p>
 </dd></dl>
 
-</section>
-<section id="module-path_finder.app_layout">
-<span id="path-finder-app_layout-module"></span><h2>path_finder.app_layout module<a class="headerlink" href="#module-path_finder.app_layout" title="Link to this heading">¶</a></h2>
 </section>
 <section id="module-path_finder.molecule_rendering">
 <span id="path-finder-molecule-rendering-module"></span><h2>path_finder.molecule_rendering module<a class="headerlink" href="#module-path_finder.molecule_rendering" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.molecule_rendering.fallback_data_uri">
 <span class="sig-prename descclassname"><span class="pre">path_finder.molecule_rendering.</span></span><span class="sig-name descname"><span class="pre">fallback_data_uri</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/path_finder/molecule_rendering.html#fallback_data_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.molecule_rendering.fallback_data_uri" title="Link to this definition">¶</a></dt>
-<dd><p>Return a data URI of a placeholder image with the given text.</p>
+<dd><p>PNG placeholder with the given text. Falls back to a 1×1 transparent PNG if PIL is also missing.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.molecule_rendering.is_trivial_smiles">
 <span class="sig-prename descclassname"><span class="pre">path_finder.molecule_rendering.</span></span><span class="sig-name descname"><span class="pre">is_trivial_smiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/path_finder/molecule_rendering.html#is_trivial_smiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.molecule_rendering.is_trivial_smiles" title="Link to this definition">¶</a></dt>
-<dd><p>Return True if the SMILES is too small to render as a structure image
-(single atoms, ions, salts with ≤2 heavy atoms per fragment).</p>
-<section id="id25">
-<h3>Parameters<a class="headerlink" href="#id25" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>smiles<span class="classifier">str</span></dt><dd><p>SMILES to check.</p>
-</dd>
-</dl>
-</section>
-<section id="id26">
-<h3>Returns<a class="headerlink" href="#id26" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>bool</dt><dd><p>True if every fragment has 2 or fewer heavy atoms.</p>
-</dd>
-</dl>
-</section>
+<dd><p>True if every fragment has &lt;=2 heavy atoms (single atoms, ions, diatomics).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.molecule_rendering.mol_b64_or_text_svg">
 <span class="sig-prename descclassname"><span class="pre">path_finder.molecule_rendering.</span></span><span class="sig-name descname"><span class="pre">mol_b64_or_text_svg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/path_finder/molecule_rendering.html#mol_b64_or_text_svg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.molecule_rendering.mol_b64_or_text_svg" title="Link to this definition">¶</a></dt>
-<dd><p>Return a data URI of the molecule image for display in the route scheme.</p>
+<dd><p>Data URI (PNG base64) of the molecule, or a text placeholder if invalid.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.molecule_rendering.mol_png">
 <span class="sig-prename descclassname"><span class="pre">path_finder.molecule_rendering.</span></span><span class="sig-name descname"><span class="pre">mol_png</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">540</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/path_finder/molecule_rendering.html#mol_png"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.molecule_rendering.mol_png" title="Link to this definition">¶</a></dt>
-<dd><p>Return a PNG image of the molecule for display in the route scheme.</p>
+<dd><p>PNG bytes of the molecule, or None if the SMILES is invalid.</p>
 </dd></dl>
 
 </section>
@@ -704,37 +392,10 @@ Registered in pyproject.toml under [project.scripts].</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.report_builder.build_route_report_pdf">
 <span class="sig-prename descclassname"><span class="pre">path_finder.report_builder.</span></span><span class="sig-name descname"><span class="pre">build_route_report_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score_total</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../_modules/path_finder/report_builder.html#build_route_report_pdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.report_builder.build_route_report_pdf" title="Link to this definition">¶</a></dt>
-<dd><p>Generate a multi-page A4 PDF report for a single synthesis route using PIL.</p>
-<p>Page 1 contains a summary header, metric cards, score breakdown table,
-and starting-material structure images with full SMILES labels.
-Pages 2 onwards contain up to 3 reaction steps per page, each showing
-a coloured header band, a conditions bar, and molecule images arranged
-as reactants → arrow → product, centred horizontally.</p>
-<p>Molecule rendering uses Cairo at 3× display size with <code class="docutils literal notranslate"><span class="pre">bondLineWidth=6</span></code>,
-then Lanczos-downsampled to display size for thick, crisp bonds.
-Nothing is ever truncated — SMILES and reaction types are word-wrapped
-across multiple lines so the full string is always visible.</p>
-<section id="id27">
-<h3>Parameters<a class="headerlink" href="#id27" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>score_total<span class="classifier">float</span></dt><dd><p>Total weighted score of the route.</p>
-</dd>
-<dt>details<span class="classifier">dict</span></dt><dd><p>Per-criterion detail dicts from <code class="docutils literal notranslate"><span class="pre">rank_weighted()</span></code>, with keys
-<code class="docutils literal notranslate"><span class="pre">raw</span></code>, <code class="docutils literal notranslate"><span class="pre">weight</span></code>, <code class="docutils literal notranslate"><span class="pre">weighted</span></code>, and optionally <code class="docutils literal notranslate"><span class="pre">excluded</span></code>.</p>
-</dd>
-<dt>route<span class="classifier">dict</span></dt><dd><p>Enriched route dict; must contain a <code class="docutils literal notranslate"><span class="pre">dataset_steps</span></code> key.</p>
-</dd>
-<dt>criteria<span class="classifier">list of str</span></dt><dd><p>Three criterion keys in descending priority order.</p>
-</dd>
-</dl>
-</section>
-<section id="id28">
-<h3>Returns<a class="headerlink" href="#id28" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>bytes</dt><dd><p>Raw PDF content ready to pass to <code class="docutils literal notranslate"><span class="pre">st.download_button()</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Generates a multi-page A4 PDF for one synthesis route.
+Page 1: summary header, metric cards, score table, starting material structures.
+Pages 2+: up to 3 reaction steps per page with conditions and molecule images.
+Returns raw PDF bytes ready for st.download_button().</p>
 </dd></dl>
 
 </section>
@@ -743,276 +404,81 @@ across multiple lines so the full string is always visible.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.adapt_route">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">adapt_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#adapt_route"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.adapt_route" title="Link to this definition">¶</a></dt>
-<dd><p>Convert a raw AiZynthFinder route object into the internal route dict
-format.</p>
-<p>Reverses the retrosynthetic step order to produce a forward synthetic
-sequence. Also derives the list of starting materials (leaf nodes) and
-the canonical target SMILES.</p>
-<section id="id29">
-<h3>Parameters<a class="headerlink" href="#id29" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>route<span class="classifier">dict</span></dt><dd><p>One entry from <code class="docutils literal notranslate"><span class="pre">finder.routes</span></code> after <code class="docutils literal notranslate"><span class="pre">build_routes()</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id30">
-<h3>Returns<a class="headerlink" href="#id30" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>Route dict with keys: <code class="docutils literal notranslate"><span class="pre">route_id</span></code>, <code class="docutils literal notranslate"><span class="pre">route_name</span></code>, <code class="docutils literal notranslate"><span class="pre">steps</span></code>,
-<code class="docutils literal notranslate"><span class="pre">starting_materials</span></code>, <code class="docutils literal notranslate"><span class="pre">target_smiles</span></code>, <code class="docutils literal notranslate"><span class="pre">raw</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Converts a raw AiZynthFinder route into the internal dict format.
+Reverses retrosynthetic order, identifies starting materials (tree leaves)
+and the canonical target SMILES.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.average_yield">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">average_yield</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#average_yield"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.average_yield" title="Link to this definition">¶</a></dt>
-<dd><p>Return the average step yield in percent, ignoring steps with missing</p>
+<dd><p>Average step yield in percent, ignoring steps with no reported yield.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.bottleneck_yield">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">bottleneck_yield</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#bottleneck_yield"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.bottleneck_yield" title="Link to this definition">¶</a></dt>
-<dd><p>Return the bottleneck step yield (lowest reported yield) in percent.</p>
+<dd><p>Lowest reported step yield in percent, or None if no yields are recorded.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.build_dataset_smiles_index">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">build_dataset_smiles_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#build_dataset_smiles_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.build_dataset_smiles_index" title="Link to this definition">¶</a></dt>
-<dd><p>Build a set of all canonical SMILES appearing in the dataset.</p>
-<p>Covers both products and reactants. Used by
-<code class="docutils literal notranslate"><span class="pre">is_route_covered_by_dataset()</span></code> to check whether an AiZynthFinder
-route overlaps with molecules already in the curated dataset.</p>
-<section id="id31">
-<h3>Parameters<a class="headerlink" href="#id31" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dataset<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_reaction_dataset()</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id32">
-<h3>Returns<a class="headerlink" href="#id32" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>set of str</dt><dd><p>Canonical SMILES strings of all molecules in the dataset.</p>
-</dd>
-</dl>
-</section>
+<dd><p>All canonical SMILES (products and reactants) present in the dataset.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.build_solvent_map">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">build_solvent_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tox_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#build_solvent_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.build_solvent_map" title="Link to this definition">¶</a></dt>
-<dd><p>Build a mapping from common solvent abbreviations and names to SMILES.</p>
-<p>Used by <code class="docutils literal notranslate"><span class="pre">calc_toxicity_score()</span></code> to resolve solvent names in conditions
-dicts to canonical SMILES for toxicity index lookup. The hard-coded
-abbreviation table is augmented with all keys already in <code class="docutils literal notranslate"><span class="pre">tox_index</span></code>.</p>
-<section id="id33">
-<h3>Parameters<a class="headerlink" href="#id33" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>tox_index<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_toxicity_dataset()</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id34">
-<h3>Returns<a class="headerlink" href="#id34" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{abbreviation_or_name</span> <span class="pre">(str):</span> <span class="pre">SMILES</span> <span class="pre">(str)}</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Maps common solvent abbreviations and names to SMILES, extended with whatever is already in tox_index.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.calc_atom_economy">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">calc_atom_economy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactants_smiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_smiles</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#calc_atom_economy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.calc_atom_economy" title="Link to this definition">¶</a></dt>
-<dd><p>Calculate atom economy for a single reaction step.</p>
-<p>Atom economy = MW(product) / sum(MW(reactants)), capped at 1.0.</p>
-<section id="id35">
-<h3>Parameters<a class="headerlink" href="#id35" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>reactants_smiles<span class="classifier">list of str</span></dt><dd><p>SMILES strings of the reactants.</p>
-</dd>
-<dt>product_smiles<span class="classifier">str</span></dt><dd><p>SMILES string of the product.</p>
-</dd>
-</dl>
-</section>
-<section id="id36">
-<h3>Returns<a class="headerlink" href="#id36" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>float</dt><dd><p>Atom economy score in [0, 1]. Returns 0.0 if the product is invalid.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Atom economy = MW(product) / sum(MW(reactants)), capped at 1.0. Returns 0.0 for invalid products.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.calc_e_factor">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">calc_e_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactants_smiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_smiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_fraction</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#calc_e_factor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.calc_e_factor" title="Link to this definition">¶</a></dt>
-<dd><p>Calculate the E-factor score for a single reaction step.</p>
-<p>Score = 1 / (1 + E-factor), where E-factor = kg waste / kg product.
-Missing yield is treated as 1.0 to avoid penalising unreported steps.</p>
-<section id="id37">
-<h3>Parameters<a class="headerlink" href="#id37" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>reactants_smiles<span class="classifier">list of str</span></dt><dd><p>SMILES strings of the reactants.</p>
-</dd>
-<dt>product_smiles<span class="classifier">str</span></dt><dd><p>SMILES string of the product.</p>
-</dd>
-<dt>yield_fraction<span class="classifier">float</span></dt><dd><p>Step yield as a fraction in (0, 1].</p>
-</dd>
-</dl>
-</section>
-<section id="id38">
-<h3>Returns<a class="headerlink" href="#id38" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>float</dt><dd><p>E-factor score in (0, 1].</p>
-</dd>
-</dl>
-</section>
+<dd><p>E-factor score = 1 / (1 + waste/product). Missing yield treated as 1.0.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.calc_toxicity_score">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">calc_toxicity_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactants_smiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tox_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent_map</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#calc_toxicity_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.calc_toxicity_score" title="Link to this definition">¶</a></dt>
-<dd><p>Calculate the safety score for a single reaction step.</p>
-<p>Score = 1 − mean(hazard_score) across all reactants and solvents.
-Compounds absent from <code class="docutils literal notranslate"><span class="pre">tox_index</span></code> are assigned a hazard of 0.5.</p>
-<section id="id39">
-<h3>Parameters<a class="headerlink" href="#id39" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>reactants_smiles<span class="classifier">list of str</span></dt><dd><p>SMILES strings of the reactants.</p>
-</dd>
-<dt>conditions<span class="classifier">dict</span></dt><dd><p>Conditions dict (may contain <code class="docutils literal notranslate"><span class="pre">&quot;solvent&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;co_solvent&quot;</span></code>).</p>
-</dd>
-<dt>tox_index<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_toxicity_dataset()</span></code>.</p>
-</dd>
-<dt>solvent_map<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">build_solvent_map()</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id40">
-<h3>Returns<a class="headerlink" href="#id40" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>float</dt><dd><p>Safety score in [0, 1].</p>
-</dd>
-</dl>
-</section>
+<dd><p>Safety score = 1 - mean(hazard) across reactants and solvents. Unknown compounds default to 0.5.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.compute_all_scores">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">compute_all_scores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tox_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#compute_all_scores"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.compute_all_scores" title="Link to this definition">¶</a></dt>
-<dd><p>Compute raw scores for all criteria in CRITERIA_REGISTRY on one route.</p>
-<p>Used by the Analysis tab to show scores for criteria not selected as
-primary ranking criteria.</p>
-<section id="id41">
-<h3>Parameters<a class="headerlink" href="#id41" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>route<span class="classifier">dict</span></dt><dd><p>Enriched route dict.</p>
-</dd>
-<dt>tox_index<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_toxicity_dataset()</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id42">
-<h3>Returns<a class="headerlink" href="#id42" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{criterion_key</span> <span class="pre">(str):</span> <span class="pre">raw_score</span> <span class="pre">(float)}</span></code>, rounded to 4 d.p.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Raw scores for all criteria on one route (used by the Analysis tab comparison table).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.compute_atom_economy">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">compute_atom_economy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tox_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#compute_atom_economy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.compute_atom_economy" title="Link to this definition">¶</a></dt>
-<dd><p>Compute the atom economy criterion score averaged across all steps.</p>
-<section id="id43">
-<h3>Parameters<a class="headerlink" href="#id43" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>route_data<span class="classifier">dict</span></dt><dd><p>Enriched route dict.</p>
-</dd>
-<dt>tox_index<span class="classifier">dict</span></dt><dd><p>Unused — kept for uniform function signature.</p>
-</dd>
-</dl>
-</section>
-<section id="id44">
-<h3>Returns<a class="headerlink" href="#id44" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>float</dt><dd><p>Mean atom economy score in [0, 1]. Returns 0.0 for empty routes.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Mean atom economy across all steps. Returns 0.0 for empty routes.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.compute_e_factor">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">compute_e_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tox_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#compute_e_factor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.compute_e_factor" title="Link to this definition">¶</a></dt>
-<dd><p>Compute the E-factor criterion score averaged across all steps.</p>
-<p>Missing yields are treated as 1.0 (100 %) to avoid penalising steps
-with no reported data.</p>
-<section id="id45">
-<h3>Parameters<a class="headerlink" href="#id45" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>route_data<span class="classifier">dict</span></dt><dd><p>Enriched route dict.</p>
-</dd>
-<dt>tox_index<span class="classifier">dict</span></dt><dd><p>Unused — kept for uniform function signature.</p>
-</dd>
-</dl>
-</section>
-<section id="id46">
-<h3>Returns<a class="headerlink" href="#id46" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>float</dt><dd><p>Mean E-factor score in (0, 1]. Returns 0.0 for empty routes.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Mean E-factor score across all steps. Missing yields count as 100%.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.compute_steps">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">compute_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tox_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#compute_steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.compute_steps" title="Link to this definition">¶</a></dt>
-<dd><p>Compute the steps criterion score for a route.</p>
-<p>Score = 1 / number_of_steps. Fewer steps gives a score closer to 1.</p>
-<section id="id47">
-<h3>Parameters<a class="headerlink" href="#id47" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>route_data<span class="classifier">dict</span></dt><dd><p>Enriched route dict with a <code class="docutils literal notranslate"><span class="pre">&quot;dataset_steps&quot;</span></code> key.</p>
-</dd>
-<dt>tox_index<span class="classifier">dict</span></dt><dd><p>Unused — kept for uniform function signature across all criteria.</p>
-</dd>
-</dl>
-</section>
-<section id="id48">
-<h3>Returns<a class="headerlink" href="#id48" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>float</dt><dd><p>Steps score in (0, 1].</p>
-</dd>
-</dl>
-</section>
+<dd><p>Score = 1/n_steps. Shorter routes score higher.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.compute_toxicity">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">compute_toxicity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tox_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#compute_toxicity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.compute_toxicity" title="Link to this definition">¶</a></dt>
-<dd><p>Compute the safety criterion score averaged across all steps.</p>
-<section id="id49">
-<h3>Parameters<a class="headerlink" href="#id49" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>route_data<span class="classifier">dict</span></dt><dd><p>Enriched route dict.</p>
-</dd>
-<dt>tox_index<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_toxicity_dataset()</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id50">
-<h3>Returns<a class="headerlink" href="#id50" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>float</dt><dd><p>Mean safety score in [0, 1]. Returns 0.5 for empty routes.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Mean safety score across all steps. Returns 0.5 (neutral) for empty routes.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1024,633 +490,164 @@ with no reported data.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.compute_yield">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">compute_yield</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tox_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#compute_yield"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.compute_yield" title="Link to this definition">¶</a></dt>
-<dd><p>Compute the yield criterion score for a route.</p>
-<p>For predicted routes returns 1.0 (neutral placeholder; yield is always
-excluded from scoring by <code class="docutils literal notranslate"><span class="pre">rank_weighted()</span></code>). For all other routes,
-returns the product of all reported step yields (missing yields treated
-as 1.0).</p>
-<section id="id51">
-<h3>Parameters<a class="headerlink" href="#id51" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>route_data<span class="classifier">dict</span></dt><dd><p>Enriched route dict.</p>
-</dd>
-<dt>tox_index<span class="classifier">dict</span></dt><dd><p>Unused — kept for uniform function signature.</p>
-</dd>
-</dl>
-</section>
-<section id="id52">
-<h3>Returns<a class="headerlink" href="#id52" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>float</dt><dd><p>Cumulative yield score as a fraction in [0, 1].</p>
-</dd>
-</dl>
-</section>
+<dd><p>Cumulative yield score. Returns 1.0 for predicted routes (yield is excluded from their scoring).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.cumulative_yield">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">cumulative_yield</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#cumulative_yield"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.cumulative_yield" title="Link to this definition">¶</a></dt>
-<dd><p>Return the overall cumulative yield as a fraction in [0, 1].</p>
-<p>Computed as the product of all reported step yields. Missing yields are
-treated as 1.0 (neutral) to avoid penalising routes with incomplete data.</p>
-<section id="id53">
-<h3>Parameters<a class="headerlink" href="#id53" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>steps<span class="classifier">list of dict</span></dt><dd><p>Step dicts from <code class="docutils literal notranslate"><span class="pre">route[&quot;dataset_steps&quot;]</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id54">
-<h3>Returns<a class="headerlink" href="#id54" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>float</dt><dd><p>Cumulative yield in [0, 1].</p>
-</dd>
-</dl>
-</section>
+<dd><p>Product of all reported step yields as a fraction. Missing yields count as 1.0 (neutral).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.enrich_aiz_route_with_rxninsight">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">enrich_aiz_route_with_rxninsight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aiz_route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rxni_db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#enrich_aiz_route_with_rxninsight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.enrich_aiz_route_with_rxninsight" title="Link to this definition">¶</a></dt>
-<dd><p>Create synthetic dataset steps for a fully predicted AiZynthFinder route.</p>
-<p>Each step is annotated by Rxn-INSIGHT for reaction type and suggested
-conditions. Yield is set to <code class="docutils literal notranslate"><span class="pre">None</span></code> and excluded from scoring.</p>
-<section id="id55">
-<h3>Parameters<a class="headerlink" href="#id55" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>aiz_route<span class="classifier">dict</span></dt><dd><p>Adapted AiZ route from <code class="docutils literal notranslate"><span class="pre">adapt_route()</span></code>.</p>
-</dd>
-<dt>rxni_db<span class="classifier">pandas.DataFrame or None</span></dt><dd><p>USPTO database for condition prediction.</p>
-</dd>
-<dt>route_index<span class="classifier">int</span></dt><dd><p>1-based index used to build unique step IDs.</p>
-</dd>
-</dl>
-</section>
-<section id="id56">
-<h3>Returns<a class="headerlink" href="#id56" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>Enriched route dict with added keys: <code class="docutils literal notranslate"><span class="pre">dataset_steps</span></code>,
-<code class="docutils literal notranslate"><span class="pre">matched_route_id</span></code>, <code class="docutils literal notranslate"><span class="pre">matched_route_name</span></code>, <code class="docutils literal notranslate"><span class="pre">matched_target</span></code>,
-<code class="docutils literal notranslate"><span class="pre">coverage</span></code>, <code class="docutils literal notranslate"><span class="pre">is_predicted</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Builds dataset steps for a fully predicted AiZ route using Rxn-INSIGHT
+for reaction type and conditions. Yield stays None and is excluded from scoring.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.filter_routes_by_starting_materials">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">filter_routes_by_starting_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aiz_routes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_smiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#filter_routes_by_starting_materials"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.filter_routes_by_starting_materials" title="Link to this definition">¶</a></dt>
-<dd><p>Return all dataset routes whose final product matches the target SMILES.</p>
-<p>Falls back to target-name matching when canonical SMILES comparison
-fails. All matching routes are returned; <code class="docutils literal notranslate"><span class="pre">top_n</span></code> truncation happens
-later in <code class="docutils literal notranslate"><span class="pre">find_best_routes()</span></code> after scoring.</p>
-<section id="id57">
-<h3>Parameters<a class="headerlink" href="#id57" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>aiz_routes<span class="classifier">list</span></dt><dd><p>Kept for API compatibility — no longer used internally.</p>
-</dd>
-<dt>dataset<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_reaction_dataset()</span></code>.</p>
-</dd>
-<dt>target_smiles<span class="classifier">str</span></dt><dd><p>Canonical SMILES of the search target.</p>
-</dd>
-<dt>target_name<span class="classifier">str, optional</span></dt><dd><p>Human-readable target name used as a secondary filter.</p>
-</dd>
-</dl>
-</section>
-<section id="id58">
-<h3>Returns<a class="headerlink" href="#id58" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>list of dict</dt><dd><p>Enriched route dicts ready for <code class="docutils literal notranslate"><span class="pre">rank_weighted()</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Returns dataset routes whose last product matches target_smiles.
+Falls back to name matching if the SMILES comparison fails.
+Truncation to top_n happens later in find_best_routes().</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.find_best_routes">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">find_best_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_smiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria_priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'reaction_dataset.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toxicity_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'toxicity_dataset.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'config.yml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_predicted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rxninsight_db_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generic_dataset_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_aiz_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">25</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#find_best_routes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.find_best_routes" title="Link to this definition">¶</a></dt>
-<dd><p>Find and rank synthesis routes for a target molecule.</p>
-<p>Runs a four-stage pipeline: load datasets, run AiZynthFinder MCTS,
-classify routes into dataset / validated / predicted sections, then
-score and rank each section independently.</p>
-<section id="id59">
-<h3>Parameters<a class="headerlink" href="#id59" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>target_smiles<span class="classifier">str</span></dt><dd><p>Canonical or parseable SMILES of the synthesis target.</p>
-</dd>
-<dt>criteria_priority<span class="classifier">list of str</span></dt><dd><p>Exactly 3 criterion keys in descending priority order.</p>
-</dd>
-<dt>dataset_path<span class="classifier">str, optional</span></dt><dd><p>Path to <code class="docutils literal notranslate"><span class="pre">reaction_dataset.json</span></code> (default <code class="docutils literal notranslate"><span class="pre">&quot;reaction_dataset.json&quot;</span></code>).</p>
-</dd>
-<dt>toxicity_path<span class="classifier">str, optional</span></dt><dd><p>Path to <code class="docutils literal notranslate"><span class="pre">toxicity_dataset.json</span></code> (default <code class="docutils literal notranslate"><span class="pre">&quot;toxicity_dataset.json&quot;</span></code>).</p>
-</dd>
-<dt>config_path<span class="classifier">str, optional</span></dt><dd><p>Path to AiZynthFinder <code class="docutils literal notranslate"><span class="pre">config.yml</span></code> (default <code class="docutils literal notranslate"><span class="pre">&quot;config.yml&quot;</span></code>).</p>
-</dd>
-<dt>top_n<span class="classifier">int, optional</span></dt><dd><p>Maximum routes shown per section (default 3).</p>
-</dd>
-<dt>target_name<span class="classifier">str, optional</span></dt><dd><p>Human-readable target name for display and filtering.</p>
-</dd>
-<dt>include_predicted<span class="classifier">bool, optional</span></dt><dd><p>Whether to process predicted routes (default <code class="docutils literal notranslate"><span class="pre">True</span></code>).</p>
-</dd>
-<dt>rxninsight_db_path<span class="classifier">str, optional</span></dt><dd><p>Path to the Rxn-INSIGHT USPTO Parquet file.</p>
-</dd>
-<dt>generic_dataset_path<span class="classifier">str, optional</span></dt><dd><p>Path to <code class="docutils literal notranslate"><span class="pre">generic_reactions.json</span></code>.</p>
-</dd>
-<dt>n_aiz_routes<span class="classifier">int, optional</span></dt><dd><p>Number of AiZynthFinder MCTS routes to retrieve (default 25).</p>
-</dd>
-</dl>
-</section>
-<section id="id60">
-<h3>Returns<a class="headerlink" href="#id60" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>Keys <code class="docutils literal notranslate"><span class="pre">&quot;dataset&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;validated&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;predicted&quot;</span></code> — each a list
-of <code class="docutils literal notranslate"><span class="pre">(score,</span> <span class="pre">details_dict,</span> <span class="pre">route_dict)</span></code> tuples.</p>
-</dd>
-</dl>
-</section>
-<section id="raises">
-<h3>Raises<a class="headerlink" href="#raises" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">criteria_priority</span></code> does not contain exactly 3 known criteria.</p>
-</dd>
-<dt>FileNotFoundError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">dataset_path</span></code> or <code class="docutils literal notranslate"><span class="pre">config_path</span></code> does not exist.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Full pipeline: loads datasets, runs AiZynthFinder MCTS, classifies routes
+into dataset/validated/predicted, scores each section and returns the top_n.
+Raises ValueError if criteria_priority doesn’t contain exactly 3 known criteria.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.fmt_conditions">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">fmt_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#fmt_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.fmt_conditions" title="Link to this definition">¶</a></dt>
-<dd><p>Format a conditions dict into a human-readable string.</p>
-<p>Fields included in order: temperature, solvent, co-solvent, reagents,
-apparatus. Empty and <code class="docutils literal notranslate"><span class="pre">None</span></code> fields are silently skipped.</p>
-<section id="id61">
-<h3>Parameters<a class="headerlink" href="#id61" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>cond<span class="classifier">dict</span></dt><dd><p>Conditions dict with optional keys <code class="docutils literal notranslate"><span class="pre">temperature_C</span></code>,
-<code class="docutils literal notranslate"><span class="pre">temp_range</span></code>, <code class="docutils literal notranslate"><span class="pre">solvent</span></code>, <code class="docutils literal notranslate"><span class="pre">co_solvent</span></code>, <code class="docutils literal notranslate"><span class="pre">reagents</span></code>,
-<code class="docutils literal notranslate"><span class="pre">apparatus</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id62">
-<h3>Returns<a class="headerlink" href="#id62" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>str</dt><dd><p><code class="docutils literal notranslate"><span class="pre">'</span>&#160; <span class="pre">·</span>&#160; <span class="pre">'</span></code>-separated conditions string, or <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> if <code class="docutils literal notranslate"><span class="pre">cond</span></code>
-is empty.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Formats a conditions dict as a readable string: temp · solvent · reagents · apparatus.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.get_all_dataset_routes_for_target">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">get_all_dataset_routes_for_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_smiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#get_all_dataset_routes_for_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.get_all_dataset_routes_for_target" title="Link to this definition">¶</a></dt>
-<dd><p>Return all routes whose target name and final product match the query.</p>
-<p>Both the target name (case-insensitive) and the canonical SMILES of the
-last step’s product must match when <code class="docutils literal notranslate"><span class="pre">target_smiles</span></code> is provided. Used
-as a fallback in <code class="docutils literal notranslate"><span class="pre">filter_routes_by_starting_materials()</span></code> to ensure
-known dataset routes are always included.</p>
-<section id="id63">
-<h3>Parameters<a class="headerlink" href="#id63" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dataset<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_reaction_dataset()</span></code>.</p>
-</dd>
-<dt>target_name<span class="classifier">str</span></dt><dd><p>Human-readable target name (case-insensitive).</p>
-</dd>
-<dt>target_smiles<span class="classifier">str, optional</span></dt><dd><p>Canonical SMILES of the search target. When provided, routes whose
-last product does not match are excluded.</p>
-</dd>
-</dl>
-</section>
-<section id="id64">
-<h3>Returns<a class="headerlink" href="#id64" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>list of dict</dt><dd><p>Route dicts with <code class="docutils literal notranslate"><span class="pre">dataset_steps</span></code> and <code class="docutils literal notranslate"><span class="pre">matched_*</span></code> fields set.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Returns all dataset routes matching target_name (case-insensitive) and optionally target_smiles.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.get_novel_routes_from_aizynthfinder">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">get_novel_routes_from_aizynthfinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aiz_routes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rxni_db</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#get_novel_routes_from_aizynthfinder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.get_novel_routes_from_aizynthfinder" title="Link to this definition">¶</a></dt>
-<dd><p>Legacy helper that enriches novel AiZ routes with Rxn-INSIGHT only,
-without generic dataset validation.</p>
-<p>Kept for backward compatibility. Prefer <code class="docutils literal notranslate"><span class="pre">process_novel_routes()</span></code>
-which also cross-validates steps against the generic dataset.</p>
-<section id="id65">
-<h3>Parameters<a class="headerlink" href="#id65" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>aiz_routes<span class="classifier">list of dict</span></dt><dd><p>Adapted AiZ routes from <code class="docutils literal notranslate"><span class="pre">run_aizynthfinder()</span></code>.</p>
-</dd>
-<dt>dataset<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_reaction_dataset()</span></code>.</p>
-</dd>
-<dt>target_name<span class="classifier">str</span></dt><dd><p>Human-readable target name.</p>
-</dd>
-<dt>rxni_db<span class="classifier">pandas.DataFrame or None</span></dt><dd><p>USPTO database for condition prediction.</p>
-</dd>
-</dl>
-</section>
-<section id="id66">
-<h3>Returns<a class="headerlink" href="#id66" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>list of dict</dt><dd><p>Enriched route dicts, all classified as <code class="docutils literal notranslate"><span class="pre">&quot;predicted&quot;</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Legacy wrapper kept for compatibility — prefer process_novel_routes() which also validates against the generic dataset.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.get_reaction_info_rxninsight">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">get_reaction_info_rxninsight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rxni_db</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#get_reaction_info_rxninsight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.get_reaction_info_rxninsight" title="Link to this definition">¶</a></dt>
-<dd><p>Classify a reaction and suggest conditions using Rxn-INSIGHT.</p>
-<p>Without <code class="docutils literal notranslate"><span class="pre">rxni_db</span></code>: reaction type and class are returned via pattern
-matching. With <code class="docutils literal notranslate"><span class="pre">rxni_db</span></code>: additionally calls <code class="docutils literal notranslate"><span class="pre">find_neighbors()</span></code> and
-<code class="docutils literal notranslate"><span class="pre">suggest_conditions()</span></code> for data-driven solvent/catalyst/reagent
-prediction. Returns an empty dict if Rxn-INSIGHT is unavailable or
-inputs are invalid.</p>
-<section id="id67">
-<h3>Parameters<a class="headerlink" href="#id67" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>reactants<span class="classifier">list of str</span></dt><dd><p>SMILES strings of the reactants.</p>
-</dd>
-<dt>product<span class="classifier">str</span></dt><dd><p>SMILES string of the product.</p>
-</dd>
-<dt>rxni_db<span class="classifier">pandas.DataFrame or None</span></dt><dd><p>USPTO database from <code class="docutils literal notranslate"><span class="pre">load_rxninsight_database()</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id68">
-<h3>Returns<a class="headerlink" href="#id68" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>Keys: <code class="docutils literal notranslate"><span class="pre">reaction_type</span></code>, <code class="docutils literal notranslate"><span class="pre">reaction_class</span></code>, <code class="docutils literal notranslate"><span class="pre">fg_reactants</span></code>,
-<code class="docutils literal notranslate"><span class="pre">fg_products</span></code>, <code class="docutils literal notranslate"><span class="pre">by_products</span></code>, <code class="docutils literal notranslate"><span class="pre">conditions</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Classifies a reaction and suggests conditions via Rxn-INSIGHT.
+Without rxni_db: type and class only. With it: also solvent/catalyst/reagent.
+Returns {} if Rxn-INSIGHT is unavailable or the SMILES are invalid.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.get_substances_list">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">get_substances_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#get_substances_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.get_substances_list" title="Link to this definition">¶</a></dt>
-<dd><p>Extract categorised substance lists from a route’s dataset steps.</p>
-<section id="id69">
-<h3>Parameters<a class="headerlink" href="#id69" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>steps_data<span class="classifier">list of dict</span></dt><dd><p>Step dicts from <code class="docutils literal notranslate"><span class="pre">route[&quot;dataset_steps&quot;]</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id70">
-<h3>Returns<a class="headerlink" href="#id70" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>Keys <code class="docutils literal notranslate"><span class="pre">to_buy</span></code> (starting materials), <code class="docutils literal notranslate"><span class="pre">to_prepare</span></code>
-(intermediates), <code class="docutils literal notranslate"><span class="pre">solvents</span></code>, and <code class="docutils literal notranslate"><span class="pre">reagents</span></code> — all sorted lists.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Splits a route’s molecules into to_buy, to_prepare, solvents, and reagents.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.get_targets_from_dataset">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">get_targets_from_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#get_targets_from_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.get_targets_from_dataset" title="Link to this definition">¶</a></dt>
-<dd><p>Extract a target-name to canonical-SMILES mapping from a loaded dataset.</p>
-<p>Resolution strategy applied in priority order:</p>
-<p>1. Use the canonical SMILES stored in
-<code class="docutils literal notranslate"><span class="pre">dataset[&quot;metadata&quot;][&quot;target_smiles&quot;]</span></code> if it parses correctly.
-2. Walk the route steps in reverse to find the largest product molecule
-(≥ 15 heavy atoms) as a proxy for the final target structure.</p>
-<p>Targets for which no valid SMILES can be determined are skipped with a
-warning.</p>
-<section id="id71">
-<h3>Parameters<a class="headerlink" href="#id71" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dataset<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_reaction_dataset()</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id72">
-<h3>Returns<a class="headerlink" href="#id72" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{target_name</span> <span class="pre">(str):</span> <span class="pre">canonical_SMILES</span> <span class="pre">(str)}</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Returns {target_name: canonical_SMILES} for each target in the dataset.
+Tries explicit metadata first, then scans steps in reverse for the
+largest product (&gt;=15 heavy atoms) as a proxy for the final structure.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.is_route_covered_by_dataset">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">is_route_covered_by_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aiz_route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_smiles_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#is_route_covered_by_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.is_route_covered_by_dataset" title="Link to this definition">¶</a></dt>
-<dd><p>Determine whether an AiZ route is substantially covered by the main
-dataset.</p>
-<p>A route is considered covered if at least <code class="docutils literal notranslate"><span class="pre">threshold</span></code> fraction of its
-product SMILES appear in the main dataset’s SMILES index.</p>
-<section id="id73">
-<h3>Parameters<a class="headerlink" href="#id73" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>aiz_route<span class="classifier">dict</span></dt><dd><p>Adapted AiZ route from <code class="docutils literal notranslate"><span class="pre">adapt_route()</span></code>.</p>
-</dd>
-<dt>dataset_smiles_index<span class="classifier">set</span></dt><dd><p>Built by <code class="docutils literal notranslate"><span class="pre">build_dataset_smiles_index()</span></code>.</p>
-</dd>
-<dt>threshold<span class="classifier">float, optional</span></dt><dd><p>Minimum fraction of products that must appear in the dataset
-(default 0.4).</p>
-</dd>
-</dl>
-</section>
-<section id="id74">
-<h3>Returns<a class="headerlink" href="#id74" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>bool</dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the route should be skipped as already covered.</p>
-</dd>
-</dl>
-</section>
+<dd><p>True if &gt;=40% of the route’s products are already in the dataset.
+That threshold is tight enough to skip genuine duplicates without
+dropping routes that share only a few intermediates.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.load_generic_reaction_dataset">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">load_generic_reaction_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#load_generic_reaction_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.load_generic_reaction_dataset" title="Link to this definition">¶</a></dt>
-<dd><p>Load individual USPTO reactions used to validate AiZynthFinder steps.
-Returns dict with keys by_product, by_reaction_key, all.
-Returns {} if the file is missing.</p>
-<section id="id75">
-<h3>Parameters<a class="headerlink" href="#id75" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>path<span class="classifier">str</span></dt><dd><p>Path to the JSON file.</p>
-</dd>
-</dl>
-</section>
-<section id="id76">
-<h3>Returns<a class="headerlink" href="#id76" title="Link to this heading">¶</a></h3>
-<p>dict</p>
-</section>
+<dd><p>Loads individual USPTO reactions for step validation. Returns {} if the file is missing.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.load_reaction_dataset">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">load_reaction_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#load_reaction_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.load_reaction_dataset" title="Link to this definition">¶</a></dt>
-<dd><p>Load and index the main curated reaction dataset from a JSON file.</p>
-<p>Accepted formats: a bare list of reaction dicts, or a dict with a
-<code class="docutils literal notranslate"><span class="pre">&quot;reactions&quot;</span></code> key and an optional <code class="docutils literal notranslate"><span class="pre">&quot;_metadata&quot;</span></code> section storing
-canonical target SMILES keyed by target name.</p>
-<p>Each reaction dict is expected to contain: <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">route_id</span></code>,
-<code class="docutils literal notranslate"><span class="pre">route_name</span></code>, <code class="docutils literal notranslate"><span class="pre">target</span></code>, <code class="docutils literal notranslate"><span class="pre">step_number</span></code>, <code class="docutils literal notranslate"><span class="pre">reactants_smiles</span></code>,
-<code class="docutils literal notranslate"><span class="pre">product_smiles</span></code>, <code class="docutils literal notranslate"><span class="pre">conditions</span></code>, <code class="docutils literal notranslate"><span class="pre">yield_percent</span></code>, <code class="docutils literal notranslate"><span class="pre">reaction_type</span></code>.</p>
-<p>List-valued <code class="docutils literal notranslate"><span class="pre">product_smiles</span></code> fields are joined with <code class="docutils literal notranslate"><span class="pre">'.'</span></code>.
-String <code class="docutils literal notranslate"><span class="pre">reactants_smiles</span></code> fields are wrapped in a list; nested lists
-are flattened. Steps within each route are sorted by <code class="docutils literal notranslate"><span class="pre">step_number</span></code>.</p>
-<section id="id77">
-<h3>Parameters<a class="headerlink" href="#id77" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>path<span class="classifier">str</span></dt><dd><p>Filesystem path to the JSON dataset file.</p>
-</dd>
-</dl>
-</section>
-<section id="id78">
-<h3>Returns<a class="headerlink" href="#id78" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>A dict with keys <code class="docutils literal notranslate"><span class="pre">by_product</span></code>, <code class="docutils literal notranslate"><span class="pre">by_reactant</span></code>, <code class="docutils literal notranslate"><span class="pre">by_route</span></code>,
-<code class="docutils literal notranslate"><span class="pre">all</span></code>, and <code class="docutils literal notranslate"><span class="pre">metadata</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id79">
-<h3>Raises<a class="headerlink" href="#id79" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>FileNotFoundError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">path</span></code> does not exist.</p>
-</dd>
-<dt>ValueError</dt><dd><p>If the JSON structure is not a recognised format.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Load the curated reaction JSON and build three lookup indexes:
+by_product, by_reactant, by_route. Accepts a bare list or a
+{“reactions”: […]} dict. Raises FileNotFoundError if path is missing.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.load_rxninsight_database">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">load_rxninsight_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/path_finder/route_engine.html#load_rxninsight_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.load_rxninsight_database" title="Link to this definition">¶</a></dt>
-<dd><p>Load the Rxn-INSIGHT USPTO parquet file for condition suggestion.
-Returns None if the file is absent or rxn_insight is not installed.</p>
-<section id="id80">
-<h3>Parameters<a class="headerlink" href="#id80" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>path<span class="classifier">str</span></dt><dd><p>Path to the .gzip parquet file.</p>
-</dd>
-</dl>
-</section>
-<section id="id81">
-<h3>Returns<a class="headerlink" href="#id81" title="Link to this heading">¶</a></h3>
-<p>pandas.DataFrame or None</p>
-</section>
+<dd><p>Loads the USPTO Rxn-INSIGHT parquet for condition suggestion. Returns None if missing or not installed.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.load_toxicity_dataset">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">load_toxicity_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#load_toxicity_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.load_toxicity_dataset" title="Link to this definition">¶</a></dt>
-<dd><p>Load safety/hazard scores from JSON. Returns {canonical_SMILES: compound_dict}.
-Missing file returns {} and scores default to 0.5 (neutral).</p>
-<section id="id82">
-<h3>Parameters<a class="headerlink" href="#id82" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>path<span class="classifier">str</span></dt><dd><p>Path to the JSON toxicity file.</p>
-</dd>
-</dl>
-</section>
-<section id="id83">
-<h3>Returns<a class="headerlink" href="#id83" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>{canonical_SMILES: compound_dict}</p>
-</dd>
-</dl>
-</section>
+<dd><p>Loads hazard scores keyed by canonical SMILES. Returns {} if the file is missing (scores default to 0.5).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.match_step_in_generic_dataset">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">match_step_in_generic_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generic_ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/path_finder/route_engine.html#match_step_in_generic_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.match_step_in_generic_dataset" title="Link to this definition">¶</a></dt>
-<dd><p>Search for a reaction step in the generic reactions dataset.</p>
-<p>Uses a two-level strategy: exact match on (sorted canonical reactants,
-canonical product), then product-only match as a fallback.</p>
-<section id="id84">
-<h3>Parameters<a class="headerlink" href="#id84" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>reactants<span class="classifier">list of str</span></dt><dd><p>SMILES strings of the AiZ-proposed precursors.</p>
-</dd>
-<dt>product<span class="classifier">str</span></dt><dd><p>SMILES string of the step product.</p>
-</dd>
-<dt>generic_ds<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_generic_reaction_dataset()</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id85">
-<h3>Returns<a class="headerlink" href="#id85" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict or None</dt><dd><p>Matching reaction entry, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no match is found.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Looks up a reaction step in the generic dataset.
+Tries an exact (reactants + product) key first, then falls back to product only.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.process_novel_routes">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">process_novel_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aiz_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generic_ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rxni_db</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#process_novel_routes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.process_novel_routes" title="Link to this definition">¶</a></dt>
-<dd><p>Process AiZynthFinder routes not covered by the main dataset.</p>
-<p>Validates each route step-by-step against the generic dataset and
-classifies routes as validated, partial, or predicted. Routes already
-covered by the main dataset are silently skipped.</p>
-<section id="id86">
-<h3>Parameters<a class="headerlink" href="#id86" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>aiz_routes<span class="classifier">list of dict</span></dt><dd><p>Adapted AiZ routes from <code class="docutils literal notranslate"><span class="pre">run_aizynthfinder()</span></code>.</p>
-</dd>
-<dt>dataset<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_reaction_dataset()</span></code>.</p>
-</dd>
-<dt>generic_ds<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_generic_reaction_dataset()</span></code>.</p>
-</dd>
-<dt>target_name<span class="classifier">str</span></dt><dd><p>Human-readable target name used to label routes.</p>
-</dd>
-<dt>rxni_db<span class="classifier">pandas.DataFrame or None</span></dt><dd><p>USPTO database for condition prediction.</p>
-</dd>
-</dl>
-</section>
-<section id="id87">
-<h3>Returns<a class="headerlink" href="#id87" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>tuple of (list, list)</dt><dd><p><code class="docutils literal notranslate"><span class="pre">(validated_routes,</span> <span class="pre">predicted_routes)</span></code> — both lists of enriched
-route dicts.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Processes AiZ routes not already covered by the main dataset.
+Returns (validated_routes, predicted_routes).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.rank_weighted">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">rank_weighted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tox_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#rank_weighted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.rank_weighted" title="Link to this definition">¶</a></dt>
-<dd><p>Score and rank a list of routes using weighted criterion scores.</p>
-<p>For purely predicted routes the yield criterion is excluded and the
-remaining criteria are re-weighted to sum to 1.0. All other routes
-use the full 1/i² weight scheme.</p>
-<section id="id88">
-<h3>Parameters<a class="headerlink" href="#id88" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>routes<span class="classifier">list of dict</span></dt><dd><p>Enriched route dicts to score.</p>
-</dd>
-<dt>criteria<span class="classifier">list of str</span></dt><dd><p>Three criterion keys in priority order.</p>
-</dd>
-<dt>tox_index<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_toxicity_dataset()</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id89">
-<h3>Returns<a class="headerlink" href="#id89" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>list of tuple</dt><dd><p><code class="docutils literal notranslate"><span class="pre">(total_score,</span> <span class="pre">details_dict,</span> <span class="pre">route_dict)</span></code> tuples sorted in
-descending order of <code class="docutils literal notranslate"><span class="pre">total_score</span></code>. Each <code class="docutils literal notranslate"><span class="pre">details_dict</span></code> contains
-per-criterion keys <code class="docutils literal notranslate"><span class="pre">raw</span></code>, <code class="docutils literal notranslate"><span class="pre">weight</span></code>, <code class="docutils literal notranslate"><span class="pre">weighted</span></code>, <code class="docutils literal notranslate"><span class="pre">excluded</span></code>,
-and <code class="docutils literal notranslate"><span class="pre">_all_scores</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Scores and ranks routes using 1/i² weights. For purely predicted routes,
+yield is excluded and the remaining weights are renormalised to sum to 1.
+Returns [(total_score, details, route)] sorted descending.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.run_aizynthfinder">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">run_aizynthfinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_smiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'config.yml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">25</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#run_aizynthfinder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.run_aizynthfinder" title="Link to this definition">¶</a></dt>
-<dd><p>Run AiZynthFinder MCTS on a target molecule and return adapted routes.</p>
-<p>Uses the <code class="docutils literal notranslate"><span class="pre">&quot;zinc&quot;</span></code> stock and <code class="docutils literal notranslate"><span class="pre">&quot;uspto&quot;</span></code> expansion and filter policies.
-Requests more routes than <code class="docutils literal notranslate"><span class="pre">top_n</span></code> to maximise the chance of matching
-steps in the generic dataset during validation.</p>
-<section id="id90">
-<h3>Parameters<a class="headerlink" href="#id90" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>target_smiles<span class="classifier">str</span></dt><dd><p>Canonical SMILES of the synthesis target.</p>
-</dd>
-<dt>config_path<span class="classifier">str, optional</span></dt><dd><p>Path to the AiZynthFinder YAML config file (default <code class="docutils literal notranslate"><span class="pre">&quot;config.yml&quot;</span></code>).</p>
-</dd>
-<dt>n_routes<span class="classifier">int, optional</span></dt><dd><p>Maximum number of routes to retrieve from the tree (default 25).</p>
-</dd>
-</dl>
-</section>
-<section id="id91">
-<h3>Returns<a class="headerlink" href="#id91" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>list of dict</dt><dd><p>Each element is an adapted route dict from <code class="docutils literal notranslate"><span class="pre">adapt_route()</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Runs AiZynthFinder MCTS and returns up to n_routes adapted route dicts.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.safe_mol">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">safe_mol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/path_finder/route_engine.html#safe_mol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.safe_mol" title="Link to this definition">¶</a></dt>
-<dd><p>Convert a SMILES string to an RDKit Mol object. Returns None if parsing fails.</p>
+<dd><p>RDKit Mol object, or None if the SMILES is invalid.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.to_canonical">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">to_canonical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smiles</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#to_canonical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.to_canonical" title="Link to this definition">¶</a></dt>
-<dd><p>Convert a SMILES string to its canonical form using RDKit. Returns an empty</p>
+<dd><p>Canonical SMILES via RDKit, or the original string if unparseable, or “” if empty.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.validate_aiz_route_against_generic_dataset">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">validate_aiz_route_against_generic_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aiz_route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generic_ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rxni_db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#validate_aiz_route_against_generic_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.validate_aiz_route_against_generic_dataset" title="Link to this definition">¶</a></dt>
-<dd><p>Validate each step of an AiZynthFinder route against the generic dataset.</p>
-<p>Matched steps use real conditions and yield; unmatched steps receive
-Rxn-INSIGHT predicted conditions. Assigns one of three validation
-statuses: <code class="docutils literal notranslate"><span class="pre">&quot;validated&quot;</span></code> (all steps matched), <code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code> (some),
-or <code class="docutils literal notranslate"><span class="pre">&quot;predicted&quot;</span></code> (none).</p>
-<section id="id92">
-<h3>Parameters<a class="headerlink" href="#id92" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>aiz_route<span class="classifier">dict</span></dt><dd><p>Adapted AiZ route from <code class="docutils literal notranslate"><span class="pre">adapt_route()</span></code>.</p>
-</dd>
-<dt>generic_ds<span class="classifier">dict</span></dt><dd><p>As returned by <code class="docutils literal notranslate"><span class="pre">load_generic_reaction_dataset()</span></code>.</p>
-</dd>
-<dt>rxni_db<span class="classifier">pandas.DataFrame or None</span></dt><dd><p>USPTO database for condition prediction fallback.</p>
-</dd>
-<dt>route_index<span class="classifier">int</span></dt><dd><p>1-based index for unique ID generation.</p>
-</dd>
-</dl>
-</section>
-<section id="id93">
-<h3>Returns<a class="headerlink" href="#id93" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>Enriched route dict with added keys: <code class="docutils literal notranslate"><span class="pre">dataset_steps</span></code>,
-<code class="docutils literal notranslate"><span class="pre">matched_route_id</span></code>, <code class="docutils literal notranslate"><span class="pre">matched_route_name</span></code>, <code class="docutils literal notranslate"><span class="pre">matched_target</span></code>,
-<code class="docutils literal notranslate"><span class="pre">coverage</span></code>, <code class="docutils literal notranslate"><span class="pre">validation_status</span></code>, <code class="docutils literal notranslate"><span class="pre">validated_steps_count</span></code>,
-<code class="docutils literal notranslate"><span class="pre">total_steps_count</span></code>, <code class="docutils literal notranslate"><span class="pre">is_predicted</span></code>, <code class="docutils literal notranslate"><span class="pre">is_validated</span></code>.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Validates each AiZ step against the generic dataset. Matched steps keep
+real conditions; unmatched ones get Rxn-INSIGHT predictions. Final status
+is validated / partial / predicted based on how many steps matched.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="path_finder.route_engine.validate_smiles_for_aizynthfinder">
 <span class="sig-prename descclassname"><span class="pre">path_finder.route_engine.</span></span><span class="sig-name descname"><span class="pre">validate_smiles_for_aizynthfinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/path_finder/route_engine.html#validate_smiles_for_aizynthfinder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#path_finder.route_engine.validate_smiles_for_aizynthfinder" title="Link to this definition">¶</a></dt>
-<dd><p>Validate and canonicalise a SMILES string before passing it to
-AiZynthFinder.</p>
-<section id="id94">
-<h3>Parameters<a class="headerlink" href="#id94" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>smiles<span class="classifier">str</span></dt><dd><p>User-supplied or dataset-derived SMILES string.</p>
-</dd>
-</dl>
-</section>
-<section id="id95">
-<h3>Returns<a class="headerlink" href="#id95" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>str</dt><dd><p>Canonical SMILES guaranteed parseable by RDKit.</p>
-</dd>
-</dl>
-</section>
-<section id="id96">
-<h3>Raises<a class="headerlink" href="#id96" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">smiles</span></code> is empty or cannot be parsed by RDKit.</p>
-</dd>
-</dl>
-</section>
+<dd><p>Validates and canonicalises a SMILES before passing it to AiZynthFinder. Raises ValueError if empty or unparseable.</p>
 </dd></dl>
 
 </section>
@@ -1660,7 +657,7 @@ AiZynthFinder.</p>
 ───────────
 Find the best retrosynthesis pathways for target molecules,
 based on criteria selected by the user.</p>
-<p>Developed by Yara Chahda, Corentin Portmann and Ines Ouchen — EPFL 2025.</p>
+<p>Developed by Yara Chahda, Corentin Portmann and Ines Ouchen — EPFL 2026.</p>
 <dl class="simple">
 <dt>After pip install path-finder-retrosynthesis:</dt><dd><p>path-finder-setup    # first-time setup
 path-finder          # launch the app</p>
@@ -1722,6 +719,7 @@ path-finder          # launch the app</p>
 <li><a class="reference internal" href="#path_finder.app.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#module-path_finder.app_layout">path_finder.app_layout module</a></li>
 <li><a class="reference internal" href="#module-path_finder.app_utensils">path_finder.app_utensils module</a><ul>
 <li><a class="reference internal" href="#path_finder.app_utensils.build_clickable_scheme_html"><code class="docutils literal notranslate"><span class="pre">build_clickable_scheme_html()</span></code></a></li>
 <li><a class="reference internal" href="#path_finder.app_utensils.build_score_table_html"><code class="docutils literal notranslate"><span class="pre">build_score_table_html()</span></code></a></li>
@@ -1744,7 +742,6 @@ path-finder          # launch the app</p>
 <li><a class="reference internal" href="#path_finder.launch.setup"><code class="docutils literal notranslate"><span class="pre">setup()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-path_finder.app_layout">path_finder.app_layout module</a></li>
 <li><a class="reference internal" href="#module-path_finder.molecule_rendering">path_finder.molecule_rendering module</a><ul>
 <li><a class="reference internal" href="#path_finder.molecule_rendering.fallback_data_uri"><code class="docutils literal notranslate"><span class="pre">fallback_data_uri()</span></code></a></li>
 <li><a class="reference internal" href="#path_finder.molecule_rendering.is_trivial_smiles"><code class="docutils literal notranslate"><span class="pre">is_trivial_smiles()</span></code></a></li>

@@ -36,7 +36,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
     LIGHT = (235, 242, 250)
     LGREY = (245, 248, 252)
     GREY = (107, 122, 141)
-    ORANGE = (230,  81,   0)
+    ORANGE = (230,  81,   0)   # used for predicted-route step headers
     GREEN = ( 21,  87,  36)
     SEP = (220, 227, 236)
     BG = (249, 251, 253)
@@ -76,7 +76,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         try:
             if mol.GetNumAtoms() > 1:
                 rdDepictor.Compute2DCoords(mol)
-            scale = 3
+            scale = 3  # render at 3× and downscale for crispness
             drw = rdMolDraw2D.MolDraw2DCairo(w * scale, h * scale)
             opts = drw.drawOptions()
             opts.bondLineWidth = 6.0   # thick bonds
@@ -94,7 +94,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     #  Text helpers 
     def _text_w(draw, txt, font):
-        # Measure text width in pixels, with a fallback to character countif the font doesn't support measurement
+        # Measure text width in pixels, with a fallback to character count if the font doesn't support measurement
         try:
             return int(draw.textlength(txt, font=font))
         except Exception:
@@ -160,7 +160,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         return lines
 
     def _draw_text_lines(draw, lines, x, y, font, fill, line_gap=4):
-        # Draw multiple lines of text with fixed vertical spicing
+        # Draw multiple lines of text with fixed vertical spacing
         try:
             lh = font.size + line_gap
         except Exception:
@@ -211,13 +211,14 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
     for ln in rname_lines:
         d1.text((MG, ty), ln, fill=WHITE, font=_fnt(F_TITLE, True))
         ty += F_TITLE + 6
+    # Subtitle: target name, validation status, total score
     subtitle = (f"Target: {target}   ·   {status_lbl}   ·   "
                 f"Score: {score_total:.4f}")
     d1.text((MG, ty + 4), subtitle, fill=(180, 200, 220), font=_fnt(F_SUBTITLE))
 
     y1 = BH + 24
 
-    # Metric cards
+    # Metric cards — 4 KPIs in a horizontal row
     CARD_H = F_CARD_LBL + F_CARD_VAL + 24
     mets = [
         ("Steps", str(len(steps_data))),
@@ -242,6 +243,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
     d1.text((MG, y1), "Score breakdown", fill=NAVY, font=_fnt(F_SECTION, True))
     y1 += F_SECTION + 12
 
+    # Column widths as fractions of CW
     col_ws = [int(CW * p) for p in [0.36, 0.21, 0.17, 0.26]]
     hdrs   = ["Criterion", "Raw (0–1)", "Weight", "Contribution"]
     hx = MG
@@ -262,6 +264,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
             "0%" if excl else f"{(dtl.get('weight') or 0) * 100:.0f}%",
             "—" if excl else f"{dtl.get('weighted') or 0:.4f}",
         ]
+        # Alternate row background for readability
         bg_c = LIGHT if ci % 2 == 0 else LGREY
         hx = MG
         for txt, cw in zip(row, col_ws):
@@ -306,13 +309,13 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
 
     # PAGES 2+ — Step-by-step
     def _render_step_at(draw, page, step, x0, y0, avail_w, avail_h):
-        # Render a single reaction step within the given bounding box, 
-        # with word-wrapped text and molecule images scaled to fit. 
-        # Nothing is truncated — if text is too long, the header band and conditions 
-        # bar grow vertically to accommodate it. The step header shows the step number 
-        # and reaction type on the left, and yield (if available) on the right. 
-        # The conditions bar lists temperature, solvent, and reagents if available. 
-        # The molecule row shows up to 3 reactants (with "+" between them) 
+        # Render a single reaction step within the given bounding box,
+        # with word-wrapped text and molecule images scaled to fit.
+        # Nothing is truncated — if text is too long, the header band and conditions
+        # bar grow vertically to accommodate it. The step header shows the step number
+        # and reaction type on the left, and yield (if available) on the right.
+        # The conditions bar lists temperature, solvent, and reagents if available.
+        # The molecule row shows up to 3 reactants (with "+" between them)
         # → product, all centred horizontally, with full SMILES labels below.
         L = x0 + 6
         W = avail_w - 12
@@ -325,6 +328,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         reac = step.get("reactants_smiles", [])
         prod = step.get("product_smiles", "")
 
+        # Orange header for Rxn-INSIGHT predicted steps, navy for real ones
         hdr_c = ORANGE if src_s == "rxn-insight" else NAVY
         yld_s = (f"{yld}%" if yld is not None else
                  "not shown" if src_s == "rxn-insight" else "—")
@@ -340,7 +344,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
             cond_parts.append(", ".join(str(r) for r in rr))
         cond_s = "  ·  ".join(cond_parts) or "—"
 
-        #  Measure how many lines the reaction type needs in the header ─
+        #  Measure how many lines the reaction type needs in the header
         # Reserve right side for yield text
         yld_txt = f"Yield: {yld_s}"
         yld_w = _text_w(draw, yld_txt, _fnt(F_YIELD))
@@ -392,13 +396,13 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
             cy += F_COND + 4
         y += COND_H
 
-        #  Molecule row ─
+        #  Molecule row
         # How many SMILES lines does each molecule label need?
         # We use the same max_px = mol_w for all labels.
         # First pass: compute mol dimensions.
         mol_zone = avail_h - HDR_H - COND_H - 16
 
-        n_reac_shown = max(min(len(reac), 3), 1)
+        n_reac_shown = max(min(len(reac), 3), 1)  # cap at 3 reactants for space
         PLUS_W = 32   # gap for "+" between reactants
         ARW_W  = 64   # gap for → arrow
 
@@ -468,7 +472,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
         draw.line([(x0, y0 + avail_h - 2), (x0 + avail_w, y0 + avail_h - 2)],
                   fill=SEP, width=1)
 
-    #  Paginate steps 
+    #  Paginate steps — 3 per page, equally spaced 
     STEPS_PER_PAGE = 3
     GAP_H = int(0.12 * DPI)
     STEP_H = (PH - 2 * MG - GAP_H * (STEPS_PER_PAGE - 1)) // STEPS_PER_PAGE
@@ -490,6 +494,7 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
     #  Serialise to multi-page PDF 
     buf = _io.BytesIO()
     if pages:
+        # PIL saves page 1 and appends the rest via append_images
         pages[0].save(buf, format="PDF", save_all=True,
                       append_images=pages[1:], resolution=DPI)
     return buf.getvalue()

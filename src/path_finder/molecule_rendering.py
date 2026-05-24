@@ -5,6 +5,7 @@
 import io
 import base64
 
+# Soft import — the app works without RDKit, just without structure images
 try:
     from rdkit import Chem
     from rdkit.Chem import Draw, rdDepictor
@@ -75,12 +76,14 @@ def fallback_data_uri(text: str, w: int, h: int) -> str:
         import io as _io
         img  = _PI.new("RGB", (w, h), (248, 248, 248))
         draw = _PID.Draw(img)
+        # Truncate long SMILES so they fit on the placeholder image
         display = text[:18] + "…" if len(text) > 18 else text
         draw.rectangle([2, 2, w - 3, h - 3], outline=(200, 200, 200))
         try:
             bbox = draw.textbbox((0, 0), display)
             tw = bbox[2] - bbox[0]; th = bbox[3] - bbox[1]
         except Exception:
+            # Older PIL versions don't have textbbox, estimate from character count
             tw = len(display) * 6; th = 12
         draw.text(((w - tw) // 2, (h - th) // 2), display, fill=(80, 80, 80))
         buf = _io.BytesIO()

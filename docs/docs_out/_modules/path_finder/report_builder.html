@@ -229,7 +229,8 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for path_finder.report_builder</h1><div class="highlight"><pre>
-<span></span><span class="c1"># report_builder.py — PDF generation</span>
+<span></span><span class="c1"># report_builder.py</span>
+<span class="c1"># Generates the A4 PDF report for a single synthesis route.</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
@@ -246,56 +247,32 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">build_route_report_pdf</span><span class="p">(</span><span class="n">score_total</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">route</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
                             <span class="n">criteria</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate a multi-page A4 PDF report for a single synthesis route using PIL.</span>
-
-<span class="sd">    Page 1 contains a summary header, metric cards, score breakdown table,</span>
-<span class="sd">    and starting-material structure images with full SMILES labels.</span>
-<span class="sd">    Pages 2 onwards contain up to 3 reaction steps per page, each showing</span>
-<span class="sd">    a coloured header band, a conditions bar, and molecule images arranged</span>
-<span class="sd">    as reactants → arrow → product, centred horizontally.</span>
-
-<span class="sd">    Molecule rendering uses Cairo at 3× display size with ``bondLineWidth=6``,</span>
-<span class="sd">    then Lanczos-downsampled to display size for thick, crisp bonds.</span>
-<span class="sd">    Nothing is ever truncated — SMILES and reaction types are word-wrapped</span>
-<span class="sd">    across multiple lines so the full string is always visible.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    score_total : float</span>
-<span class="sd">        Total weighted score of the route.</span>
-<span class="sd">    details : dict</span>
-<span class="sd">        Per-criterion detail dicts from ``rank_weighted()``, with keys</span>
-<span class="sd">        ``raw``, ``weight``, ``weighted``, and optionally ``excluded``.</span>
-<span class="sd">    route : dict</span>
-<span class="sd">        Enriched route dict; must contain a ``dataset_steps`` key.</span>
-<span class="sd">    criteria : list of str</span>
-<span class="sd">        Three criterion keys in descending priority order.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    bytes</span>
-<span class="sd">        Raw PDF content ready to pass to ``st.download_button()``.</span>
+<span class="sd">    Generates a multi-page A4 PDF for one synthesis route.</span>
+<span class="sd">    Page 1: summary header, metric cards, score table, starting material structures.</span>
+<span class="sd">    Pages 2+: up to 3 reaction steps per page with conditions and molecule images.</span>
+<span class="sd">    Returns raw PDF bytes ready for st.download_button().</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">_PI</span><span class="p">,</span> <span class="n">ImageDraw</span> <span class="k">as</span> <span class="n">_PID</span><span class="p">,</span> <span class="n">ImageFont</span> <span class="k">as</span> <span class="n">_PIF</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_io</span>
 
-    <span class="c1">#  Page geometry (A4 at 200 DPI) ─</span>
+    <span class="c1"># A4 at 200 DPI — sharp bond lines without PIL grinding.</span>
+    <span class="c1"># 0.55&quot; margins match standard lab report formatting.</span>
     <span class="n">DPI</span> <span class="o">=</span> <span class="mi">200</span>
-    <span class="n">PW</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">8.27</span>  <span class="o">*</span> <span class="n">DPI</span><span class="p">)</span>   <span class="c1"># 1654 px</span>
-    <span class="n">PH</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">11.69</span> <span class="o">*</span> <span class="n">DPI</span><span class="p">)</span>   <span class="c1"># 2338 px</span>
-    <span class="n">MG</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.55</span>  <span class="o">*</span> <span class="n">DPI</span><span class="p">)</span>   <span class="c1"># 110 px  (left/right margin)</span>
-    <span class="n">CW</span>  <span class="o">=</span> <span class="n">PW</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">MG</span>        <span class="c1"># usable width</span>
+    <span class="n">PW</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">8.27</span>  <span class="o">*</span> <span class="n">DPI</span><span class="p">)</span>   <span class="c1"># 1654 px</span>
+    <span class="n">PH</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">11.69</span> <span class="o">*</span> <span class="n">DPI</span><span class="p">)</span>   <span class="c1"># 2338 px</span>
+    <span class="n">MG</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.55</span>  <span class="o">*</span> <span class="n">DPI</span><span class="p">)</span>   <span class="c1"># 110 px  (left/right margin)</span>
+    <span class="n">CW</span> <span class="o">=</span> <span class="n">PW</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">MG</span>        <span class="c1"># usable width</span>
 
     <span class="c1">#  Colours </span>
-    <span class="n">NAVY</span>   <span class="o">=</span> <span class="p">(</span><span class="mi">26</span><span class="p">,</span>  <span class="mi">46</span><span class="p">,</span>  <span class="mi">68</span><span class="p">)</span>
-    <span class="n">WHITE</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
-    <span class="n">LIGHT</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">235</span><span class="p">,</span> <span class="mi">242</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
-    <span class="n">LGREY</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">245</span><span class="p">,</span> <span class="mi">248</span><span class="p">,</span> <span class="mi">252</span><span class="p">)</span>
-    <span class="n">GREY</span>   <span class="o">=</span> <span class="p">(</span><span class="mi">107</span><span class="p">,</span> <span class="mi">122</span><span class="p">,</span> <span class="mi">141</span><span class="p">)</span>
+    <span class="n">NAVY</span> <span class="o">=</span> <span class="p">(</span><span class="mi">26</span><span class="p">,</span>  <span class="mi">46</span><span class="p">,</span>  <span class="mi">68</span><span class="p">)</span>
+    <span class="n">WHITE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+    <span class="n">LIGHT</span> <span class="o">=</span> <span class="p">(</span><span class="mi">235</span><span class="p">,</span> <span class="mi">242</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+    <span class="n">LGREY</span> <span class="o">=</span> <span class="p">(</span><span class="mi">245</span><span class="p">,</span> <span class="mi">248</span><span class="p">,</span> <span class="mi">252</span><span class="p">)</span>
+    <span class="n">GREY</span> <span class="o">=</span> <span class="p">(</span><span class="mi">107</span><span class="p">,</span> <span class="mi">122</span><span class="p">,</span> <span class="mi">141</span><span class="p">)</span>
     <span class="n">ORANGE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">230</span><span class="p">,</span>  <span class="mi">81</span><span class="p">,</span>   <span class="mi">0</span><span class="p">)</span>
-    <span class="n">GREEN</span>  <span class="o">=</span> <span class="p">(</span> <span class="mi">21</span><span class="p">,</span>  <span class="mi">87</span><span class="p">,</span>  <span class="mi">36</span><span class="p">)</span>
-    <span class="n">SEP</span>    <span class="o">=</span> <span class="p">(</span><span class="mi">220</span><span class="p">,</span> <span class="mi">227</span><span class="p">,</span> <span class="mi">236</span><span class="p">)</span>
-    <span class="n">BG</span>     <span class="o">=</span> <span class="p">(</span><span class="mi">249</span><span class="p">,</span> <span class="mi">251</span><span class="p">,</span> <span class="mi">253</span><span class="p">)</span>
+    <span class="n">GREEN</span> <span class="o">=</span> <span class="p">(</span> <span class="mi">21</span><span class="p">,</span>  <span class="mi">87</span><span class="p">,</span>  <span class="mi">36</span><span class="p">)</span>
+    <span class="n">SEP</span> <span class="o">=</span> <span class="p">(</span><span class="mi">220</span><span class="p">,</span> <span class="mi">227</span><span class="p">,</span> <span class="mi">236</span><span class="p">)</span>
+    <span class="n">BG</span> <span class="o">=</span> <span class="p">(</span><span class="mi">249</span><span class="p">,</span> <span class="mi">251</span><span class="p">,</span> <span class="mi">253</span><span class="p">)</span>
 
     <span class="c1">#  Fonts </span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_fnt</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">bold</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -335,10 +312,10 @@
             <span class="n">scale</span> <span class="o">=</span> <span class="mi">3</span>
             <span class="n">drw</span> <span class="o">=</span> <span class="n">rdMolDraw2D</span><span class="o">.</span><span class="n">MolDraw2DCairo</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="n">h</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span>
             <span class="n">opts</span> <span class="o">=</span> <span class="n">drw</span><span class="o">.</span><span class="n">drawOptions</span><span class="p">()</span>
-            <span class="n">opts</span><span class="o">.</span><span class="n">bondLineWidth</span>       <span class="o">=</span> <span class="mf">6.0</span>   <span class="c1"># thick bonds</span>
-            <span class="n">opts</span><span class="o">.</span><span class="n">padding</span>             <span class="o">=</span> <span class="mf">0.15</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">bondLineWidth</span> <span class="o">=</span> <span class="mf">6.0</span>   <span class="c1"># thick bonds</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">padding</span> <span class="o">=</span> <span class="mf">0.15</span>
             <span class="n">opts</span><span class="o">.</span><span class="n">addStereoAnnotation</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">opts</span><span class="o">.</span><span class="n">atomLabelFontSize</span>   <span class="o">=</span> <span class="mf">0.55</span>  <span class="c1"># readable atom labels</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">atomLabelFontSize</span> <span class="o">=</span> <span class="mf">0.55</span>  <span class="c1"># readable atom labels</span>
             <span class="n">drw</span><span class="o">.</span><span class="n">DrawMolecule</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
             <span class="n">drw</span><span class="o">.</span><span class="n">FinishDrawing</span><span class="p">()</span>
             <span class="n">img</span> <span class="o">=</span> <span class="n">_PI</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">_io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">drw</span><span class="o">.</span><span class="n">GetDrawingText</span><span class="p">()))</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGBA&quot;</span><span class="p">)</span>
@@ -441,14 +418,14 @@
 
     <span class="c1">#  Route metadata </span>
     <span class="n">steps_data</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_steps&quot;</span><span class="p">,</span> <span class="p">[])</span>
-    <span class="n">rname</span>      <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown route&quot;</span><span class="p">)</span>
-    <span class="n">target</span>     <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_target&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
-    <span class="n">status</span>     <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validation_status&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+    <span class="n">rname</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_route_name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown route&quot;</span><span class="p">)</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matched_target&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validation_status&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
     <span class="n">status_lbl</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dataset&quot;</span><span class="p">:</span> <span class="s2">&quot;Dataset&quot;</span><span class="p">,</span> <span class="s2">&quot;validated&quot;</span><span class="p">:</span> <span class="s2">&quot;Validated&quot;</span><span class="p">,</span>
                   <span class="s2">&quot;partial&quot;</span><span class="p">:</span> <span class="s2">&quot;Partial&quot;</span><span class="p">,</span> <span class="s2">&quot;predicted&quot;</span><span class="p">:</span> <span class="s2">&quot;Predicted&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
-    <span class="n">sub</span>   <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">get_substances_list</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
-    <span class="n">bn_</span>   <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">bottleneck_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
-    <span class="n">av_</span>   <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">average_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">get_substances_list</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">bn_</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">bottleneck_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
+    <span class="n">av_</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">average_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
     <span class="n">cumyl</span> <span class="o">=</span> <span class="n">rt</span><span class="o">.</span><span class="n">cumulative_yield</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
 
     <span class="n">pages</span> <span class="o">=</span> <span class="p">[]</span>
@@ -476,10 +453,10 @@
     <span class="c1"># Metric cards</span>
     <span class="n">CARD_H</span> <span class="o">=</span> <span class="n">F_CARD_LBL</span> <span class="o">+</span> <span class="n">F_CARD_VAL</span> <span class="o">+</span> <span class="mi">24</span>
     <span class="n">mets</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s2">&quot;Steps&quot;</span><span class="p">,</span>        <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">steps_data</span><span class="p">))),</span>
+        <span class="p">(</span><span class="s2">&quot;Steps&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">steps_data</span><span class="p">))),</span>
         <span class="p">(</span><span class="s2">&quot;Cumul. yield&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cumyl</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;Bottleneck&quot;</span><span class="p">,</span>   <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bn_</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">bn_</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;Avg yield&quot;</span><span class="p">,</span>    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">av_</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">av_</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Bottleneck&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bn_</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">bn_</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Avg yield&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">av_</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">av_</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="n">mc</span> <span class="o">=</span> <span class="n">CW</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">mets</span><span class="p">)</span>
     <span class="n">mx</span> <span class="o">=</span> <span class="n">MG</span>
@@ -515,8 +492,8 @@
         <span class="n">row</span>  <span class="o">=</span> <span class="p">[</span>
             <span class="n">c</span><span class="p">,</span>
             <span class="s2">&quot;excluded&quot;</span> <span class="k">if</span> <span class="n">excl</span> <span class="k">else</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">raw</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;—&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;0%&quot;</span>       <span class="k">if</span> <span class="n">excl</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">(</span><span class="n">dtl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;—&quot;</span>        <span class="k">if</span> <span class="n">excl</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dtl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;weighted&#39;</span><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">0</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;0%&quot;</span> <span class="k">if</span> <span class="n">excl</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">(</span><span class="n">dtl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;—&quot;</span> <span class="k">if</span> <span class="n">excl</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dtl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;weighted&#39;</span><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">0</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="n">bg_c</span> <span class="o">=</span> <span class="n">LIGHT</span> <span class="k">if</span> <span class="n">ci</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">LGREY</span>
         <span class="n">hx</span> <span class="o">=</span> <span class="n">MG</span>
@@ -562,17 +539,24 @@
 
     <span class="c1"># PAGES 2+ — Step-by-step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_render_step_at</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">avail_w</span><span class="p">,</span> <span class="n">avail_h</span><span class="p">):</span>
-        <span class="c1"># Render a single reaction step within the given bounding box, with word-wrapped text and molecule images scaled to fit. Nothing is truncated — if text is too long, the header band and conditions bar grow vertically to accommodate it. The step header shows the step number and reaction type on the left, and yield (if available) on the right. The conditions bar lists temperature, solvent, and reagents if available. The molecule row shows up to 3 reactants (with &quot;+&quot; between them) → product, all centred horizontally, with full SMILES labels below.</span>
+        <span class="c1"># Render a single reaction step within the given bounding box, </span>
+        <span class="c1"># with word-wrapped text and molecule images scaled to fit. </span>
+        <span class="c1"># Nothing is truncated — if text is too long, the header band and conditions </span>
+        <span class="c1"># bar grow vertically to accommodate it. The step header shows the step number </span>
+        <span class="c1"># and reaction type on the left, and yield (if available) on the right. </span>
+        <span class="c1"># The conditions bar lists temperature, solvent, and reagents if available. </span>
+        <span class="c1"># The molecule row shows up to 3 reactants (with &quot;+&quot; between them) </span>
+        <span class="c1"># → product, all centred horizontally, with full SMILES labels below.</span>
         <span class="n">L</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="mi">6</span>
         <span class="n">W</span> <span class="o">=</span> <span class="n">avail_w</span> <span class="o">-</span> <span class="mi">12</span>
 
-        <span class="n">snum</span>  <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step_number&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
+        <span class="n">snum</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step_number&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
         <span class="n">rtype</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reaction_type&quot;</span><span class="p">,</span> <span class="s2">&quot;—&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;—&quot;</span>
-        <span class="n">yld</span>   <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;yield_percent&quot;</span><span class="p">)</span>
+        <span class="n">yld</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;yield_percent&quot;</span><span class="p">)</span>
         <span class="n">src_s</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
-        <span class="n">cond</span>  <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditions&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">reac</span>  <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">prod</span>  <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;conditions&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">reac</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants_smiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">prod</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;product_smiles&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
         <span class="n">hdr_c</span> <span class="o">=</span> <span class="n">ORANGE</span> <span class="k">if</span> <span class="n">src_s</span> <span class="o">==</span> <span class="s2">&quot;rxn-insight&quot;</span> <span class="k">else</span> <span class="n">NAVY</span>
         <span class="n">yld_s</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">yld</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">if</span> <span class="n">yld</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span>
@@ -591,12 +575,12 @@
 
         <span class="c1">#  Measure how many lines the reaction type needs in the header ─</span>
         <span class="c1"># Reserve right side for yield text</span>
-        <span class="n">yld_txt</span>  <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Yield: </span><span class="si">{</span><span class="n">yld_s</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">yld_w</span>    <span class="o">=</span> <span class="n">_text_w</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">yld_txt</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_YIELD</span><span class="p">))</span>
+        <span class="n">yld_txt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Yield: </span><span class="si">{</span><span class="n">yld_s</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">yld_w</span> <span class="o">=</span> <span class="n">_text_w</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">yld_txt</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_YIELD</span><span class="p">))</span>
         <span class="n">hdr_text_w</span> <span class="o">=</span> <span class="n">W</span> <span class="o">-</span> <span class="n">yld_w</span> <span class="o">-</span> <span class="mi">20</span>   <span class="c1"># width available for &quot;Step N · rtype&quot;</span>
         <span class="n">step_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Step </span><span class="si">{</span><span class="n">snum</span><span class="si">}</span><span class="s2">  ·  &quot;</span>
-        <span class="n">prefix_w</span>    <span class="o">=</span> <span class="n">_text_w</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">step_prefix</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_STEP_HDR</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
-        <span class="n">rtype_w</span>     <span class="o">=</span> <span class="n">hdr_text_w</span> <span class="o">-</span> <span class="n">prefix_w</span>
+        <span class="n">prefix_w</span> <span class="o">=</span> <span class="n">_text_w</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">step_prefix</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_STEP_HDR</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">rtype_w</span> <span class="o">=</span> <span class="n">hdr_text_w</span> <span class="o">-</span> <span class="n">prefix_w</span>
 
         <span class="k">if</span> <span class="n">rtype_w</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>
             <span class="n">rtype_lines</span> <span class="o">=</span> <span class="n">_wrap_words</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">rtype_w</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_STEP_HDR</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
@@ -605,14 +589,14 @@
             <span class="n">rtype_lines</span> <span class="o">=</span> <span class="n">_wrap_words</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_STEP_HDR</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
 
         <span class="n">n_hdr_lines</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rtype_lines</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">HDR_H</span>  <span class="o">=</span> <span class="n">n_hdr_lines</span> <span class="o">*</span> <span class="p">(</span><span class="n">F_STEP_HDR</span> <span class="o">+</span> <span class="mi">6</span><span class="p">)</span> <span class="o">+</span> <span class="mi">20</span>
-        <span class="n">HDR_H</span>  <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">HDR_H</span><span class="p">,</span> <span class="n">F_STEP_HDR</span> <span class="o">+</span> <span class="n">F_YIELD</span> <span class="o">+</span> <span class="mi">28</span><span class="p">)</span>
+        <span class="n">HDR_H</span> <span class="o">=</span> <span class="n">n_hdr_lines</span> <span class="o">*</span> <span class="p">(</span><span class="n">F_STEP_HDR</span> <span class="o">+</span> <span class="mi">6</span><span class="p">)</span> <span class="o">+</span> <span class="mi">20</span>
+        <span class="n">HDR_H</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">HDR_H</span><span class="p">,</span> <span class="n">F_STEP_HDR</span> <span class="o">+</span> <span class="n">F_YIELD</span> <span class="o">+</span> <span class="mi">28</span><span class="p">)</span>
 
         <span class="c1">#  Measure conditions lines </span>
         <span class="n">cond_lines</span> <span class="o">=</span> <span class="n">_wrap_words</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="s2">&quot;Conditions: &quot;</span> <span class="o">+</span> <span class="n">cond_s</span><span class="p">,</span> <span class="n">W</span> <span class="o">-</span> <span class="mi">16</span><span class="p">,</span> <span class="n">_fnt</span><span class="p">(</span><span class="n">F_COND</span><span class="p">))</span>
-        <span class="n">n_cond</span>     <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_lines</span><span class="p">)</span>
-        <span class="n">COND_H</span>     <span class="o">=</span> <span class="n">n_cond</span> <span class="o">*</span> <span class="p">(</span><span class="n">F_COND</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="mi">16</span>
-        <span class="n">COND_H</span>     <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">COND_H</span><span class="p">,</span> <span class="n">F_COND</span> <span class="o">+</span> <span class="mi">24</span><span class="p">)</span>
+        <span class="n">n_cond</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_lines</span><span class="p">)</span>
+        <span class="n">COND_H</span> <span class="o">=</span> <span class="n">n_cond</span> <span class="o">*</span> <span class="p">(</span><span class="n">F_COND</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="mi">16</span>
+        <span class="n">COND_H</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">COND_H</span><span class="p">,</span> <span class="n">F_COND</span> <span class="o">+</span> <span class="mi">24</span><span class="p">)</span>
 
         <span class="c1">#  Draw header band </span>
         <span class="n">_draw_band</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">HDR_H</span><span class="p">,</span> <span class="n">hdr_c</span><span class="p">)</span>
@@ -671,8 +655,8 @@
 
         <span class="c1"># Recompute row width with final mol_w and centre</span>
         <span class="n">row_w</span> <span class="o">=</span> <span class="n">n_reac_shown</span> <span class="o">*</span> <span class="n">mol_w</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_reac_shown</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">PLUS_W</span> <span class="o">+</span> <span class="n">ARW_W</span> <span class="o">+</span> <span class="n">mol_w</span>
-        <span class="n">mx</span>    <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="p">(</span><span class="n">avail_w</span> <span class="o">-</span> <span class="n">row_w</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
-        <span class="n">my</span>    <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">6</span>
+        <span class="n">mx</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="p">(</span><span class="n">avail_w</span> <span class="o">-</span> <span class="n">row_w</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">my</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">6</span>
 
         <span class="c1"># Draw each reactant</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rsmi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reac</span><span class="p">[:</span><span class="n">n_reac_shown</span><span class="p">]):</span>
@@ -697,7 +681,7 @@
                 <span class="n">mx</span> <span class="o">+=</span> <span class="n">PLUS_W</span>
 
         <span class="c1"># Arrow →</span>
-        <span class="n">ay</span>  <span class="o">=</span> <span class="n">my</span> <span class="o">+</span> <span class="n">mol_h</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">ay</span> <span class="o">=</span> <span class="n">my</span> <span class="o">+</span> <span class="n">mol_h</span> <span class="o">//</span> <span class="mi">2</span>
         <span class="n">ax0</span> <span class="o">=</span> <span class="n">mx</span> <span class="o">+</span> <span class="mi">4</span>
         <span class="n">ax1</span> <span class="o">=</span> <span class="n">mx</span> <span class="o">+</span> <span class="n">ARW_W</span> <span class="o">-</span> <span class="mi">12</span>
         <span class="n">draw</span><span class="o">.</span><span class="n">line</span><span class="p">([(</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ay</span><span class="p">),</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ay</span><span class="p">)],</span> <span class="n">fill</span><span class="o">=</span><span class="n">NAVY</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
@@ -719,7 +703,7 @@
 
     <span class="c1">#  Paginate steps </span>
     <span class="n">STEPS_PER_PAGE</span> <span class="o">=</span> <span class="mi">3</span>
-    <span class="n">GAP_H</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.12</span> <span class="o">*</span> <span class="n">DPI</span><span class="p">)</span>
+    <span class="n">GAP_H</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.12</span> <span class="o">*</span> <span class="n">DPI</span><span class="p">)</span>
     <span class="n">STEP_H</span> <span class="o">=</span> <span class="p">(</span><span class="n">PH</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">MG</span> <span class="o">-</span> <span class="n">GAP_H</span> <span class="o">*</span> <span class="p">(</span><span class="n">STEPS_PER_PAGE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">//</span> <span class="n">STEPS_PER_PAGE</span>
 
     <span class="n">it</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">steps_data</span><span class="p">)</span>
