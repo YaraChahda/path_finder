@@ -33,9 +33,7 @@ except ImportError:
 PIL_SKIP = pytest.mark.skipif(not PIL_OK, reason="Pillow not available")
 
 
-# ---------------------------------------------------------------------------
 # Fixtures
-# ---------------------------------------------------------------------------
 
 BENZENE = "c1ccccc1"
 TOLUENE = "Cc1ccccc1"
@@ -70,18 +68,14 @@ def _make_details(criteria):
     }
 
 
-# ---------------------------------------------------------------------------
 # Import
-# ---------------------------------------------------------------------------
 
 def test_report_builder_importable():
     import src.path_finder.report_builder as report_builder
     assert hasattr(report_builder, "build_route_report_pdf")
 
 
-# ---------------------------------------------------------------------------
 # build_route_report_pdf — return type and structure
-# ---------------------------------------------------------------------------
 
 @PIL_SKIP
 def test_build_route_report_pdf_returns_bytes():
