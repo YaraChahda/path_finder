@@ -142,6 +142,10 @@ pip install -e .
 path-finder-setup
 path-finder
 ```
+> In the app's left sidebar, set the **AiZynthFinder config**
+> field to `data/aizynthfinder/config.yml` (the file written by `path-finder-setup`).
+> Pointing to the wrong file makes the search fail with
+> `AttributeError: 'list' object has no attribute 'split'`.
  
 ### Running tests
  
