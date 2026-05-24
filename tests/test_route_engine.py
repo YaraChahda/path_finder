@@ -26,7 +26,7 @@ sys.modules["aizynthfinder.aizynthfinder"].AiZynthFinder = _aiz_mock
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src", "path_finder"))
 
 import pytest
-import src.path_finder.route_engine as rt
+import path_finder.route_engine as rt
 
 
 # Helpers / fixtures
@@ -1075,7 +1075,7 @@ def test_load_rxninsight_database_success():
     fake_df.__getitem__ = lambda self, cols: fake_df
 
     with patch.object(rt, "RXNINSIGHT_AVAILABLE", True), \
-         patch("src.path_finder.route_engine.pd.read_parquet", return_value=fake_df), \
+         patch("path_finder.route_engine.pd.read_parquet", return_value=fake_df), \
          patch("os.path.exists", return_value=True):
         result = rt.load_rxninsight_database("fake.parquet")
     assert result is not None
@@ -1096,7 +1096,7 @@ def test_load_rxninsight_database_renames_reaction_column():
     fake_df.rename.return_value = renamed_df
 
     with patch.object(rt, "RXNINSIGHT_AVAILABLE", True), \
-         patch("src.path_finder.route_engine.pd.read_parquet", return_value=fake_df), \
+         patch("path_finder.route_engine.pd.read_parquet", return_value=fake_df), \
          patch("os.path.exists", return_value=True):
         result = rt.load_rxninsight_database("fake.parquet")
     fake_df.rename.assert_called_once()
@@ -1105,7 +1105,7 @@ def test_load_rxninsight_database_renames_reaction_column():
 def test_load_rxninsight_database_read_error():
     """Exception during read_parquet should return None gracefully."""
     with patch.object(rt, "RXNINSIGHT_AVAILABLE", True), \
-         patch("src.path_finder.route_engine.pd.read_parquet",
+         patch("path_finder.route_engine.pd.read_parquet",
                side_effect=Exception("read error")), \
          patch("os.path.exists", return_value=True):
         result = rt.load_rxninsight_database("fake.parquet")

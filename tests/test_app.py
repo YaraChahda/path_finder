@@ -34,7 +34,7 @@ except ImportError:
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src", "path_finder"))
 
 import pytest
-import src.path_finder.app as app
+import path_finder.app as app
 
 # Module-level checks
 
@@ -52,69 +52,69 @@ def test_app_main_is_callable():
 
 
 def test_module_ok_defined():
-    from src.path_finder.molecule_rendering import MODULE_OK
+    from path_finder.molecule_rendering import MODULE_OK
     assert isinstance(MODULE_OK, bool)
 
 
 # Imports re-exported from app_utensils
 
 def test_app_imports_load_banner():
-    from src.path_finder.app_utensils import load_banner
+    from path_finder.app_utensils import load_banner
     assert callable(load_banner)
 
 
 def test_app_imports_strip_emoji():
-    from src.path_finder.app_utensils import strip_emoji
+    from path_finder.app_utensils import strip_emoji
     assert callable(strip_emoji)
 
 
 def test_app_imports_is_purification_step():
-    from src.path_finder.app_utensils import is_purification_step
+    from path_finder.app_utensils import is_purification_step
     assert callable(is_purification_step)
 
 
 def test_app_imports_build_clickable_scheme_html():
-    from src.path_finder.app_utensils import build_clickable_scheme_html
+    from path_finder.app_utensils import build_clickable_scheme_html
     assert callable(build_clickable_scheme_html)
 
 
 def test_app_imports_build_score_table_html():
-    from src.path_finder.app_utensils import build_score_table_html
+    from path_finder.app_utensils import build_score_table_html
     assert callable(build_score_table_html)
 
 
 def test_app_imports_make_ranking_chart():
-    from src.path_finder.app_utensils import make_ranking_chart
+    from path_finder.app_utensils import make_ranking_chart
     assert callable(make_ranking_chart)
 
 
 def test_app_imports_make_yield_chart():
-    from src.path_finder.app_utensils import make_yield_chart
+    from path_finder.app_utensils import make_yield_chart
     assert callable(make_yield_chart)
 
 
 def test_app_imports_make_comparison_chart():
-    from src.path_finder.app_utensils import make_comparison_chart
+    from path_finder.app_utensils import make_comparison_chart
     assert callable(make_comparison_chart)
 
 
 def test_app_imports_build_why_ranked_html():
-    from src.path_finder.app_utensils import build_why_ranked_html
+    from path_finder.app_utensils import build_why_ranked_html
     assert callable(build_why_ranked_html)
 
 
 def test_app_imports_display_route_card():
-    from src.path_finder.app_utensils import display_route_card
+    from path_finder.app_utensils import display_route_card
     assert callable(display_route_card)
 
 
 def test_app_imports_load_dataset_cached():
-    from src.path_finder.app_utensils import load_dataset_cached
+    from path_finder.app_utensils import load_dataset_cached
     assert callable(load_dataset_cached)
 
 
 def test_app_imports_get_targets_cached():
-    from src.path_finder.app_utensils import get_targets_cached
+    from path_finder.app_utensils import get_targets_cached
     assert callable(get_targets_cached)
 
 

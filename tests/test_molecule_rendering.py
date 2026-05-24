@@ -7,7 +7,7 @@ import base64
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src", "path_finder"))
 
 import pytest
-from src.path_finder.molecule_rendering import (
+from path_finder.molecule_rendering import (
     mol_png,
     mol_b64_or_text_svg,
     fallback_data_uri,
@@ -194,7 +194,7 @@ def test_fallback_data_uri_pil_failure():
     """If PIL raises inside fallback_data_uri the 1×1 PNG is returned."""
     import sys
     from unittest.mock import patch
-    from src.path_finder import molecule_rendering as mr
+    from path_finder import molecule_rendering as mr
     with patch.dict(sys.modules, {"PIL":None,"PIL.Image":None,"PIL.ImageDraw":None}):
         result = mr.fallback_data_uri("test", 100, 80)
     assert result.startswith("data:image/png;base64,")

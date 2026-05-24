@@ -9,7 +9,7 @@ from unittest.mock import patch, MagicMock
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src", "path_finder"))
 
 import pytest
-import src.path_finder.launch as launch
+import path_finder.launch as launch
 
 
 # _pkg_root

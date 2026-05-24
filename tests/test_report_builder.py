@@ -71,7 +71,7 @@ def _make_details(criteria):
 # Import
 
 def test_report_builder_importable():
-    import src.path_finder.report_builder as report_builder
+    import path_finder.report_builder as report_builder
     assert hasattr(report_builder, "build_route_report_pdf")
 
 
@@ -79,7 +79,7 @@ def test_report_builder_importable():
 
 @PIL_SKIP
 def test_build_route_report_pdf_returns_bytes():
-    from src.path_finder.report_builder import build_route_report_pdf
+    from path_finder.report_builder import build_route_report_pdf
     steps = [_make_step(1, [BENZENE], TOLUENE, 75.0)]
     route = _make_route(steps)
     criteria = ["steps", "yield", "atom_economy"]
@@ -91,7 +91,7 @@ def test_build_route_report_pdf_returns_bytes():
 
 @PIL_SKIP
 def test_build_route_report_pdf_non_empty():
-    from src.path_finder.report_builder import build_route_report_pdf
+    from path_finder.report_builder import build_route_report_pdf
     steps = [_make_step(1, [BENZENE], TOLUENE, 75.0)]
     route = _make_route(steps)
     criteria = ["steps", "yield", "atom_economy"]
@@ -103,7 +103,7 @@ def test_build_route_report_pdf_non_empty():
 
 @PIL_SKIP
 def test_build_route_report_pdf_starts_with_pdf_header():
-    from src.path_finder.report_builder import build_route_report_pdf
+    from path_finder.report_builder import build_route_report_pdf
     steps = [_make_step(1, [BENZENE], TOLUENE, 75.0)]
     route = _make_route(steps)
     criteria = ["steps", "yield", "atom_economy"]
@@ -115,7 +115,7 @@ def test_build_route_report_pdf_starts_with_pdf_header():
 
 @PIL_SKIP
 def test_build_route_report_pdf_empty_route():
-    from src.path_finder.report_builder import build_route_report_pdf
+    from path_finder.report_builder import build_route_report_pdf
     route = _make_route([], name="Empty Route")
     criteria = ["steps", "yield", "atom_economy"]
     details = _make_details(criteria)
@@ -127,7 +127,7 @@ def test_build_route_report_pdf_empty_route():
 
 @PIL_SKIP
 def test_build_route_report_pdf_multi_step():
-    from src.path_finder.report_builder import build_route_report_pdf
+    from path_finder.report_builder import build_route_report_pdf
     steps = [
         _make_step(1, [BENZENE], TOLUENE, 80.0),
         _make_step(2, [TOLUENE], ASPIRIN, 65.0),
@@ -145,7 +145,7 @@ def test_build_route_report_pdf_multi_step():
 
 @PIL_SKIP
 def test_build_route_report_pdf_predicted_route():
-    from src.path_finder.report_builder import build_route_report_pdf
+    from path_finder.report_builder import build_route_report_pdf
     steps = [_make_step(1, [BENZENE], TOLUENE, None)]
     steps[0]["source"] = "rxn-insight"
     route = _make_route(steps, status="predicted")
@@ -162,7 +162,7 @@ def test_build_route_report_pdf_predicted_route():
 
 @PIL_SKIP
 def test_build_route_report_pdf_no_yield_data():
-    from src.path_finder.report_builder import build_route_report_pdf
+    from path_finder.report_builder import build_route_report_pdf
     steps = [_make_step(1, [BENZENE], TOLUENE, None)]
     route = _make_route(steps)
     criteria = ["steps", "yield", "atom_economy"]
@@ -174,7 +174,7 @@ def test_build_route_report_pdf_no_yield_data():
 
 @PIL_SKIP
 def test_build_route_report_pdf_all_criteria():
-    from src.path_finder.report_builder import build_route_report_pdf
+    from path_finder.report_builder import build_route_report_pdf
     steps = [_make_step(1, [BENZENE], TOLUENE, 80.0)]
     route = _make_route(steps)
     criteria = ["steps", "e_factor", "toxicity"]
@@ -186,7 +186,7 @@ def test_build_route_report_pdf_all_criteria():
 
 @PIL_SKIP
 def test_build_route_report_pdf_many_steps():
-    from src.path_finder.report_builder import build_route_report_pdf
+    from path_finder.report_builder import build_route_report_pdf
     steps = [_make_step(i + 1, [BENZENE], TOLUENE, 80.0) for i in range(9)]
     route = _make_route(steps)
     criteria = ["steps", "yield", "atom_economy"]
@@ -199,7 +199,7 @@ def test_build_route_report_pdf_many_steps():
 
 @PIL_SKIP
 def test_build_route_report_pdf_validated_status():
-    from src.path_finder.report_builder import build_route_report_pdf
+    from path_finder.report_builder import build_route_report_pdf
     steps = [_make_step(1, [BENZENE], TOLUENE, 85.0)]
     route = _make_route(steps, status="validated")
     criteria = ["steps", "yield", "atom_economy"]

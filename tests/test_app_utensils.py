@@ -44,7 +44,7 @@ try:
 except ImportError:
     NP_OK = False
 
-from src.path_finder.app_utensils import (
+from path_finder.app_utensils import (
     load_banner,
     strip_emoji,
     is_purification_step,
@@ -55,7 +55,7 @@ from src.path_finder.app_utensils import (
 )
 
 if MPL_OK and NP_OK:
-    from src.path_finder.app_utensils import (
+    from path_finder.app_utensils import (
         hires_fig,
         make_ranking_chart,
         make_yield_chart,
@@ -460,7 +460,7 @@ def test_criteria_score_desc_values_are_strings():
             assert isinstance(v, str)
 
 # --- build_why_ranked_html ---
-from src.path_finder.app_utensils import build_why_ranked_html
+from path_finder.app_utensils import build_why_ranked_html
 
 def _why_details(criteria):
     return {c:{"raw":0.7,"weight":0.33,"weighted":0.23,"excluded":False} for c in criteria}
@@ -516,9 +516,9 @@ def test_why_ranked_french():
 
 # --- load_dataset_cached / get_targets_cached ---
 def test_load_dataset_cached_is_callable():
-    from src.path_finder.app_utensils import load_dataset_cached
+    from path_finder.app_utensils import load_dataset_cached
     assert callable(load_dataset_cached)
 
 def test_get_targets_cached_is_callable():
-    from src.path_finder.app_utensils import get_targets_cached
+    from path_finder.app_utensils import get_targets_cached
     assert callable(get_targets_cached)
