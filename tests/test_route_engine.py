@@ -29,9 +29,7 @@ import pytest
 import src.path_finder.route_engine as rt
 
 
-# ---------------------------------------------------------------------------
 # Helpers / fixtures
-# ---------------------------------------------------------------------------
 
 def make_step(reactants, product, yield_pct=None, source="dataset", reaction_type=""):
     return {
@@ -53,9 +51,7 @@ TOLUENE = "Cc1ccccc1"
 ASPIRIN  = "CC(=O)Oc1ccccc1C(=O)O"
 
 
-# ---------------------------------------------------------------------------
 # to_canonical
-# ---------------------------------------------------------------------------
 
 def test_to_canonical_empty_string():
     assert rt.to_canonical("") == ""
@@ -88,9 +84,7 @@ def test_to_canonical_idempotent():
     assert c1 == c2
 
 
-# ---------------------------------------------------------------------------
 # safe_mol
-# ---------------------------------------------------------------------------
 
 def test_safe_mol_empty_returns_none():
     assert rt.safe_mol("") is None
@@ -110,9 +104,7 @@ def test_safe_mol_type():
     assert hasattr(mol, "GetNumAtoms")
 
 
-# ---------------------------------------------------------------------------
 # validate_smiles_for_aizynthfinder
-# ---------------------------------------------------------------------------
 
 def test_validate_smiles_raises_on_empty():
     with pytest.raises(ValueError, match="empty"):
@@ -129,10 +121,7 @@ def test_validate_smiles_returns_canonical():
     assert isinstance(result, str)
     assert len(result) > 0
 
-
-# ---------------------------------------------------------------------------
 # build_dataset_smiles_index
-# ---------------------------------------------------------------------------
 
 def test_build_dataset_smiles_index_empty():
     dataset = {"all": []}
@@ -153,9 +142,7 @@ def test_build_dataset_smiles_index_collects_reactants():
     assert rt.to_canonical(TOLUENE) in index
 
 
-# ---------------------------------------------------------------------------
 # bottleneck_yield
-# ---------------------------------------------------------------------------
 
 def test_bottleneck_yield_empty_steps():
     assert rt.bottleneck_yield([]) is None
@@ -188,9 +175,7 @@ def test_bottleneck_yield_ignores_none():
     assert rt.bottleneck_yield(steps) == 70.0
 
 
-# ---------------------------------------------------------------------------
 # average_yield
-# ---------------------------------------------------------------------------
 
 def test_average_yield_empty():
     assert rt.average_yield([]) is None
@@ -223,9 +208,7 @@ def test_average_yield_ignores_none():
     assert rt.average_yield(steps) == pytest.approx(70.0)
 
 
-# ---------------------------------------------------------------------------
 # cumulative_yield
-# ---------------------------------------------------------------------------
 
 def test_cumulative_yield_empty():
     assert rt.cumulative_yield([]) == pytest.approx(1.0)
@@ -257,9 +240,7 @@ def test_cumulative_yield_all_none():
     assert rt.cumulative_yield(steps) == pytest.approx(1.0)
 
 
-# ---------------------------------------------------------------------------
 # get_substances_list
-# ---------------------------------------------------------------------------
 
 def test_get_substances_list_empty():
     result = rt.get_substances_list([])
@@ -324,9 +305,7 @@ def test_get_substances_list_reagents():
     assert "BnBr" in result["reagents"]
 
 
-# ---------------------------------------------------------------------------
 # fmt_conditions
-# ---------------------------------------------------------------------------
 
 def test_fmt_conditions_empty_dict():
     assert rt.fmt_conditions({}) == ""
@@ -362,9 +341,7 @@ def test_fmt_conditions_multiple_fields():
     assert "DCM" in result
 
 
-# ---------------------------------------------------------------------------
 # calc_atom_economy
-# ---------------------------------------------------------------------------
 
 def test_calc_atom_economy_invalid_product():
     result = rt.calc_atom_economy(["CC"], "not!valid")
@@ -386,9 +363,7 @@ def test_calc_atom_economy_capped_at_one():
     assert result <= 1.0
 
 
-# ---------------------------------------------------------------------------
 # calc_e_factor
-# ---------------------------------------------------------------------------
 
 def test_calc_e_factor_invalid_product():
     result = rt.calc_e_factor([BENZENE], "not!valid", 1.0)
@@ -412,9 +387,7 @@ def test_calc_e_factor_perfect_yield():
     assert 0.0 < result <= 1.0
 
 
-# ---------------------------------------------------------------------------
 # build_solvent_map
-# ---------------------------------------------------------------------------
 
 def test_build_solvent_map_returns_dict():
     result = rt.build_solvent_map({})
@@ -443,9 +416,7 @@ def test_build_solvent_map_appends_tox_index_keys():
     assert rt.to_canonical(BENZENE) in result
 
 
-# ---------------------------------------------------------------------------
 # compute_weights
-# ---------------------------------------------------------------------------
 
 def test_compute_weights_returns_dict():
     result = rt.compute_weights(["steps", "yield", "atom_economy"])
@@ -477,10 +448,7 @@ def test_compute_weights_single_criterion():
     result = rt.compute_weights(["steps"])
     assert result["steps"] == pytest.approx(1.0)
 
-
-# ---------------------------------------------------------------------------
 # compute_all_scores
-# ---------------------------------------------------------------------------
 
 def test_compute_all_scores_returns_dict():
     route = make_route(make_step([BENZENE], TOLUENE, 80.0))
@@ -502,9 +470,7 @@ def test_compute_all_scores_values_are_floats():
         assert isinstance(v, float)
 
 
-# ---------------------------------------------------------------------------
 # compute_steps
-# ---------------------------------------------------------------------------
 
 def test_compute_steps_one_step():
     route = make_route(make_step([BENZENE], TOLUENE))
@@ -524,9 +490,7 @@ def test_compute_steps_empty_route():
     assert rt.compute_steps(route, {}) == pytest.approx(1.0)
 
 
-# ---------------------------------------------------------------------------
 # compute_yield
-# ---------------------------------------------------------------------------
 
 def test_compute_yield_predicted_route_returns_neutral():
     route = {"dataset_steps": [make_step([BENZENE], TOLUENE, 50.0)],
@@ -548,9 +512,7 @@ def test_compute_yield_cumulative():
     assert rt.compute_yield(route, {}) == pytest.approx(0.8 * 0.5)
 
 
-# ---------------------------------------------------------------------------
 # compute_atom_economy
-# ---------------------------------------------------------------------------
 
 def test_compute_atom_economy_empty():
     route = {"dataset_steps": []}
@@ -563,9 +525,7 @@ def test_compute_atom_economy_returns_float_in_range():
     assert 0.0 <= result <= 1.0
 
 
-# ---------------------------------------------------------------------------
 # rank_weighted
-# ---------------------------------------------------------------------------
 
 def test_rank_weighted_empty_routes():
     result = rt.rank_weighted([], ["steps", "yield", "atom_economy"], {})
@@ -613,9 +573,7 @@ def test_rank_weighted_details_have_required_keys():
         assert "excluded" in details[c]
 
 
-# ---------------------------------------------------------------------------
 # load_reaction_dataset
-# ---------------------------------------------------------------------------
 
 def test_load_reaction_dataset_file_not_found():
     with pytest.raises(FileNotFoundError):
@@ -680,9 +638,7 @@ def test_load_reaction_dataset_routes_sorted_by_step(tmp_path):
     assert steps[1]["step_number"] == 2
 
 
-# ---------------------------------------------------------------------------
 # load_toxicity_dataset
-# ---------------------------------------------------------------------------
 
 def test_load_toxicity_dataset_missing_file():
     result = rt.load_toxicity_dataset("/no/such/file.json")
@@ -715,9 +671,7 @@ def test_load_toxicity_dataset_keyed_by_canonical(tmp_path):
     assert canon in result
 
 
-# ---------------------------------------------------------------------------
 # is_route_covered_by_dataset
-# ---------------------------------------------------------------------------
 
 def test_is_route_covered_empty_steps():
     aiz_route = {"steps": []}
@@ -736,9 +690,7 @@ def test_is_route_covered_none_in_index():
     assert rt.is_route_covered_by_dataset(aiz_route, set()) is False
 
 
-# ---------------------------------------------------------------------------
 # filter_routes_by_starting_materials
-# ---------------------------------------------------------------------------
 
 def test_filter_routes_empty_dataset():
     dataset = {"by_route": {}}
