@@ -37,8 +37,10 @@ dependencies = [
   "requests>=2.31",
   "aizynthfinder>=4.2.0",
   "click>=8.1",
-  "rxn-insight>=0.1.0",
 ]
+
+[project.optional-dependencies]
+predicted = ["rxn-insight>=0.1.0"]
 
 [project.scripts]
 path-finder       = "path_finder.launch:main"
