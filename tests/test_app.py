@@ -36,10 +36,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src", "path_fi
 import pytest
 import src.path_finder.app as app
 
-
-# ---------------------------------------------------------------------------
 # Module-level checks
-# ---------------------------------------------------------------------------
 
 def test_app_module_importable():
     assert app is not None
@@ -59,9 +56,7 @@ def test_module_ok_defined():
     assert isinstance(MODULE_OK, bool)
 
 
-# ---------------------------------------------------------------------------
 # Imports re-exported from app_utensils
-# ---------------------------------------------------------------------------
 
 def test_app_imports_load_banner():
     from src.path_finder.app_utensils import load_banner
@@ -123,9 +118,7 @@ def test_app_imports_get_targets_cached():
     assert callable(get_targets_cached)
 
 
-# ---------------------------------------------------------------------------
 # app_layout constants re-exported through app
-# ---------------------------------------------------------------------------
 
 def test_app_layout_lang_accessible():
     from path_finder.app_layout import LANG
@@ -144,10 +137,7 @@ def test_app_layout_palette_accessible():
     assert len(PALETTE) > 0
 
 
-# ---------------------------------------------------------------------------
 # main() smoke test with Streamlit fully mocked
-# ---------------------------------------------------------------------------
-
 def test_main_runs_without_exception():
     """Verify main() does not raise when Streamlit is fully mocked."""
     st = sys.modules["streamlit"]
@@ -177,11 +167,7 @@ def test_main_runs_without_exception():
         # our code itself is raised.
         pass
 
-
-# ---------------------------------------------------------------------------
 # Constants defined in app.py
-# ---------------------------------------------------------------------------
-
 def test_rxninsight_ok_defined():
     assert hasattr(app, "RXNINSIGHT_OK")
     assert isinstance(app.RXNINSIGHT_OK, bool)
