@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "path-finder-retrosynthesis"
-version = "1.0.13"
+version = "1.0.14"
 description = "Retrosynthesis route finder — AiZynthFinder + Rxn-INSIGHT + Chemistry by Design"
 readme = "README.md"
 license = { file = "LICENSE" }
