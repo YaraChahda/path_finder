@@ -13,6 +13,6 @@ After pip install path-finder-retrosynthesis:
 from __future__ import annotations
 
 from path_finder.route_engine import find_best_routes
+from path_finder._about_ import __version__
 
-__version__ = "1.0.2"
 __authors__ = ["Yara Chahda", "Corentin Portmann", "Ines Ouchen"]
