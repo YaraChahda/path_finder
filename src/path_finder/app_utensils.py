@@ -17,9 +17,9 @@ import matplotlib.patches as mpatches
 from app_layout import LANG, CRITERIA_LABELS, PALETTE, FIG_BG
 from molecule_rendering import (
     mol_png,
-    mol_b64_or_text_svg  as _mol_b64_or_text_svg,
-    fallback_data_uri    as _fallback_data_uri,
-    is_trivial_smiles    as _is_trivial_smiles,
+    mol_b64_or_text_svg as _mol_b64_or_text_svg,
+    fallback_data_uri as _fallback_data_uri,
+    is_trivial_smiles as _is_trivial_smiles,
     MODULE_OK,
 )
 from report_builder import build_route_report_pdf
@@ -147,7 +147,7 @@ def load_banner(path: str) -> str:
     if not p.exists():
         return ""
     data = base64.b64encode(p.read_bytes()).decode()
-    ext  = p.suffix.lstrip(".").lower()
+    ext = p.suffix.lstrip(".").lower()
     mime = "image/png" if ext == "png" else f"image/{ext}"
     return f"data:{mime};base64,{data}"
 
@@ -171,12 +171,12 @@ def is_purification_step(step: dict) -> bool:
     rtype = (step.get("reaction_type") or "").lower()
     if any(kw in rtype for kw in ("purif", "recryst", "chroma", "isolation", "workup")):
         return True
-    prod  = step.get("product_smiles", "")
+    prod = step.get("product_smiles", "")
     reacs = step.get("reactants_smiles", [])
     if prod and prod in reacs:
         return True
     if MODULE_OK and prod and Chem is not None:
-        mol_p      = Chem.MolFromSmiles(prod)
+        mol_p = Chem.MolFromSmiles(prod)
         canon_prod = Chem.MolToSmiles(mol_p) if mol_p else prod
         for r in reacs:
             mol_r = Chem.MolFromSmiles(r) if r else None
@@ -198,25 +198,25 @@ def build_clickable_scheme_html(
         return "<p style='color:#888'>No steps.</p>"
 
     arrow_color = "#E65100" if is_predicted else "#1a2e44"
-    hover_bg    = "#FFF3E0" if is_predicted else "#E8F0FC"
-    panel_bg    = "#FFF8F0" if is_predicted else "#F0F7FF"
-    rid_js      = "".join(c for c in route_id if c.isalnum())
+    hover_bg = "#FFF3E0" if is_predicted else "#E8F0FC"
+    panel_bg = "#FFF8F0" if is_predicted else "#F0F7FF"
+    rid_js = "".join(c for c in route_id if c.isalnum())
 
     #  Layout constants 
     MOL_W, MOL_H = 158, 112
     CO_W,  CO_H  = 96,  70
-    CELL_W       = MOL_W + 20
-    SCHEME_H     = 200
+    CELL_W = MOL_W + 20
+    SCHEME_H = 200
     ARROW_SHAFT_W = 90
-    ARROW_CELL_W  = 145
+    ARROW_CELL_W = 145
 
     # Compute padding above the band for co-reactant images
     max_co_rows = 1
     for step in steps_data:
         reactants = step.get("reactants_smiles", [])
-        product   = step.get("product_smiles", "")
-        cond      = step.get("conditions", {})
-        co_count  = sum(
+        product = step.get("product_smiles", "")
+        cond = step.get("conditions", {})
+        co_count = sum(
             1 for r in reactants
             if r != product and not _is_trivial_smiles(r)
         )
@@ -229,22 +229,22 @@ def build_clickable_scheme_html(
         max_co_rows = max(max_co_rows, max(1, (co_count + 2) // 3))
 
     display_rows = min(max_co_rows, 2)
-    PAD_TOP      = display_rows * (CO_H + 2) + 50
-    PAD_BOTTOM   = display_rows * (CO_H + 2) // 3 + 10
+    PAD_TOP = display_rows * (CO_H + 2) + 50
+    PAD_BOTTOM = display_rows * (CO_H + 2) // 3 + 10
 
     #  Build molecule sequence and per-arrow metadata 
     mol_sequence = []
-    arrow_data   = []
+    arrow_data = []
 
     for i, step in enumerate(steps_data):
-        reactants  = step.get("reactants_smiles", [])
-        product    = step.get("product_smiles", "")
-        cond       = step.get("conditions", {})
-        rtype      = step.get("reaction_type", "") or ""
-        yld        = step.get("yield_percent")
-        snum       = step.get("step_number", i + 1)
-        src_step   = step.get("source", "dataset")
-        is_purif   = is_purification_step(step)
+        reactants = step.get("reactants_smiles", [])
+        product = step.get("product_smiles", "")
+        cond = step.get("conditions", {})
+        rtype = step.get("reaction_type", "") or ""
+        yld = step.get("yield_percent")
+        snum = step.get("step_number", i + 1)
+        src_step = step.get("source", "dataset")
+        is_purif = is_purification_step(step)
 
         if i == 0 and reactants and reactants[0] not in mol_sequence:
             mol_sequence.append(reactants[0])
@@ -255,7 +255,7 @@ def build_clickable_scheme_html(
             else:
                 mol_sequence.append(product)
 
-        prev    = mol_sequence[-2] if len(mol_sequence) >= 2 else ""
+        prev = mol_sequence[-2] if len(mol_sequence) >= 2 else ""
         co_draw = []
         co_text = []
         for r in reactants:
@@ -290,9 +290,9 @@ def build_clickable_scheme_html(
                     all_cond_parts.append(r)
         if cond.get("apparatus"):
             all_cond_parts.append("(" + cond["apparatus"] + ")")
-        cond_display  = "  ·  ".join(all_cond_parts)
+        cond_display = "  ·  ".join(all_cond_parts)
         display_rtype = rtype if not (is_purif and not rtype) else "Purification / Isolation"
-        below_parts   = []
+        below_parts = []
         if yld is not None and src_step != "rxn-insight":
             below_parts.append(str(yld) + "%")
         for t in co_text[:3]:
@@ -312,18 +312,18 @@ def build_clickable_scheme_html(
         })
 
     #  Pre-render molecule images 
-    mol_imgs   = {s: _mol_b64_or_text_svg(s, MOL_W, MOL_H) for s in mol_sequence if s}
-    co_imgs    = {}
-    step_imgs  = {}
+    mol_imgs = {s: _mol_b64_or_text_svg(s, MOL_W, MOL_H) for s in mol_sequence if s}
+    co_imgs = {}
+    step_imgs = {}
     for a in arrow_data:
         for smi in a["co_draw"]:
             if smi and smi not in co_imgs:
                 co_imgs[smi] = _mol_b64_or_text_svg(smi, CO_W, CO_H)
     for a in arrow_data:
         r_b64s = [_mol_b64_or_text_svg(r, 110, 78) for r in a["reactants"][:4]]
-        p_b64  = _mol_b64_or_text_svg(a["product"], 110, 78)
+        p_b64 = _mol_b64_or_text_svg(a["product"], 110, 78)
         step_imgs[str(a["step"])] = {
-            "reactants":       r_b64s, "product":         p_b64,
+            "reactants": r_b64s, "product": p_b64,
             "reactant_smiles": a["reactants"], "product_smiles": a["product"],
         }
     step_imgs_json = json.dumps(step_imgs)
@@ -345,9 +345,9 @@ def build_clickable_scheme_html(
             'cursor:zoom-in" onclick="openFullImg(this.src)"/></div>'
         )
         if idx < len(arrow_data):
-            a             = arrow_data[idx]
-            co_slice      = a["co_draw"][:4]
-            n_co          = len(co_slice)
+            a = arrow_data[idx]
+            co_slice = a["co_draw"][:4]
+            n_co = len(co_slice)
             def _co_tag(s):
                 u = co_imgs.get(s, _fallback_data_uri(s, CO_W, CO_H))
                 return (
@@ -526,8 +526,8 @@ def build_score_table_html(
     lang: str = "en",
 ) -> str:
     """Renders the score breakdown table for a route card (raw score, weight, contribution per criterion)."""
-    T   = LANG[lang]
-    CL  = CRITERIA_LABELS[lang]
+    T = LANG[lang]
+    CL = CRITERIA_LABELS[lang]
     csd = CRITERIA_SCORE_DESC.get(lang, CRITERIA_SCORE_DESC["en"])
     rows = []
     for c in criteria:
@@ -539,7 +539,7 @@ def build_score_table_html(
                 f"<td colspan='3'><em>excluded (predicted route)</em></td></tr>"
             )
             continue
-        w    = weights.get(c, 0)
+        w = weights.get(c, 0)
         cont = details[c]["weighted"]
         rows.append(
             f"<tr>"
@@ -566,14 +566,14 @@ def build_score_table_html(
 
 def make_ranking_chart(results: list, target_name: str, lang: str = "en"):
     """Horizontal bar chart ranking routes by score. Shown above the route cards when more than one route exists."""
-    T      = LANG[lang]
+    T = LANG[lang]
     labels = [r[2].get("matched_route_name", f"Route {i+1}")[:32]
               for i, r in enumerate(results)]
     scores = [r[0] for r in results]
-    n      = len(scores)
+    n = len(scores)
     fig, ax = hires_fig(figsize=(7, max(2.0, n * 0.65)))
-    colors  = [PALETTE[i % len(PALETTE)] for i in range(n)]
-    bars    = ax.barh(np.arange(n), scores, color=colors, height=0.52, edgecolor="none")
+    colors = [PALETTE[i % len(PALETTE)] for i in range(n)]
+    bars = ax.barh(np.arange(n), scores, color=colors, height=0.52, edgecolor="none")
     for bar, s in zip(bars, scores):
         ax.text(s + max(scores) * 0.013, bar.get_y() + bar.get_height() / 2,
                 f"{s:.4f}", va="center", fontsize=9.5, color="#1a2e44", fontweight="600")
@@ -593,8 +593,8 @@ def make_ranking_chart(results: list, target_name: str, lang: str = "en"):
 
 def make_yield_chart(steps_route: list, lang: str = "en"):
     """Bar chart of reported step yields. Steps without a yield are simply omitted — no implied 0%."""
-    T  = LANG[lang]
-    n  = len(steps_route)
+    T = LANG[lang]
+    n = len(steps_route)
     reported_vals  = []
     reported_steps = []
     for i, s in enumerate(steps_route):
@@ -626,20 +626,20 @@ def make_yield_chart(steps_route: list, lang: str = "en"):
 
 def make_comparison_chart(sel_results: list, criteria: list, lang: str = "en"):
     """Grouped horizontal bar chart for side-by-side criterion score comparison in the Analysis tab."""
-    T           = LANG[lang]
-    CL          = CRITERIA_LABELS[lang]
+    T = LANG[lang]
+    CL = CRITERIA_LABELS[lang]
     route_names = [r[2].get("matched_route_name", f"R{i+1}")[:20]
                    for i, r in enumerate(sel_results)]
     n_routes = len(sel_results)
-    n_crit   = len(criteria)
-    x        = np.arange(n_crit)
-    bar_h    = 0.72 / n_routes
-    offsets  = np.linspace(-(n_routes - 1) / 2, (n_routes - 1) / 2, n_routes) * bar_h
-    fig, ax  = hires_fig(figsize=(6.5, max(2.8, n_crit * 1.0)))
+    n_crit = len(criteria)
+    x = np.arange(n_crit)
+    bar_h = 0.72 / n_routes
+    offsets = np.linspace(-(n_routes - 1) / 2, (n_routes - 1) / 2, n_routes) * bar_h
+    fig, ax = hires_fig(figsize=(6.5, max(2.8, n_crit * 1.0)))
     for i, (score, details, route) in enumerate(sel_results):
-        vals  = [details[c].get("raw", 0) or 0 for c in criteria]
+        vals = [details[c].get("raw", 0) or 0 for c in criteria]
         color = PALETTE[i % len(PALETTE)]
-        bars  = ax.barh(x + offsets[i], vals, bar_h * 0.88,
+        bars = ax.barh(x + offsets[i], vals, bar_h * 0.88,
                         color=color, label=route_names[i], edgecolor="none", alpha=0.92)
         for bar, v in zip(bars, vals):
             ax.text(v + 0.012, bar.get_y() + bar.get_height() / 2,
@@ -670,11 +670,11 @@ def build_why_ranked_html(
     lang: str = "en",
 ) -> str:
     """Builds the 'Why is this route ranked #N?' box with one plain-language bullet per top-2 criterion."""
-    T   = LANG[lang]
-    CL  = CRITERIA_LABELS[lang]
-    bn  = rt.bottleneck_yield(steps_data)
-    av  = rt.average_yield(steps_data)
-    n   = len(steps_data)
+    T = LANG[lang]
+    CL = CRITERIA_LABELS[lang]
+    bn = rt.bottleneck_yield(steps_data)
+    av = rt.average_yield(steps_data)
+    n = len(steps_data)
     bullets = []
     for crit in criteria[:2]:
         if crit == "steps":
@@ -712,7 +712,7 @@ def build_why_ranked_html(
 def smiles_copy_widget(smiles: str, label: str = "") -> None:
     """Renders a compact SMILES label with a one-click Copy button using the browser clipboard API."""
     short = smiles[:38] + ("…" if len(smiles) > 38 else "")
-    safe  = smiles.replace("`", "\\`").replace("\\", "\\\\")
+    safe = smiles.replace("`", "\\`").replace("\\", "\\\\")
     html_snip = (
         "<div style='display:flex;align-items:center;gap:6px;background:#f5f7fa;"
         "border:1px solid #dce3ec;border-radius:6px;padding:4px 8px;"
@@ -750,20 +750,20 @@ def display_route_card(
     score table, why-ranked box, PDF download, reaction scheme, substances list.
     Expanded by default only for rank 1.
     """
-    T          = LANG[lang]
+    T = LANG[lang]
     route_name = route.get("matched_route_name", "?")
-    tgt        = route.get("matched_target", "?")
+    tgt = route.get("matched_target", "?")
     steps_data = route.get("dataset_steps", [])
-    n_steps    = len(steps_data)
-    bn         = rt.bottleneck_yield(steps_data)
-    av         = rt.average_yield(steps_data)
-    medals     = ["🥇","🥈","🥉","4️.","5️.","6️.","7️.","8️.","9️.","10."]
-    medal      = medals[rank - 1] if rank <= 10 else f"#{rank}"
-    route_key  = "".join(c for c in route.get("matched_route_id", "r") if c.isalnum())
-    is_pred    = route.get("is_predicted", False)
-    status     = route.get("validation_status", "dataset")
-    v          = route.get("validated_steps_count", 0)
-    t_         = route.get("total_steps_count", 0)
+    n_steps = len(steps_data)
+    bn = rt.bottleneck_yield(steps_data)
+    av = rt.average_yield(steps_data)
+    medals = ["🥇","🥈","🥉","4️.","5️.","6️.","7️.","8️.","9️.","10."]
+    medal = medals[rank - 1] if rank <= 10 else f"#{rank}"
+    route_key = "".join(c for c in route.get("matched_route_id", "r") if c.isalnum())
+    is_pred = route.get("is_predicted", False)
+    status = route.get("validation_status", "dataset")
+    v = route.get("validated_steps_count", 0)
+    t_ = route.get("total_steps_count", 0)
 
     with st.expander(
         f"{medal}  [{badge}]  {route_name}  ·  {tgt}  ·  Score: **{score_total:.3f}**",
@@ -783,11 +783,11 @@ def display_route_card(
             )
 
         m1, m2, m3, m4 = st.columns(4)
-        m1.metric(T["metric_score"],     f"{score_total:.3f}", help=T["metric_score_help"])
-        m2.metric(T["metric_steps"],     n_steps)
+        m1.metric(T["metric_score"], f"{score_total:.3f}", help=T["metric_score_help"])
+        m2.metric(T["metric_steps"], n_steps)
         m3.metric(T["metric_bottleneck"],
                   f"{bn:.1f}%" if bn is not None else "—", help=T["metric_bn_help"])
-        m4.metric(T["metric_avg"],       f"{av:.1f}%" if av is not None else "—")
+        m4.metric(T["metric_avg"], f"{av:.1f}%" if av is not None else "—")
 
         st.markdown(f"**{T['contrib_title']}**")
         st.html(build_score_table_html(details, criteria, weights, lang))
@@ -820,10 +820,10 @@ def display_route_card(
 
         st.markdown("---")
         with st.expander("🧪 Substances needed", expanded=False):
-            sub      = rt.get_substances_list(steps_data)
+            sub = rt.get_substances_list(steps_data)
             all_mols = sub["to_buy"] + sub["to_prepare"][:6]
             if all_mols:
-                n_cols   = min(4, len(all_mols))
+                n_cols = min(4, len(all_mols))
                 cols_sub = st.columns(n_cols)
                 for i, smi in enumerate(all_mols):
                     with cols_sub[i % n_cols]:
