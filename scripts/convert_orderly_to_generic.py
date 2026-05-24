@@ -1,8 +1,8 @@
 import json, glob, pandas as pd
 from rdkit import Chem
 
-PARQUET_GLOB  = "data/orderly/uspto/extracted_ords/*.parquet"
-OUTPUT_JSON   = "data/generic_reactions.json"
+PARQUET_GLOB = "data/orderly/uspto/extracted_ords/*.parquet"
+OUTPUT_JSON = "data/generic_reactions.json"
 MAX_REACTIONS = 10000
 
 def canonical(smi):
@@ -48,12 +48,12 @@ for fpath in files:
 
     cols = df.columns.tolist()
     reactant_cols = sorted([c for c in cols if c.startswith("reactant_")])
-    product_cols  = sorted([c for c in cols if c.startswith("product_")])
-    solvent_cols  = sorted([c for c in cols if c.startswith("solvent_")])
-    agent_cols    = sorted([c for c in cols if c.startswith("agent_") or
+    product_cols = sorted([c for c in cols if c.startswith("product_")])
+    solvent_cols = sorted([c for c in cols if c.startswith("solvent_")])
+    agent_cols = sorted([c for c in cols if c.startswith("agent_") or
                             c.startswith("reagent_") or c.startswith("catalyst_")])
-    yield_col     = next((c for c in cols if "yield" in c.lower()), None)
-    rxn_col       = next((c for c in cols if any(k in c.lower() for k in
+    yield_col = next((c for c in cols if "yield" in c.lower()), None)
+    rxn_col = next((c for c in cols if any(k in c.lower() for k in
                           ["rxn_class","reaction_type","name_action","rxn_str"])), None)
 
     for _, row in df.iterrows():
@@ -69,20 +69,20 @@ for fpath in files:
         if len(reacs) == 1 and reacs[0] == prod:
             skipped += 1; continue
         reactions.append({
-            "id":               f"ORD-{len(reactions):07d}",
-            "route_id":         f"ORD-{len(reactions):07d}",
-            "step_number":      1,
+            "id": f"ORD-{len(reactions):07d}",
+            "route_id": f"ORD-{len(reactions):07d}",
+            "step_number": 1,
             "reactants_smiles": reacs,
-            "product_smiles":   prod,
-            "yield_percent":    safe_float(row.get(yield_col)) if yield_col else None,
-            "reaction_type":    safe_str(row.get(rxn_col)) if rxn_col else "unknown",
-            "source":           "ORD-USPTO",
+            "product_smiles": prod,
+            "yield_percent": safe_float(row.get(yield_col)) if yield_col else None,
+            "reaction_type": safe_str(row.get(rxn_col)) if rxn_col else "unknown",
+            "source": "ORD-USPTO",
             "conditions": {
                 "temperature_C": None,
-                "solvent":       safe_str(row.get(solvent_cols[0])) if solvent_cols else None,
-                "co_solvent":    safe_str(row.get(solvent_cols[1])) if len(solvent_cols) > 1 else None,
-                "reagents":      [r for r in (safe_str(row.get(ac)) for ac in agent_cols) if r],
-                "apparatus":     None,
+                "solvent": safe_str(row.get(solvent_cols[0])) if solvent_cols else None,
+                "co_solvent": safe_str(row.get(solvent_cols[1])) if len(solvent_cols) > 1 else None,
+                "reagents": [r for r in (safe_str(row.get(ac)) for ac in agent_cols) if r],
+                "apparatus": None,
             },
         })
 
