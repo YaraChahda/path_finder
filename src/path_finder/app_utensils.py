@@ -732,7 +732,7 @@ def smiles_copy_widget(smiles: str, label: str = "") -> None:
         "white-space:nowrap;flex-shrink:0;'>Copy</button>"
         "</div>"
     )
-    components.html(html_snip, height=36, scrolling=False)
+    st.iframe(html_snip, height=36)
 
 def display_route_card(
     score_total: float,
@@ -813,9 +813,9 @@ def display_route_card(
 
         st.markdown("---")
         st.markdown("**Reaction scheme** *(click an arrow to see step details below)*")
-        components.html(
+        st.iframe(
             build_clickable_scheme_html(steps_data, route_key, is_pred),
-            height=480, scrolling=True,
+            height=480,
         )
 
         st.markdown("---")

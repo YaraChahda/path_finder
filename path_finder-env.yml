@@ -224,7 +224,7 @@ dependencies:
       - sphinxcontrib-qthelp==2.0.0
       - sphinxcontrib-serializinghtml==2.0.0
       - stack-data==0.6.3
-      - streamlit==1.56.0
+      - streamlit==1.57.0
       - swifter==1.4.0
       - sympy==1.14.0
       - tables==3.10.1

@@ -616,7 +616,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    ───────</span>
-<span class="sd">    str  complete self-contained HTML document ready for components.html()</span>
+<span class="sd">    str  complete self-contained HTML document ready for st.iframe()</span>
 
 <span class="sd">    Layout constants (edit here to resize the scheme)</span>
 <span class="sd">    ──────────────────────────────────────────────────</span>
@@ -956,7 +956,7 @@
 
     <span class="c1"># -- JavaScript: click handler + auto-resize postMessage ------------------</span>
     <span class="c1"># The iframe height is reported to Streamlit via postMessage so the</span>
-    <span class="c1"># components.html() container expands/contracts when the detail panel</span>
+    <span class="c1"># st.iframe() container expands/contracts when the detail panel</span>
     <span class="c1"># opens or closes.</span>
     <span class="n">js</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;var __si=JSON.parse(document.getElementById(&#39;__si_&quot;</span> <span class="o">+</span> <span class="n">route_id</span> <span class="o">+</span> <span class="s2">&quot;&#39;).textContent);&quot;</span>

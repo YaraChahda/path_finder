@@ -3,8 +3,7 @@
 
 try:
     from rdkit import Chem
-    from rdkit.Chem import rdDepictor
-    from rdkit.Chem.Draw import rdMolDraw2D
+    from rdkit.Chem import Draw
     MODULE_OK = True
 except Exception:
     MODULE_OK = False
@@ -67,30 +66,12 @@ def build_route_report_pdf(score_total: float, details: dict, route: dict,
     
     #  Molecule renderer 
     def _mol_pil(smi, w, h):
-        # Render a SMILES string to a PIL image of given width and height
         if not smi or not MODULE_OK:
             return None
         mol = Chem.MolFromSmiles(smi)
         if mol is None:
             return None
-        try:
-            if mol.GetNumAtoms() > 1:
-                rdDepictor.Compute2DCoords(mol)
-            scale = 3  # render at 3× and downscale for crispness
-            drw = rdMolDraw2D.MolDraw2DCairo(w * scale, h * scale)
-            opts = drw.drawOptions()
-            opts.bondLineWidth = 6.0   # thick bonds
-            opts.padding = 0.15
-            opts.addStereoAnnotation = True
-            opts.atomLabelFontSize = 0.55  # readable atom labels
-            drw.DrawMolecule(mol)
-            drw.FinishDrawing()
-            img = _PI.open(_io.BytesIO(drw.GetDrawingText())).convert("RGBA")
-            bg  = _PI.new("RGBA", img.size, (255, 255, 255, 255))
-            bg.paste(img, mask=img.split()[3])
-            return bg.convert("RGB").resize((w, h), _PI.LANCZOS)
-        except Exception:
-            return None
+        return Draw.MolToImage(mol, size=(w, h))
 
     #  Text helpers 
     def _text_w(draw, txt, font):

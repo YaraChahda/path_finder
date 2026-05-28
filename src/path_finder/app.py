@@ -218,7 +218,7 @@ def main() -> None:
             if target_smiles:
                 png = mol_png(target_smiles, 640, 440)
                 if png:
-                    st.image(png, caption=target_name, use_container_width=True)
+                    st.image(png, caption=target_name, width='stretch')
             else:
                 # Landing state: show all available molecules as a gallery
                 st.markdown(T["welcome"])
@@ -230,7 +230,7 @@ def main() -> None:
                         with cols[idx % 3]:
                             png = mol_png(smi, 400, 270)
                             if png:
-                                st.image(png, caption=name.capitalize(), use_container_width=True)
+                                st.image(png, caption=name.capitalize(), width='stretch')
                 except Exception:
                     pass
 
@@ -483,13 +483,13 @@ def main() -> None:
                                     c for c in route.get("matched_route_id","r")
                                     if c.isalnum()
                                 )
-                                components.html(
+                                st.iframe(
                                     build_clickable_scheme_html(
                                         route.get("dataset_steps",[]),
                                         rk,
                                         route.get("is_predicted", False),
                                     ),
-                                    height=480, scrolling=True,
+                                    height=480,
                                 )
 
     # DATASET EXPLORER
@@ -614,7 +614,7 @@ def main() -> None:
                         with cols_rxn[i]:
                             png_r = mol_png(rsmi, 480, 330)
                             if png_r:
-                                st.image(png_r, use_container_width=True)
+                                st.image(png_r, width='stretch')
                             else:
                                 st.code(rsmi, language=None)
                             smiles_copy_widget(rsmi)
@@ -636,7 +636,7 @@ def main() -> None:
                     with cols_rxn[n_reac + 1]:
                         png_p = mol_png(prod, 480, 330)
                         if png_p:
-                            st.image(png_p, use_container_width=True)
+                            st.image(png_p, width='stretch')
                         else:
                             st.code(prod, language=None)
                         smiles_copy_widget(prod)
@@ -681,9 +681,9 @@ def main() -> None:
                 ]
                 # Taller iframe for longer routes
                 scheme_h = 320 if n_sr <= 5 else (400 if n_sr <= 12 else 480)
-                components.html(
+                st.iframe(
                     build_clickable_scheme_html(steps_for_scheme, route_ds_key, False),
-                    height=scheme_h, scrolling=True,
+                    height=scheme_h,
                 )
 
     # HELP
